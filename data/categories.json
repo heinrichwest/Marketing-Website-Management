@@ -1,0 +1,7 @@
+[
+  { "id": 1, "name": "Shopping", "icon": "🛍️" },
+  { "id": 2, "name": "Groceries", "icon": "🏪" },
+  { "id": 3, "name": "Food & Dining", "icon": "🍔" },
+  { "id": 4, "name": "Entertainment", "icon": "📺" },
+  { "id": 5, "name": "Fashion", "icon": "👗" }
+]
