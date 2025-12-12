@@ -56,7 +56,7 @@ export default function Navbar() {
               <RoleSwitcher
                 className={
                   is_admin_dashboard
-                    ? "bg-white text-black hover:bg-gray-100 [&>svg]:text-black"
+                    ? "bg-white text-foreground hover:bg-gray-100 [&>svg]:text-foreground"
                     : ""
                 }
               />
