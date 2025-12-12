@@ -2,18 +2,21 @@
 
 import Link from "next/link"
 import { useAuth } from "@/context/auth-context"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import RoleBadge from "./role-badge"
 import RoleSwitcher from "./role-switcher"
 
 export default function Navbar() {
   const { isSignedIn, user, signOut } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
 
   const handleSignOut = () => {
     signOut()
     router.push("/")
   }
+
+  const is_admin_dashboard = pathname === "/admin/dashboard"
 
   return (
     <nav className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
@@ -50,7 +53,13 @@ export default function Navbar() {
         <div className="flex items-center gap-4">
           {isSignedIn && user ? (
             <div className="flex items-center gap-4">
-              <RoleSwitcher />
+              <RoleSwitcher
+                className={
+                  is_admin_dashboard
+                    ? "bg-white text-black hover:bg-gray-100 [&>svg]:text-black"
+                    : ""
+                }
+              />
               <div className="text-sm text-right">
                 <p className="font-semibold text-foreground">{user.fullName}</p>
                 <RoleBadge role={user.role} className="mt-1" />
