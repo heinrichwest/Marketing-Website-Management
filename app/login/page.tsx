@@ -9,6 +9,8 @@ import { useAuth } from "@/context/auth-context"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useToast, ToastContainer } from "@/components/toast"
+import { getUsers } from "@/lib/mock-data"
+import { getRoleDisplayName } from "@/lib/utils"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -16,7 +18,6 @@ export default function LoginPage() {
   const { signIn } = useAuth()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [userType, setUserType] = useState("buyer")
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,21 +27,25 @@ export default function LoginPage() {
       return
     }
 
-    // Valid credentials
-    const validUsers = [
-      { email: "seah@gmail.com", password: "4545", type: "seller" }
-    ]
-
-    // Check if credentials match
-    const user = validUsers.find(u => u.email === email && u.password === password)
+    // Find user in mock data
+    const users = getUsers()
+    const user = users.find(u => u.email === email && u.password === password)
 
     if (!user) {
       showToast("Invalid email or password", "error")
       return
     }
 
-    signIn(email, userType as "buyer" | "seller")
-    showToast(`Welcome back! Logged in as ${userType}.`, "success")
+    // Sign in with the authenticated user
+    signIn({
+      id: user.id,
+      email: user.email,
+      fullName: user.fullName,
+      role: user.role,
+      phone: user.phone
+    })
+
+    showToast(`Welcome back, ${user.fullName}!`, "success")
     setTimeout(() => {
       router.push("/dashboard")
     }, 1000)
@@ -55,32 +60,20 @@ export default function LoginPage() {
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-foreground mb-2">Sign In</h1>
-            <p className="text-muted-foreground">Access your VoucherTrade account</p>
+            <p className="text-muted-foreground">Access your Marketing Management Website account</p>
           </div>
 
           <div className="card">
-            {/* User Type Selection */}
-            <div className="mb-8">
-              <label className="block text-sm font-semibold text-foreground mb-3">I am a:</label>
-              <div className="flex gap-4">
-                <button
-                  onClick={() => setUserType("buyer")}
-                  className={`flex-1 py-3 px-4 rounded-lg font-semibold transition ${
-                    userType === "buyer" ? "bg-primary text-white" : "bg-muted text-foreground hover:bg-border"
-                  }`}
-                >
-                  Buyer
-                </button>
-                <button
-                  onClick={() => setUserType("seller")}
-                  className={`flex-1 py-3 px-4 rounded-lg font-semibold transition ${
-                    userType === "seller" ? "bg-primary text-white" : "bg-muted text-foreground hover:bg-border"
-                  }`}
-                >
-                  Seller
-                </button>
-              </div>
-            </div>
+            {/* Test Credentials Info */}
+            {/* <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm font-semibold text-blue-900 mb-2">Test Accounts:</p>
+              <ul className="text-xs text-blue-700 space-y-1">
+                <li>Admin: admin@system.com / admin123</li>
+                <li>Developer: dev@system.com / dev123</li>
+                <li>Coordinator: social@system.com / social123</li>
+                <li>Client: client@system.com / client123</li>
+              </ul>
+            </div> */}
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -136,9 +129,7 @@ export default function LoginPage() {
               <button className="w-full flex items-center justify-center gap-2 border border-border rounded-lg py-3 font-semibold text-foreground hover:bg-muted transition">
                 <span>🔵</span> Continue with Google
               </button>
-              <button className="w-full flex items-center justify-center gap-2 border border-border rounded-lg py-3 font-semibold text-foreground hover:bg-muted transition">
-                <span>📱</span> Continue with Mobile
-              </button>
+             
             </div>
 
             {/* Signup Link */}
@@ -152,11 +143,11 @@ export default function LoginPage() {
 
           {/* Trust Badge */}
           <div className="mt-8 text-center">
-            <p className="text-xs text-muted-foreground mb-3">Trusted by South Africans</p>
+            <p className="text-xs text-muted-foreground mb-3">Professional Project Management</p>
             <div className="flex items-center justify-center gap-4">
               <span className="text-lg">🛡️ Secure</span>
-              <span className="text-lg">✓ Verified</span>
-              <span className="text-lg">⚡ Fast</span>
+              <span className="text-lg">✓ Collaborative</span>
+              <span className="text-lg">⚡ Efficient</span>
             </div>
           </div>
         </div>

@@ -7,9 +7,9 @@ import { AuthProvider } from "@/context/auth-context"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "VoucherTrade - Buy & Sell Digital Vouchers",
-  description: "Buy unwanted vouchers at 10% discount. Sell your vouchers and get 70% value.",
-    generator: 'v0.app'
+  title: "Marketing Management Website - Website & Social Media Management",
+  description: "Comprehensive project management platform for website development and social media coordination with team collaboration and ticketing system.",
+  generator: 'v0.app'
 }
 
 export default function RootLayout({
@@ -20,7 +20,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} bg-background text-foreground`}>
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   )

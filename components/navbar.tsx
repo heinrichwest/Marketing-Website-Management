@@ -3,9 +3,11 @@
 import Link from "next/link"
 import { useAuth } from "@/context/auth-context"
 import { useRouter } from "next/navigation"
+import RoleBadge from "./role-badge"
+import RoleSwitcher from "./role-switcher"
 
 export default function Navbar() {
-  const { isSignedIn, userEmail, userType, signOut } = useAuth()
+  const { isSignedIn, user, signOut } = useAuth()
   const router = useRouter()
 
   const handleSignOut = () => {
@@ -13,38 +15,45 @@ export default function Navbar() {
     router.push("/")
   }
 
-  const handleSellVoucherClick = (e: React.MouseEvent) => {
-    if (!isSignedIn) {
-      e.preventDefault()
-      router.push("/register")
-    }
-  }
-
   return (
     <nav className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
       <div className="container flex items-center justify-between py-4">
         <Link href="/" className="flex items-center gap-2 text-2xl font-bold text-primary">
-          <span className="text-3xl">💳</span> VoucherTrade
+          <span className="text-3xl">🌐</span> Marketing Website
         </Link>
 
         <div className="hidden md:flex items-center gap-8">
-          <Link href="/vouchers" className="text-foreground hover:text-primary transition">
-            Browse Vouchers
-          </Link>
-          <Link href="/upload" onClick={handleSellVoucherClick} className="text-foreground hover:text-primary transition">
-            Sell Voucher
-          </Link>
-          <Link href="/dashboard" className="text-foreground hover:text-primary transition">
-            Dashboard
-          </Link>
+          {isSignedIn && (
+            <>
+              <Link href="/dashboard" className="text-foreground hover:text-primary transition">
+                Dashboard
+              </Link>
+              {user?.role === "admin" && (
+                <Link href="/admin/projects" className="text-foreground hover:text-primary transition">
+                  Projects
+                </Link>
+              )}
+              {(user?.role === "web_developer" || user?.role === "client") && (
+                <Link href="/tickets" className="text-foreground hover:text-primary transition">
+                  Tickets
+                </Link>
+              )}
+              {user?.role === "social_media_coordinator" && (
+                <Link href="/coordinator/projects" className="text-foreground hover:text-primary transition">
+                  My Projects
+                </Link>
+              )}
+            </>
+          )}
         </div>
 
         <div className="flex items-center gap-4">
-          {isSignedIn ? (
+          {isSignedIn && user ? (
             <div className="flex items-center gap-4">
-              <div className="text-sm">
-                <p className="font-semibold text-foreground">{userEmail}</p>
-                <p className="text-xs text-muted-foreground capitalize">{userType} Account</p>
+              <RoleSwitcher />
+              <div className="text-sm text-right">
+                <p className="font-semibold text-foreground">{user.fullName}</p>
+                <RoleBadge role={user.role} className="mt-1" />
               </div>
               <button onClick={handleSignOut} className="btn-secondary text-sm">
                 Sign Out

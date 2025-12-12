@@ -10,7 +10,18 @@
       "Bash(taskkill:*)",
       "Bash(if exist .next rmdir /s /q .next)",
       "Bash(git init:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nAdd VoucherTrade platform with authentication and UI improvements\n\n- Added hero section with background image on homepage\n- Implemented authentication system with login/dashboard protection\n- Created user account (seah@gmail.com) with dashboard access\n- Fixed currency symbol (R) display issue in upload form\n- Updated button styling (green text for Sell a Voucher)\n- Downgraded Next.js from 16.0.0 to 15.1.0 for stability\n- Added sign out functionality in dashboard\n- Implemented protected routes requiring authentication\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git remote add:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(dir \"C:\\Users\\Speccon\\Documents\\Sea Download\\v0-voucher-trade-frontend-prototype-main\\v0-voucher-trade-frontend-prototype-main\\Retailer Logos\")",
+      "Bash(if not exist \"public\\logos\" mkdir \"public\\logos\")",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(git commit:*)",
+      "Bash(gh --version:*)",
+      "Bash(git remote:*)"
     ],
     "deny": [],
     "ask": []
