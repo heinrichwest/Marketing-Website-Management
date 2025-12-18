@@ -162,15 +162,44 @@ export default function CoordinatorDashboard() {
                     >
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1">
-                          <h3 className="font-semibold text-foreground">{project.name}</h3>
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-semibold text-foreground">{project.name}</h3>
+                            {project.projectType === "social_media" && (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                                Social Media
+                              </span>
+                            )}
+                            {project.projectType === "website" && (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                Website
+                              </span>
+                            )}
+                          </div>
                           <p className="text-sm text-muted-foreground line-clamp-1">{project.description}</p>
                         </div>
                         <StatusBadge status={project.status} />
                       </div>
-                      <div className="flex items-center gap-4 text-sm mt-3">
+                      <div className="flex items-center gap-4 text-sm mt-3 flex-wrap">
                         <span className="inline-flex items-center px-2 py-1 rounded-md bg-pink-50 text-pink-700 text-xs font-medium">
                           {getStageDisplayName(project.currentStage)}
                         </span>
+                        {project.projectType === "social_media" && project.socialMediaPlatforms && (
+                          <div className="flex gap-1">
+                            {project.socialMediaPlatforms.slice(0, 3).map((platform) => (
+                              <span
+                                key={platform}
+                                className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-700 capitalize"
+                              >
+                                {platform}
+                              </span>
+                            ))}
+                            {project.socialMediaPlatforms.length > 3 && (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-700">
+                                +{project.socialMediaPlatforms.length - 3}
+                              </span>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}

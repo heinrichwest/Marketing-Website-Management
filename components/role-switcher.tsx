@@ -63,7 +63,7 @@ export default function RoleSwitcher({ className }: { className?: string }) {
             d="M8 7h12M8 12h12m-12 5h12M3 7h.01M3 12h.01M3 17h.01"
           />
         </svg>
-        <span className="text-sm font-medium text-foreground">Switch Role</span>
+        <span className="text-sm font-medium" style={{ color: '#12265E' }}>Switch Role</span>
         <svg
           className={`w-4 h-4 text-muted-foreground transition-transform ${isOpen ? "rotate-180" : ""}`}
           fill="none"

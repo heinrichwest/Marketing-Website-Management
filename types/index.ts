@@ -15,6 +15,7 @@ export interface User {
 }
 
 // Project Management Types
+export type ProjectType = "website" | "social_media"
 export type ProjectStage = "planning" | "design" | "development" | "testing" | "launch" | "maintenance"
 export type ProjectStatus = "active" | "paused" | "completed"
 
@@ -22,6 +23,7 @@ export interface Project {
   id: string
   name: string
   description: string
+  projectType: ProjectType
   clientId: string
   webDeveloperId?: string
   socialMediaCoordinatorId?: string
@@ -34,6 +36,10 @@ export interface Project {
   launchDate?: Date
   updatedAt: Date
   notes?: string
+  // Social media specific fields
+  socialMediaPlatforms?: SocialMediaPlatform[]
+  campaignGoals?: string
+  targetAudience?: string
 }
 
 export interface ProjectStageHistory {
