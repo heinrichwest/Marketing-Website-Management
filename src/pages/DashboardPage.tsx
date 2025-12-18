@@ -3,10 +3,15 @@ import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/context/auth-context"
 
 export default function DashboardPage() {
-  const { isSignedIn, user } = useAuth()
+  const { isSignedIn, user, loading } = useAuth()
   const navigate = useNavigate()
 
   useEffect(() => {
+    // Wait for auth to finish loading before making decisions
+    if (loading) {
+      return
+    }
+
     if (!isSignedIn) {
       navigate("/login")
       return
@@ -31,7 +36,7 @@ export default function DashboardPage() {
           navigate("/")
       }
     }
-  }, [isSignedIn, user, navigate])
+  }, [isSignedIn, user, loading, navigate])
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted">

@@ -1,8 +1,5 @@
-"use client"
-
 import { useEffect } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
+import { useNavigate, Link } from "react-router-dom"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
@@ -13,15 +10,15 @@ import { getStageDisplayName, formatDate, formatNumber } from "@/lib/utils"
 
 export default function CoordinatorDashboard() {
   const { isSignedIn, user } = useAuth()
-  const router = useRouter()
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (!isSignedIn) {
-      router.push("/login")
+      navigate("/login")
     } else if (user?.role !== "social_media_coordinator") {
-      router.push("/dashboard")
+      navigate("/dashboard")
     }
-  }, [isSignedIn, user, router])
+  }, [isSignedIn, user, navigate])
 
   if (!user || user.role !== "social_media_coordinator") {
     return (
@@ -134,10 +131,10 @@ export default function CoordinatorDashboard() {
           <div className="card mb-8">
             <h2 className="text-xl font-bold text-foreground mb-4">Quick Actions</h2>
             <div className="flex gap-4 flex-wrap">
-              <Link href="/coordinator/projects" className="btn-primary">
+              <Link to="/coordinator/projects" className="btn-primary">
                 View All Projects
               </Link>
-              <Link href="/coordinator/analytics/new" className="btn-outline">
+              <Link to="/coordinator/analytics/new" className="btn-outline">
                 + Add Analytics Entry
               </Link>
             </div>
@@ -148,7 +145,7 @@ export default function CoordinatorDashboard() {
             <div className="card">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-foreground">My Projects</h2>
-                <Link href="/coordinator/projects" className="text-primary hover:underline text-sm">
+                <Link to="/coordinator/projects" className="text-primary hover:underline text-sm">
                   View All
                 </Link>
               </div>
@@ -215,7 +212,7 @@ export default function CoordinatorDashboard() {
             <div className="card">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-foreground">Recent Analytics Entries</h2>
-                <Link href="/coordinator/analytics/new" className="text-primary hover:underline text-sm">
+                <Link to="/coordinator/analytics/new" className="text-primary hover:underline text-sm">
                   + Add Entry
                 </Link>
               </div>
@@ -257,7 +254,7 @@ export default function CoordinatorDashboard() {
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
                   <p>No analytics entries yet.</p>
-                  <Link href="/coordinator/analytics/new" className="text-primary hover:underline text-sm mt-2 inline-block">
+                  <Link to="/coordinator/analytics/new" className="text-primary hover:underline text-sm mt-2 inline-block">
                     Add your first entry
                   </Link>
                 </div>

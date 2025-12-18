@@ -1,8 +1,5 @@
-"use client"
-
 import { useEffect } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
+import { useNavigate, Link } from "react-router-dom"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
@@ -14,15 +11,15 @@ import { getStageDisplayName, formatRelativeTime } from "@/lib/utils"
 
 export default function AdminDashboard() {
   const { isSignedIn, user } = useAuth()
-  const router = useRouter()
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (!isSignedIn) {
-      router.push("/login")
+      navigate("/login")
     } else if (user?.role !== "admin") {
-      router.push("/dashboard")
+      navigate("/dashboard")
     }
-  }, [isSignedIn, user, router])
+  }, [isSignedIn, user, navigate])
 
   if (!user || user.role !== "admin") {
     return (
@@ -127,13 +124,13 @@ export default function AdminDashboard() {
           <div className="card mb-8">
             <h2 className="text-xl font-bold text-foreground mb-4">Quick Actions</h2>
             <div className="flex gap-4 flex-wrap">
-              <Link href="/admin/projects/new" className="btn-primary">
+              <Link to="/admin/projects/new" className="btn-primary">
                 + New Project
               </Link>
-              <Link href="/admin/projects" className="btn-outline">
+              <Link to="/admin/projects" className="btn-outline">
                 Manage Projects
               </Link>
-              <Link href="/admin/users" className="btn-outline">
+              <Link to="/admin/users" className="btn-outline">
                 Manage Users
               </Link>
             </div>
@@ -225,7 +222,7 @@ export default function AdminDashboard() {
                               {ticketCount}
                             </span>
                             <Link
-                              href={`/tickets?project=${project.id}`}
+                              to={`/tickets?project=${project.id}`}
                               className="text-xs text-primary hover:underline"
                             >
                               View
@@ -234,7 +231,7 @@ export default function AdminDashboard() {
                         </td>
                         <td className="px-4 py-3">
                           <Link
-                            href={`/analytics/${project.id}`}
+                            to={`/analytics/${project.id}`}
                             className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#1e2875] text-white rounded text-xs font-medium hover:bg-[#2a3488] transition"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -251,13 +248,13 @@ export default function AdminDashboard() {
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
                             <Link
-                              href={`/admin/projects/${project.id}`}
+                              to={`/admin/projects/${project.id}`}
                               className="text-xs text-primary hover:underline"
                             >
                               View
                             </Link>
                             <Link
-                              href={`/admin/projects/${project.id}/edit`}
+                              to={`/admin/projects/${project.id}/edit`}
                               className="text-xs text-primary hover:underline"
                             >
                               Edit
@@ -277,7 +274,7 @@ export default function AdminDashboard() {
             <div className="card">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-foreground">Recent Projects</h2>
-                <Link href="/admin/projects" className="text-primary hover:underline text-sm">
+                <Link to="/admin/projects" className="text-primary hover:underline text-sm">
                   View All
                 </Link>
               </div>
@@ -315,7 +312,7 @@ export default function AdminDashboard() {
             <div className="card">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-foreground">Recent Tickets</h2>
-                <Link href="/tickets" className="text-primary hover:underline text-sm">
+                <Link to="/tickets" className="text-primary hover:underline text-sm">
                   View All
                 </Link>
               </div>

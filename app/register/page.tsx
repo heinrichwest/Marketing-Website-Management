@@ -1,17 +1,14 @@
-"use client"
-
 import type React from "react"
 
 import { useState } from "react"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { Link, useNavigate } from "react-router-dom"
 import { useToast, ToastContainer } from "@/components/toast"
 import type { UserRole } from "@/types"
 
 export default function RegisterPage() {
-  const router = useRouter()
+  const navigate = useNavigate()
   const { toasts, showToast } = useToast()
   const [userRole, setUserRole] = useState<UserRole>("client")
   const [fullName, setFullName] = useState("")
@@ -43,7 +40,7 @@ export default function RegisterPage() {
 
     showToast(`Welcome to SpecCon Marketing Management Website! Account created as ${userRole}.`, "success")
     setTimeout(() => {
-      router.push("/login")
+      navigate("/login")
     }, 1000)
   }
 
@@ -200,7 +197,7 @@ export default function RegisterPage() {
             {/* Login Link */}
             <p className="text-center mt-6 text-sm text-muted-foreground">
               Already have an account?{" "}
-              <Link href="/login" className="text-primary font-semibold hover:underline">
+              <Link to="/login" className="text-primary font-semibold hover:underline">
                 Sign in here
               </Link>
             </p>

@@ -1,16 +1,14 @@
-"use client"
-
 import { useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/context/auth-context"
 
 export default function DashboardPage() {
   const { isSignedIn, user } = useAuth()
-  const router = useRouter()
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (!isSignedIn) {
-      router.push("/login")
+      navigate("/login")
       return
     }
 
@@ -18,22 +16,22 @@ export default function DashboardPage() {
     if (user) {
       switch (user.role) {
         case "admin":
-          router.push("/admin/dashboard")
+          navigate("/admin/dashboard")
           break
         case "web_developer":
-          router.push("/developer/dashboard")
+          navigate("/developer/dashboard")
           break
         case "social_media_coordinator":
-          router.push("/coordinator/dashboard")
+          navigate("/coordinator/dashboard")
           break
         case "client":
-          router.push("/client/dashboard")
+          navigate("/client/dashboard")
           break
         default:
-          router.push("/")
+          navigate("/")
       }
     }
-  }, [isSignedIn, user, router])
+  }, [isSignedIn, user, navigate])
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted">

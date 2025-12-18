@@ -1,8 +1,5 @@
-"use client"
-
 import { useEffect } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
+import { useNavigate, Link } from "react-router-dom"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
@@ -14,15 +11,15 @@ import { getStageDisplayName, formatRelativeTime, getTicketTypeDisplayName } fro
 
 export default function DeveloperDashboard() {
   const { isSignedIn, user } = useAuth()
-  const router = useRouter()
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (!isSignedIn) {
-      router.push("/login")
+      navigate("/login")
     } else if (user?.role !== "web_developer") {
-      router.push("/dashboard")
+      navigate("/dashboard")
     }
-  }, [isSignedIn, user, router])
+  }, [isSignedIn, user, navigate])
 
   if (!user || user.role !== "web_developer") {
     return (
@@ -121,10 +118,10 @@ export default function DeveloperDashboard() {
           <div className="card mb-8">
             <h2 className="text-xl font-bold text-foreground mb-4">Quick Actions</h2>
             <div className="flex gap-4 flex-wrap">
-              <Link href="/developer/projects" className="btn-primary">
+              <Link to="/developer/projects" className="btn-primary">
                 View All Projects
               </Link>
-              <Link href="/developer/tickets" className="btn-outline">
+              <Link to="/developer/tickets" className="btn-outline">
                 View All Tickets
               </Link>
             </div>
@@ -135,7 +132,7 @@ export default function DeveloperDashboard() {
             <div className="card">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-foreground">My Projects</h2>
-                <Link href="/developer/projects" className="text-primary hover:underline text-sm">
+                <Link to="/developer/projects" className="text-primary hover:underline text-sm">
                   View All
                 </Link>
               </div>
@@ -176,7 +173,7 @@ export default function DeveloperDashboard() {
             <div className="card">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-foreground">My Tickets</h2>
-                <Link href="/developer/tickets" className="text-primary hover:underline text-sm">
+                <Link to="/developer/tickets" className="text-primary hover:underline text-sm">
                   View All
                 </Link>
               </div>

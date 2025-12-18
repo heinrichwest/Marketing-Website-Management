@@ -1,7 +1,5 @@
-"use client"
-
 import { useEffect, useState } from "react"
-import { useRouter, useParams } from "next/navigation"
+import { useNavigate, useParams } from "react-router-dom"
 import { useAuth } from "@/context/auth-context"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
@@ -10,7 +8,7 @@ import type { Project } from "@/types"
 
 export default function AnalyticsPage() {
   const { isSignedIn, user } = useAuth()
-  const router = useRouter()
+  const navigate = useNavigate()
   const params = useParams()
   const projectId = params.id as string
 
@@ -19,20 +17,20 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     if (!isSignedIn) {
-      router.push("/login")
+      navigate("/login")
       return
     }
 
     const projectData = getProjectById(projectId)
     if (!projectData) {
-      router.push("/dashboard")
+      navigate("/dashboard")
       return
     }
 
     setProject(projectData)
     const analyticsData = getAnalyticsByProjectId(projectId)
     setAnalytics(analyticsData)
-  }, [isSignedIn, projectId, router])
+  }, [isSignedIn, projectId, navigate])
 
   if (!project) {
     return (
@@ -65,7 +63,7 @@ export default function AnalyticsPage() {
           {/* Header */}
           <div className="mb-8">
             <button
-              onClick={() => router.back()}
+              onClick={() => navigate(-1)}
               className="flex items-center gap-2 text-primary hover:underline mb-4"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

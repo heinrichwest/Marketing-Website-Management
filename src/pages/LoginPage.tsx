@@ -1,22 +1,28 @@
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
 import { Link, useNavigate } from "react-router-dom"
 import { useToast, ToastContainer } from "@/components/toast"
-import { getUsers } from "@/lib/mock-data"
-import { getRoleDisplayName } from "@/lib/utils"
 
 export default function LoginPage() {
   const navigate = useNavigate()
   const { toasts, showToast } = useToast()
-  const { signIn } = useAuth()
+  const { signIn, loading, isSignedIn } = useAuth()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Redirect to dashboard when user becomes signed in
+  useEffect(() => {
+    if (isSignedIn && !loading) {
+      navigate("/dashboard")
+    }
+  }, [isSignedIn, loading, navigate])
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!email || !password) {
@@ -24,28 +30,33 @@ export default function LoginPage() {
       return
     }
 
-    // Find user in mock data
-    const users = getUsers()
-    const user = users.find(u => u.email === email && u.password === password)
-
-    if (!user) {
-      showToast("Invalid email or password", "error")
-      return
+    setIsSubmitting(true)
+    try {
+      await signIn(email, password)
+      showToast("Signing in...", "success")
+      // Navigation will happen automatically via useEffect when auth state changes
+    } catch (error: any) {
+      // Handle Firebase Auth errors
+      let errorMessage = "Failed to sign in. Please try again."
+      
+      if (error.message) {
+        if (error.message.includes("auth/user-not-found") || error.message.includes("auth/wrong-password")) {
+          errorMessage = "Invalid email or password"
+        } else if (error.message.includes("auth/invalid-email")) {
+          errorMessage = "Invalid email address"
+        } else if (error.message.includes("auth/too-many-requests")) {
+          errorMessage = "Too many failed attempts. Please try again later."
+        } else if (error.message.includes("auth/user-disabled")) {
+          errorMessage = "This account has been disabled"
+        } else {
+          errorMessage = error.message
+        }
+      }
+      
+      showToast(errorMessage, "error")
+    } finally {
+      setIsSubmitting(false)
     }
-
-    // Sign in with the authenticated user
-    signIn({
-      id: user.id,
-      email: user.email,
-      fullName: user.fullName,
-      role: user.role,
-      phone: user.phone
-    })
-
-    showToast(`Welcome back, ${user.fullName}!`, "success")
-    setTimeout(() => {
-      navigate("/dashboard")
-    }, 1000)
   }
 
   return (
@@ -106,8 +117,12 @@ export default function LoginPage() {
                 </Link>
               </div>
 
-              <button type="submit" className="w-full btn-primary py-3 font-bold text-lg">
-                Sign In
+              <button 
+                type="submit" 
+                disabled={isSubmitting || loading}
+                className="w-full btn-primary py-3 font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting || loading ? "Signing in..." : "Sign In"}
               </button>
             </form>
 

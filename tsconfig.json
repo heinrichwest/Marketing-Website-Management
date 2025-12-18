@@ -6,7 +6,8 @@
       "esnext"
     ],
     "allowJs": true,
-    "target": "ES6",
+    "target": "ES2020",
+    "useDefineForClassFields": true,
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
@@ -15,12 +16,9 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
-    "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
+    "jsx": "react-jsx",
+    "types": [
+      "vite/client"
     ],
     "paths": {
       "@/*": [
@@ -29,12 +27,9 @@
     }
   },
   "include": [
-    "next-env.d.ts",
+    "vite-env.d.ts",
     "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts",
-    ".next\\dev/types/**/*.ts",
-    ".next\\dev/types/**/*.ts"
+    "**/*.tsx"
   ],
   "exclude": [
     "node_modules"

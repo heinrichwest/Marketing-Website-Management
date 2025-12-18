@@ -1,7 +1,5 @@
-"use client"
-
 import { useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/context/auth-context"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
@@ -32,13 +30,13 @@ const ROLES: { value: UserRole; label: string; description: string }[] = [
 
 export default function SwitchRolePage() {
   const { isSignedIn, user, switchRole } = useAuth()
-  const router = useRouter()
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (!isSignedIn) {
-      router.push("/login")
+      navigate("/login")
     }
-  }, [isSignedIn, router])
+  }, [isSignedIn, navigate])
 
   if (!user) {
     return (
@@ -54,9 +52,9 @@ export default function SwitchRolePage() {
     // Redirect to appropriate dashboard based on role
     setTimeout(() => {
       if (newRole === "admin") {
-        router.push("/admin/dashboard")
+        navigate("/admin/dashboard")
       } else {
-        router.push("/dashboard")
+        navigate("/dashboard")
       }
     }, 300)
   }
@@ -213,7 +211,7 @@ export default function SwitchRolePage() {
             {/* Back to Dashboard */}
             <div className="text-center">
               <button
-                onClick={() => router.back()}
+                onClick={() => navigate(-1)}
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-white shadow-md hover:shadow-lg transition text-[#1e2875] font-semibold"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

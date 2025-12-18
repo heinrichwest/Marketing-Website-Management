@@ -1,8 +1,5 @@
-"use client"
-
 import { useEffect } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
+import { useNavigate, Link } from "react-router-dom"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
@@ -15,15 +12,15 @@ import { getStageDisplayName, getStageProgress, formatRelativeTime } from "@/lib
 
 export default function ClientDashboard() {
   const { isSignedIn, user } = useAuth()
-  const router = useRouter()
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (!isSignedIn) {
-      router.push("/login")
+      navigate("/login")
     } else if (user?.role !== "client") {
-      router.push("/dashboard")
+      navigate("/dashboard")
     }
-  }, [isSignedIn, user, router])
+  }, [isSignedIn, user, navigate])
 
   if (!user || user.role !== "client") {
     return (
@@ -123,13 +120,13 @@ export default function ClientDashboard() {
           <div className="card mb-8">
             <h2 className="text-xl font-bold text-foreground mb-4">Quick Actions</h2>
             <div className="flex gap-4 flex-wrap">
-              <Link href="/client/tickets/new" className="btn-primary">
+              <Link to="/client/tickets/new" className="btn-primary">
                 + Create New Ticket
               </Link>
-              <Link href="/client/projects" className="btn-outline">
+              <Link to="/client/projects" className="btn-outline">
                 View All Projects
               </Link>
-              <Link href="/client/tickets" className="btn-outline">
+              <Link to="/client/tickets" className="btn-outline">
                 View All Tickets
               </Link>
             </div>
@@ -140,7 +137,7 @@ export default function ClientDashboard() {
             <div className="card">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-foreground">My Projects</h2>
-                <Link href="/client/projects" className="text-primary hover:underline text-sm">
+                <Link to="/client/projects" className="text-primary hover:underline text-sm">
                   View All
                 </Link>
               </div>
@@ -204,7 +201,7 @@ export default function ClientDashboard() {
             <div className="card">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-foreground">My Tickets</h2>
-                <Link href="/client/tickets/new" className="text-primary hover:underline text-sm">
+                <Link to="/client/tickets/new" className="text-primary hover:underline text-sm">
                   + Create Ticket
                 </Link>
               </div>
@@ -242,7 +239,7 @@ export default function ClientDashboard() {
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
                   <p>No tickets yet.</p>
-                  <Link href="/client/tickets/new" className="text-primary hover:underline text-sm mt-2 inline-block">
+                  <Link to="/client/tickets/new" className="text-primary hover:underline text-sm mt-2 inline-block">
                     Create your first ticket
                   </Link>
                 </div>

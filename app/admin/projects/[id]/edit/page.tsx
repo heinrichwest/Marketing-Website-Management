@@ -1,7 +1,5 @@
-"use client"
-
 import { useEffect, useState } from "react"
-import { useRouter, useParams } from "next/navigation"
+import { useNavigate, useParams } from "react-router-dom"
 import { useAuth } from "@/context/auth-context"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
@@ -10,7 +8,7 @@ import type { Project, User, ProjectStage, ProjectStatus } from "@/types"
 
 export default function EditProjectPage() {
   const { isSignedIn, user } = useAuth()
-  const router = useRouter()
+  const navigate = useNavigate()
   const params = useParams()
   const projectId = params.id as string
 
@@ -32,18 +30,18 @@ export default function EditProjectPage() {
 
   useEffect(() => {
     if (!isSignedIn) {
-      router.push("/login")
+      navigate("/login")
       return
     }
 
     if (user?.role !== "admin") {
-      router.push("/dashboard")
+      navigate("/dashboard")
       return
     }
 
     const projectData = getProjectById(projectId)
     if (!projectData) {
-      router.push("/admin/dashboard")
+      navigate("/admin/dashboard")
       return
     }
 
@@ -64,7 +62,7 @@ export default function EditProjectPage() {
 
     const allUsers = getUsers()
     setUsers(allUsers)
-  }, [isSignedIn, user, projectId, router])
+  }, [isSignedIn, user, projectId, navigate])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -86,7 +84,7 @@ export default function EditProjectPage() {
       localStorage.setItem("marketing_management_website_projects", JSON.stringify(projects))
 
       alert("Project updated successfully!")
-      router.push("/admin/dashboard")
+      navigate("/admin/dashboard")
     }
   }
 
@@ -117,7 +115,7 @@ export default function EditProjectPage() {
             {/* Header */}
             <div className="mb-8">
               <button
-                onClick={() => router.back()}
+                onClick={() => navigate(-1)}
                 className="flex items-center gap-2 text-primary hover:underline mb-4"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -349,7 +347,7 @@ export default function EditProjectPage() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => router.back()}
+                    onClick={() => navigate(-1)}
                     className="px-6 py-3 border border-border rounded-lg font-semibold hover:bg-muted transition"
                   >
                     Cancel

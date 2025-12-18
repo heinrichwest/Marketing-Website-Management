@@ -1,8 +1,5 @@
-"use client"
-
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
+import { useNavigate, Link } from "react-router-dom"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
@@ -14,16 +11,16 @@ import type { Ticket } from "@/types"
 
 export default function DeveloperTicketsPage() {
   const { isSignedIn, user } = useAuth()
-  const router = useRouter()
+  const navigate = useNavigate()
   const [filter, setFilter] = useState<"all" | "open" | "in_progress" | "resolved">("all")
 
   useEffect(() => {
     if (!isSignedIn) {
-      router.push("/login")
+      navigate("/login")
     } else if (user?.role !== "web_developer") {
-      router.push("/dashboard")
+      navigate("/dashboard")
     }
-  }, [isSignedIn, user, router])
+  }, [isSignedIn, user, navigate])
 
   if (!user || user.role !== "web_developer") {
     return (
@@ -177,7 +174,7 @@ export default function DeveloperTicketsPage() {
                         <tr key={ticket.id} className="hover:bg-gray-50 transition">
                           <td className="px-6 py-4 whitespace-nowrap">
                             <Link
-                              href={`/projects/${ticket.projectId}`}
+                              to={`/projects/${ticket.projectId}`}
                               className="text-blue-600 hover:text-blue-800 hover:underline"
                             >
                               {project?.name || "Unknown Project"}

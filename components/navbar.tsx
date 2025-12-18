@@ -9,9 +9,15 @@ export default function Navbar() {
   const location = useLocation()
   const pathname = location.pathname
 
-  const handleSignOut = () => {
-    signOut()
-    navigate("/")
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+      navigate("/")
+    } catch (error) {
+      console.error("Error signing out:", error)
+      // Still navigate even if signOut fails
+      navigate("/")
+    }
   }
 
   const is_admin_dashboard = pathname === "/admin/dashboard"

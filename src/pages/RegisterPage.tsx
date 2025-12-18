@@ -1,15 +1,17 @@
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { Link, useNavigate } from "react-router-dom"
 import { useToast, ToastContainer } from "@/components/toast"
+import { useAuth } from "@/context/auth-context"
 import type { UserRole } from "@/types"
 
 export default function RegisterPage() {
   const navigate = useNavigate()
   const { toasts, showToast } = useToast()
+  const { signUp, isSignedIn, loading } = useAuth()
   const [userRole, setUserRole] = useState<UserRole>("client")
   const [fullName, setFullName] = useState("")
   const [email, setEmail] = useState("")
@@ -19,8 +21,16 @@ export default function RegisterPage() {
   const [agreeTerms, setAgreeTerms] = useState(false)
   const [showTerms, setShowTerms] = useState(false)
   const [showPrivacy, setShowPrivacy] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Redirect to dashboard when user becomes signed in
+  useEffect(() => {
+    if (isSignedIn && !loading) {
+      navigate("/dashboard")
+    }
+  }, [isSignedIn, loading, navigate])
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!fullName || !email || !phone || !password || !confirmPassword) {
@@ -33,15 +43,32 @@ export default function RegisterPage() {
       return
     }
 
+    if (password.length < 6) {
+      showToast("Password must be at least 6 characters", "error")
+      return
+    }
+
     if (!agreeTerms) {
       showToast("Please agree to terms and conditions", "error")
       return
     }
 
-    showToast(`Welcome to SpecCon Marketing Management Website! Account created as ${userRole}.`, "success")
-    setTimeout(() => {
-      navigate("/login")
-    }, 1000)
+    setIsSubmitting(true)
+    try {
+      await signUp({
+        email,
+        password,
+        fullName,
+        phone,
+        role: userRole,
+      })
+      showToast("Account created successfully!", "success")
+      // Navigation will happen automatically via useEffect when auth state changes
+    } catch (error: any) {
+      showToast(error.message || "Failed to create account", "error")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -189,8 +216,12 @@ export default function RegisterPage() {
                 </label>
               </div>
 
-              <button type="submit" className="w-full btn-primary py-3 font-bold text-lg">
-                Create Account
+              <button
+                type="submit"
+                disabled={isSubmitting || loading}
+                className="w-full btn-primary py-3 font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? "Creating Account..." : "Create Account"}
               </button>
             </form>
 

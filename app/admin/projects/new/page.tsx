@@ -1,7 +1,5 @@
-"use client"
-
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useNavigate } from "react-router-dom"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
@@ -10,7 +8,7 @@ import type { ProjectType, ProjectStage, ProjectStatus, SocialMediaPlatform } fr
 
 export default function NewProjectPage() {
   const { isSignedIn, user } = useAuth()
-  const router = useRouter()
+  const navigate = useNavigate()
   const [projectType, setProjectType] = useState<ProjectType>("website")
 
   // Form state
@@ -35,11 +33,11 @@ export default function NewProjectPage() {
 
   useEffect(() => {
     if (!isSignedIn) {
-      router.push("/login")
+      navigate("/login")
     } else if (user?.role !== "admin") {
-      router.push("/dashboard")
+      navigate("/dashboard")
     }
-  }, [isSignedIn, user, router])
+  }, [isSignedIn, user, navigate])
 
   if (!user || user.role !== "admin") {
     return (
@@ -79,7 +77,7 @@ export default function NewProjectPage() {
 
     console.log("Creating new project:", newProject)
     alert(`${projectType === "website" ? "Website" : "Social Media"} project "${formData.name}" created successfully!`)
-    router.push("/admin/dashboard")
+    navigate("/admin/dashboard")
   }
 
   return (
@@ -403,7 +401,7 @@ export default function NewProjectPage() {
               </button>
               <button
                 type="button"
-                onClick={() => router.back()}
+                onClick={() => navigate(-1)}
                 className="btn-outline flex-1"
               >
                 Cancel
