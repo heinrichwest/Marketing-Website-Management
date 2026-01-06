@@ -103,7 +103,7 @@ export default function RegisterPage() {
                 >
                   <div className="text-4xl mb-2">👤</div>
                   <h3 className="font-bold text-foreground mb-1">Client</h3>
-                  <p className="text-sm text-muted-foreground">Track your website projects</p>
+                  <p className="text-sm text-muted-foreground">View project progress, create tickets, communicate with team</p>
                 </button>
 
                 <button
@@ -114,7 +114,7 @@ export default function RegisterPage() {
                 >
                   <div className="text-4xl mb-2">💻</div>
                   <h3 className="font-bold text-foreground mb-1">Web Developer</h3>
-                  <p className="text-sm text-muted-foreground">Build and manage websites</p>
+                  <p className="text-sm text-muted-foreground">Work on assigned projects, manage tickets, track development stages</p>
                 </button>
 
                 <button
@@ -125,7 +125,7 @@ export default function RegisterPage() {
                 >
                   <div className="text-4xl mb-2">📱</div>
                   <h3 className="font-bold text-foreground mb-1">Social Media Coordinator</h3>
-                  <p className="text-sm text-muted-foreground">Track social media analytics</p>
+                  <p className="text-sm text-muted-foreground">Track social media metrics, manage analytics for assigned projects</p>
                 </button>
               </div>
             </div>

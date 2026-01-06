@@ -82,6 +82,14 @@ export function getRoleColor(role: UserRole): string {
   return roleColors[role]
 }
 
+// Test example list of all user roles
+export const userRoles: UserRole[] = [
+  "admin",
+  "web_developer",
+  "social_media_coordinator",
+  "client"
+]
+
 // Project stage utilities
 export function getStageDisplayName(stage: ProjectStage): string {
   const stageNames: Record<ProjectStage, string> = {

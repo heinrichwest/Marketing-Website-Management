@@ -68,13 +68,18 @@ export default function DeveloperTicketsPage() {
 
       <main className="min-h-screen bg-muted">
         <div className="container py-12">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold text-foreground mb-2">My Tickets</h1>
-            <p className="text-muted-foreground">Manage and track your assigned tickets</p>
-          </div>
+           {/* Header */}
+           <div className="mb-8">
+             <h1 className="text-4xl font-bold text-foreground mb-2">My Tickets</h1>
+             <p className="text-muted-foreground">Manage and track your assigned tickets from Web Developer</p>
+             <div className="mt-4">
+               <Link to="/developer/dashboard" className="btn-outline">
+                 ← Back to Dashboard
+               </Link>
+             </div>
+           </div>
 
-          {/* Stats Cards */}
+           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             {/* Total Assigned */}
             <div className="bg-white rounded-lg border-2 border-amber-400 p-6">

@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import type { UserRole, Project, Ticket } from "@/types"
-import { getProjectsByUserId } from "@/lib/mock-data"
+import { getProjectsByUserId, mockUsers } from "@/lib/mock-data"
 import { auth, db } from "@/lib/firebase"
 import {
   signInWithEmailAndPassword,
@@ -10,6 +10,9 @@ import {
   type User as FirebaseUser
 } from "firebase/auth"
 import { doc, getDoc, setDoc, serverTimestamp, type DocumentData } from "firebase/firestore"
+
+// Flag to use mock authentication instead of Firebase (can be toggled)
+const USE_MOCK_AUTH = localStorage.getItem('useMockAuth') !== 'false'
 
 interface AuthUser {
   id: string
@@ -47,7 +50,51 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null)
   const [loading, setLoading] = useState(true)
 
-  // Fetch user data from Firestore
+  // Mock authentication functions
+  const mockSignIn = async (email: string, password: string): Promise<void> => {
+    const mockUser = mockUsers.find(u => u.email === email && u.password === password)
+    if (!mockUser) {
+      throw new Error("Invalid email or password")
+    }
+    if (!mockUser.isActive) {
+      throw new Error("Account is inactive")
+    }
+
+    const authUser: AuthUser = {
+      id: mockUser.id,
+      email: mockUser.email,
+      fullName: mockUser.fullName,
+      role: mockUser.role,
+      phone: mockUser.phone,
+    }
+
+    setUser(authUser)
+    setIsSignedIn(true)
+    localStorage.setItem("mockAuthUser", JSON.stringify(authUser))
+  }
+
+  const mockSignUp = async (data: SignUpData): Promise<void> => {
+    // For mock, just create and sign in immediately
+    const newUser: AuthUser = {
+      id: `user-${Date.now()}`,
+      email: data.email,
+      fullName: data.fullName,
+      role: data.role,
+      phone: data.phone,
+    }
+
+    setUser(newUser)
+    setIsSignedIn(true)
+    localStorage.setItem("mockAuthUser", JSON.stringify(newUser))
+  }
+
+  const mockSignOut = async (): Promise<void> => {
+    setUser(null)
+    setIsSignedIn(false)
+    localStorage.removeItem("mockAuthUser")
+  }
+
+  // Firebase authentication functions
   const fetchUserData = async (firebaseUser: FirebaseUser): Promise<AuthUser | null> => {
     try {
       const userDoc = await getDoc(doc(db, "users", firebaseUser.uid))
@@ -57,7 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       const userData = userDoc.data() as DocumentData
-      
+
       // Check if user is active
       if (!userData.isActive) {
         console.error("User account is inactive")
@@ -77,30 +124,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  // Listen to auth state changes
+  // Initialize authentication based on USE_MOCK_AUTH flag
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    if (USE_MOCK_AUTH) {
+      // Load user from localStorage
       setLoading(true)
-      if (firebaseUser) {
-        const userData = await fetchUserData(firebaseUser)
-        if (userData) {
-          setUser(userData)
+      const storedUser = localStorage.getItem("mockAuthUser")
+      if (storedUser) {
+        try {
+          const parsedUser = JSON.parse(storedUser)
+          setUser(parsedUser)
           setIsSignedIn(true)
+        } catch (error) {
+          console.error("Error parsing stored user:", error)
+          localStorage.removeItem("mockAuthUser")
+        }
+      }
+      setLoading(false)
+    } else {
+      // Use Firebase auth
+      const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+        setLoading(true)
+        if (firebaseUser) {
+          const userData = await fetchUserData(firebaseUser)
+          if (userData) {
+            setUser(userData)
+            setIsSignedIn(true)
+          } else {
+            setUser(null)
+            setIsSignedIn(false)
+          }
         } else {
           setUser(null)
           setIsSignedIn(false)
         }
-      } else {
-        setUser(null)
-        setIsSignedIn(false)
-      }
-      setLoading(false)
-    })
+        setLoading(false)
+      })
 
-    return () => unsubscribe()
+      return () => unsubscribe()
+    }
   }, [])
 
   const signIn = async (email: string, password: string): Promise<void> => {
+    if (USE_MOCK_AUTH) {
+      return mockSignIn(email, password)
+    }
+
     try {
       // Check if Firebase is properly initialized
       if (!auth) {
@@ -114,7 +183,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error("Sign in error:", error)
       console.error("Error code:", error.code)
       console.error("Error message:", error.message)
-      
+
       // Provide more specific error messages
       if (error.code === 'auth/user-not-found') {
         throw new Error("auth/user-not-found - No user found with this email. Please create an account first.")
@@ -133,12 +202,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else if (error.code === 'auth/configuration-not-found') {
         throw new Error("auth/configuration-not-found - Firebase configuration not found. Check your .env file.")
       }
-      
+
       throw new Error(error.message || error.code || "Failed to sign in")
     }
   }
 
   const signUp = async (data: SignUpData): Promise<void> => {
+    if (USE_MOCK_AUTH) {
+      return mockSignUp(data)
+    }
+
     try {
       if (!auth) {
         throw new Error("Firebase Auth not initialized. Please check your configuration.")
@@ -180,6 +253,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const signOut = async (): Promise<void> => {
+    if (USE_MOCK_AUTH) {
+      return mockSignOut()
+    }
+
     try {
       await firebaseSignOut(auth)
       // Auth state change listener will handle clearing user data
@@ -195,6 +272,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // In production, role changes should be done through admin panel and Firestore
     const updatedUser = { ...user, role: newRole }
     setUser(updatedUser)
+
+    if (USE_MOCK_AUTH) {
+      localStorage.setItem("mockAuthUser", JSON.stringify(updatedUser))
+    }
   }
 
   const hasRole = (roles: UserRole[]): boolean => {

@@ -1,0 +1,173 @@
+import { useEffect, useState } from "react"
+import { useNavigate, Link } from "react-router-dom"
+import Navbar from "../../../components/navbar"
+import Footer from "../../../components/footer"
+import { useAuth } from "../../../context/auth-context"
+import { getUsers, updateUser, toggleUserActive } from "../../../lib/mock-data"
+import RoleBadge from "../../../components/role-badge"
+import { formatRelativeTime } from "../../../lib/utils"
+import type { User } from "../../../types"
+
+export default function AdminUsersPage() {
+  const { isSignedIn, user } = useAuth()
+  const navigate = useNavigate()
+  const [users, setUsers] = useState<User[]>([])
+
+  useEffect(() => {
+    if (!isSignedIn) {
+      navigate("/login")
+    } else if (user?.role !== "admin") {
+      navigate("/dashboard")
+    }
+  }, [isSignedIn, user, navigate])
+
+  useEffect(() => {
+    setUsers(getUsers())
+  }, [])
+
+  const handleEditUser = (userId: string) => {
+    // For now, show an alert. In a real app, this would open an edit modal
+    alert("Edit functionality coming soon! User ID: " + userId)
+  }
+
+  const handleToggleActive = (userId: string) => {
+    toggleUserActive(userId)
+    setUsers(getUsers()) // Refresh the users list
+  }
+
+  if (!user || user.role !== "admin") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-muted">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    )
+  }
+
+  return (
+    <>
+      <Navbar />
+
+      <main className="min-h-screen bg-muted">
+        <div className="container py-12">
+          {/* Header */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-4xl font-bold text-foreground mb-2">Manage Users</h1>
+                <p className="text-muted-foreground">View and manage all system users and their roles.</p>
+              </div>
+              <Link to="/admin/dashboard" className="btn-outline">
+                ← Back to Dashboard
+              </Link>
+            </div>
+          </div>
+
+          {/* Users Table */}
+          <div className="card">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-foreground">All Users ({users.length})</h2>
+              <div className="flex items-center gap-4">
+                <label className="text-sm text-muted-foreground">
+                  Show{" "}
+                  <select className="border border-border rounded px-2 py-1 bg-background text-foreground" defaultValue="50">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                  </select>{" "}
+                  entries
+                </label>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Search:</span>
+                  <input
+                    type="text"
+                    className="border border-border rounded px-3 py-1 bg-background text-foreground"
+                    placeholder="Search users..."
+                  />
+                </div>
+                <Link to="/admin/users/new" className="btn-primary">
+                  + New User
+                </Link>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-[#1e2875] text-white">
+                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">#</th>
+                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">Name</th>
+                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">Email</th>
+                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">Role</th>
+                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">Status</th>
+                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">Phone</th>
+                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">Joined</th>
+                    <th className="px-4 py-3 text-left font-semibold">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.map((userData, index) => (
+                    <tr
+                      key={userData.id}
+                      className={`${
+                        index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                      } hover:bg-blue-50 transition border-b border-gray-200`}
+                    >
+                      <td className="px-4 py-3 text-sm">{index + 1}</td>
+                      <td className="px-4 py-3">
+                        <div>
+                          <div className="font-semibold text-foreground">{userData.fullName}</div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-muted-foreground">
+                        {userData.email}
+                      </td>
+                      <td className="px-4 py-3">
+                        <RoleBadge role={userData.role} />
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                            userData.isActive
+                              ? "bg-green-100 text-green-700 border-green-200"
+                              : "bg-gray-100 text-gray-700 border-gray-200"
+                          }`}
+                        >
+                          {userData.isActive ? "Active" : "Inactive"}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-muted-foreground">
+                        {userData.phone}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-muted-foreground">
+                        {formatRelativeTime(userData.createdAt)}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <button
+                            className="text-xs text-primary hover:underline"
+                            onClick={() => handleEditUser(userData.id)}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            className="text-xs text-red-600 hover:underline"
+                            onClick={() => handleToggleActive(userData.id)}
+                          >
+                            {userData.isActive ? "Deactivate" : "Activate"}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <Footer />
+    </>
+  )
+}

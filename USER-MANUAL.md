@@ -126,63 +126,67 @@ The system is built on:
 ### Admin
 
 **Responsibilities:**
-- Manage all projects and users
-- Assign team members to projects
-- Edit project details and settings
-- Monitor system-wide analytics
-- Manage user accounts and roles
+- Manage all projects in the system
+- Assign team members (web developers, coordinators) to projects
+- Oversee entire system operations and user management
+- Monitor project progress and system-wide analytics
+- Handle client communications and project coordination
 
 **Permissions:**
-- Full access to all features
+- Full access to all features and admin dashboard
 - Create, edit, and delete projects
-- Assign/reassign users to projects
-- View all tickets and comments
-- Access all analytics data
+- Assign/reassign team members to projects
+- View all projects, tickets, and user activities
+- Manage user accounts and system settings
+- Access all analytics and reporting data
 
 ### Web Developer
 
 **Responsibilities:**
-- Work on assigned website projects
-- Update ticket status and progress
-- Report project updates
-- Track development tasks
+- Work on assigned projects and manage development tasks
+- Manage tickets for assigned projects (create, update, resolve)
+- Track development stages and project progress
+- Collaborate with clients through ticket comments
+- Report development updates and completion status
 
 **Permissions:**
-- View assigned projects
-- Create and manage tickets for their projects
-- Update ticket status
-- Add comments to tickets
-- View project-specific analytics
+- View only assigned projects and their details
+- Create and manage tickets for assigned projects
+- Update ticket status and add progress comments
+- Track development stages and project milestones
+- View project-specific analytics and requirements
 
 ### Social Media Coordinator
 
 **Responsibilities:**
-- Manage social media presence
-- Track engagement metrics
-- Coordinate social media strategies
-- Report on social media performance
+- Track social media metrics and engagement data
+- Manage analytics for assigned social media projects
+- Monitor social media performance and reach
+- Coordinate social media strategies and campaigns
+- Report on social media metrics and insights
 
 **Permissions:**
-- View assigned projects
-- Record social media analytics
-- View project tickets
-- Add comments to tickets
-- Track social media metrics
+- View assigned social media projects
+- Record and track social media analytics
+- Monitor engagement metrics and audience reach
+- View project tickets and add relevant comments
+- Access social media analytics dashboards
 
 ### Client
 
 **Responsibilities:**
-- Create and manage project tickets
-- Review project progress
-- Approve completed work
-- Provide feedback and requirements
+- View project progress and current status
+- Create tickets for new features, bugs, or changes
+- Communicate with admin, web developers, and coordinators
+- Track project development stages and milestones
+- Provide feedback on completed work
 
 **Permissions:**
-- View their projects
-- Create tickets
-- Assign tickets to developers
-- Add comments to tickets
-- View project analytics
+- View only their own projects and progress
+- Create and manage tickets for their projects
+- Assign tickets to assigned team members
+- Add comments and communicate with the team
+- View project analytics and basic reporting
 
 ---
 

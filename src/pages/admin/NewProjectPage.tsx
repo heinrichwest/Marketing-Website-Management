@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, Link } from "react-router-dom"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
@@ -89,7 +89,13 @@ export default function NewProjectPage() {
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-foreground mb-2">Create New Project</h1>
-            <p className="text-muted-foreground">Add a new website or social media project to the system</p>
+            <p className="text-muted-foreground mb-4">Add a new website or social media project to the system</p>
+            <Link to="/admin/dashboard" className="btn-outline inline-flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Back to Dashboard
+            </Link>
           </div>
 
           {/* Project Type Selection */}

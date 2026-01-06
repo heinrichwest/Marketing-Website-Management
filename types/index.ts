@@ -1,5 +1,9 @@
 // User Management Types
-export type UserRole = "admin" | "web_developer" | "social_media_coordinator" | "client"
+export type UserRole =
+  | "admin"
+  | "web_developer"
+  | "social_media_coordinator"
+  | "client"
 
 export interface User {
   id: string

@@ -67,15 +67,17 @@ export default function LoginPage() {
 
           <div className="card">
             {/* Test Credentials Info */}
-            {/* <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <p className="text-sm font-semibold text-blue-900 mb-2">Test Accounts:</p>
               <ul className="text-xs text-blue-700 space-y-1">
-                <li>Admin: admin@system.com / admin123</li>
-                <li>Developer: dev@system.com / dev123</li>
-                <li>Coordinator: social@system.com / social123</li>
-                <li>Client: client@system.com / client123</li>
+                <li><strong>Administrator:</strong> admin@system.com / admin123</li>
+                <li><strong>Web Developer:</strong> dev@system.com / dev123</li>
+                <li><strong>Web Developer:</strong> jane.dev@system.com / dev123</li>
+                <li><strong>Social Media Coordinator:</strong> social@system.com / social123</li>
+                <li><strong>Client:</strong> client@system.com / client123</li>
+                <li><strong>Client:</strong> client2@company.com / client123</li>
               </ul>
-            </div> */}
+            </div>
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">

@@ -842,12 +842,40 @@ export function getUsers(): User[] {
   return loadFromStorage(STORAGE_KEYS.USERS, mockUsers)
 }
 
+export function updateUser(userId: string, updates: Partial<User>): void {
+  const currentUsers = getUsers()
+  const updatedUsers = currentUsers.map(user =>
+    user.id === userId ? { ...user, ...updates, updatedAt: new Date() } : user
+  )
+  saveToStorage(STORAGE_KEYS.USERS, updatedUsers)
+}
+
+export function toggleUserActive(userId: string): void {
+  const currentUsers = getUsers()
+  const updatedUsers = currentUsers.map(user =>
+    user.id === userId ? { ...user, isActive: !user.isActive, updatedAt: new Date() } : user
+  )
+  saveToStorage(STORAGE_KEYS.USERS, updatedUsers)
+}
+
 export function getProjects(): Project[] {
   return loadFromStorage(STORAGE_KEYS.PROJECTS, mockProjects)
 }
 
 export function getTickets(): Ticket[] {
   return loadFromStorage(STORAGE_KEYS.TICKETS, mockTickets)
+}
+
+export function addTicket(ticket: Ticket): void {
+  const currentTickets = getTickets()
+  const updatedTickets = [...currentTickets, ticket]
+  saveToStorage(STORAGE_KEYS.TICKETS, updatedTickets)
+}
+
+export function addUser(user: User): void {
+  const currentUsers = getUsers()
+  const updatedUsers = [...currentUsers, user]
+  saveToStorage(STORAGE_KEYS.USERS, updatedUsers)
 }
 
 export function getComments(): Comment[] {
