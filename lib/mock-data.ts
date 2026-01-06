@@ -1,5 +1,6 @@
 import type {
   User,
+  UserRole,
   Project,
   Ticket,
   Comment,
@@ -957,4 +958,133 @@ export function getStageHistoryByProjectId(projectId: string): ProjectStageHisto
 
 export function getActivitiesByProjectId(projectId: string): Activity[] {
   return getActivities().filter((activity) => activity.projectId === projectId)
+}
+
+// User Management Functions
+export function createUser(userData: {
+  email: string
+  password: string
+  fullName: string
+  phone: string
+  role: UserRole
+  isActive: boolean
+}): User {
+  const users = getUsers()
+
+  // Check if email already exists
+  if (users.some((u) => u.email === userData.email)) {
+    throw new Error("User with this email already exists")
+  }
+
+  const newUser: User = {
+    id: `user-${Date.now()}`,
+    email: userData.email,
+    password: userData.password,
+    fullName: userData.fullName,
+    phone: userData.phone,
+    role: userData.role,
+    isActive: userData.isActive,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }
+
+  users.push(newUser)
+  localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users))
+  return newUser
+}
+
+export function updateUser(
+  userId: string,
+  updates: {
+    email?: string
+    password?: string
+    fullName?: string
+    phone?: string
+    role?: UserRole
+    isActive?: boolean
+  }
+): User | null {
+  const users = getUsers()
+  const userIndex = users.findIndex((u) => u.id === userId)
+
+  if (userIndex === -1) {
+    return null
+  }
+
+  // If email is being updated, check if it's already taken by another user
+  if (updates.email && updates.email !== users[userIndex].email) {
+    if (users.some((u) => u.id !== userId && u.email === updates.email)) {
+      throw new Error("Email already in use by another user")
+    }
+  }
+
+  users[userIndex] = {
+    ...users[userIndex],
+    ...updates,
+    updatedAt: new Date(),
+  }
+
+  localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users))
+  return users[userIndex]
+}
+
+export function deleteUser(userId: string): boolean {
+  const users = getUsers()
+  const filteredUsers = users.filter((u) => u.id !== userId)
+
+  if (filteredUsers.length === users.length) {
+    return false // User not found
+  }
+
+  localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(filteredUsers))
+  return true
+}
+
+// Project Management Functions
+export function createProject(projectData: Omit<Project, "id" | "createdAt" | "updatedAt">): Project {
+  const projects = getProjects()
+
+  const newProject: Project = {
+    ...projectData,
+    id: `proj-${Date.now()}`,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }
+
+  projects.push(newProject)
+  localStorage.setItem(STORAGE_KEYS.PROJECTS, JSON.stringify(projects))
+  return newProject
+}
+
+export function updateProject(
+  projectId: string,
+  updates: Partial<Omit<Project, "id" | "createdAt">>
+): Project | null {
+  const projects = getProjects()
+  const projectIndex = projects.findIndex((p) => p.id === projectId)
+
+  if (projectIndex === -1) {
+    return null
+  }
+
+  projects[projectIndex] = {
+    ...projects[projectIndex],
+    ...updates,
+    updatedAt: new Date(),
+  }
+
+  localStorage.setItem(STORAGE_KEYS.PROJECTS, JSON.stringify(projects))
+  return projects[projectIndex]
+}
+
+export function deleteProject(projectId: string): boolean {
+  const projects = getProjects()
+  const filteredProjects = projects.filter((p) => p.id !== projectId)
+
+  if (filteredProjects.length === projects.length) {
+    return false // Project not found
+  }
+
+  localStorage.setItem(STORAGE_KEYS.PROJECTS, JSON.stringify(filteredProjects))
+  return true
 }
