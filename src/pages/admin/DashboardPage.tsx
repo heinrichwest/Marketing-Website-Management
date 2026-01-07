@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
@@ -13,15 +13,28 @@ export default function AdminDashboard() {
   const { isSignedIn, user } = useAuth()
   const navigate = useNavigate()
 
+  // All hooks must be called in the same order every render
+  const [pageSize, setPageSize] = useState(10)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
+
   useEffect(() => {
     if (!isSignedIn) {
       navigate("/login")
-    } else if (user?.role !== "admin") {
+      return
+    }
+    if (!user) {
+      // Still loading auth
+      return
+    }
+    if (user.role !== "admin") {
       navigate("/dashboard")
+      return
     }
   }, [isSignedIn, user, navigate])
 
-  if (!user || user.role !== "admin") {
+  // Show loading if not authenticated
+  if (!isSignedIn || !user || user.role !== "admin") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-muted">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -43,9 +56,48 @@ export default function AdminDashboard() {
   const recentProjects = projects.slice(0, 5)
   const recentTickets = tickets.slice(0, 5)
 
+  // Filter projects based on search term
+  const filteredProjects = useMemo(() => {
+    return projects.filter(project =>
+      project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.projectType.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  }, [projects, searchTerm])
+
+  // Paginate projects
+  const totalPages = Math.ceil(filteredProjects.length / pageSize)
+  const startIndex = (currentPage - 1) * pageSize
+  const endIndex = startIndex + pageSize
+  const paginatedProjects = filteredProjects.slice(startIndex, endIndex)
+
+  // Reset to first page when search changes
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm])
+
+  // Reset to first page when pageSize changes if current page exceeds total pages
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages)
+    }
+  }, [pageSize, totalPages, currentPage])
+
   // Calculate ticket count per project
   const getProjectTicketCount = (projectId: string) => {
     return tickets.filter((t) => t.projectId === projectId).length
+  }
+
+  const handleDeleteProject = (projectId: string) => {
+    if (window.confirm("Are you sure you want to delete this project? This action cannot be undone.")) {
+      // Remove from localStorage
+      const projects = JSON.parse(localStorage.getItem("marketing_management_website_projects") || "[]")
+      const updatedProjects = projects.filter((p: any) => p.id !== projectId)
+      localStorage.setItem("marketing_management_website_projects", JSON.stringify(updatedProjects))
+
+      // Refresh the page to update the list
+      window.location.reload()
+    }
   }
 
   return (
@@ -139,23 +191,29 @@ export default function AdminDashboard() {
           {/* All Projects Table */}
           <div className="card mb-8">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-foreground">All Projects</h2>
+              <h2 className="text-2xl font-bold text-foreground">All Projects ({filteredProjects.length})</h2>
               <div className="flex items-center gap-4">
-                <label className="text-sm text-muted-foreground">
-                  Show{" "}
-                  <select className="border border-border rounded px-2 py-1 bg-background text-foreground">
-                    <option>10</option>
-                    <option>25</option>
-                    <option defaultValue="50">50</option>
-                    <option>100</option>
-                  </select>{" "}
-                  entries
-                </label>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Show</span>
+                  <select
+                    value={pageSize}
+                    onChange={(e) => setPageSize(Number(e.target.value))}
+                    className="border border-border rounded px-2 py-1 bg-background text-foreground hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                  >
+                    <option value={10}>10</option>
+                    <option value={25}>25</option>
+                    <option value={50}>50</option>
+                    <option value={100}>100</option>
+                  </select>
+                  <span className="text-sm text-muted-foreground">entries</span>
+                </div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">Search:</span>
                   <input
                     type="text"
-                    className="border border-border rounded px-3 py-1 bg-background text-foreground"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="border border-border rounded px-3 py-1 bg-background text-foreground hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary min-w-[200px]"
                     placeholder="Search projects..."
                   />
                 </div>
@@ -163,33 +221,35 @@ export default function AdminDashboard() {
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
+              <table key={`${pageSize}-${currentPage}`} className="w-full border-collapse">
                 <thead>
-                  <tr className="bg-[#1e2875] text-white">
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">#</th>
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">Project Name</th>
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">Status</th>
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">Current Stage</th>
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">Developer</th>
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">My Tickets</th>
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">Analytics</th>
-                    <th className="px-4 py-3 text-left font-semibold">Actions</th>
+                   <tr className="bg-primary text-primary-foreground">
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">#</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Project Name</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Status</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Current Stage</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Client</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Developer</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Tickets</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Analytics</th>
+                     <th className="px-4 py-3 text-left font-semibold">Actions</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {projects.map((project, index) => {
-                    const developer = users.find((u) => u.id === project.webDeveloperId)
-                    const coordinator = users.find((u) => u.id === project.socialMediaCoordinatorId)
-                    const ticketCount = getProjectTicketCount(project.id)
+                 <tbody key={`${pageSize}-${currentPage}`}>
+                   {paginatedProjects.map((project, index) => {
+                     const client = users.find((u) => u.id === project.clientId)
+                     const developer = users.find((u) => u.id === project.webDeveloperId)
+                     const coordinator = users.find((u) => u.id === project.socialMediaCoordinatorId)
+                     const ticketCount = getProjectTicketCount(project.id)
 
-                    return (
-                      <tr
-                        key={project.id}
-                        className={`${
-                          index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                        } hover:bg-blue-50 transition border-b border-gray-200`}
-                      >
-                        <td className="px-4 py-3 text-sm">{index + 1}</td>
+                     return (
+                       <tr
+                         key={project.id}
+                          className={`${
+                            index % 2 === 0 ? "bg-background" : "bg-muted/30"
+                          } hover:bg-secondary/10 transition border-b border-border`}
+                       >
+                         <td className="px-4 py-3 text-sm">{startIndex + index + 1}</td>
                         <td className="px-4 py-3">
                           <div>
                             <div className="font-semibold text-foreground">{project.name}</div>
@@ -200,9 +260,21 @@ export default function AdminDashboard() {
                           <StatusBadge status={project.status} />
                         </td>
                         <td className="px-4 py-3">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                           <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary">
                             {getStageDisplayName(project.currentStage)}
                           </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="text-sm">
+                            {client ? (
+                              <>
+                                <div className="font-medium text-foreground">{client.fullName}</div>
+                                <div className="text-xs text-muted-foreground">{client.email}</div>
+                              </>
+                            ) : (
+                              <span className="text-xs text-muted-foreground italic">Not assigned</span>
+                            )}
+                          </div>
                         </td>
                         <td className="px-4 py-3">
                           <div className="text-sm">
@@ -218,11 +290,11 @@ export default function AdminDashboard() {
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
-                            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-800 font-semibold text-sm">
+                             <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-semibold text-sm">
                               {ticketCount}
                             </span>
                             <Link
-                              to={`/tickets?project=${project.id}`}
+                              to={`/admin/tickets?project=${project.id}`}
                               className="text-xs text-primary hover:underline"
                             >
                               View
@@ -231,8 +303,8 @@ export default function AdminDashboard() {
                         </td>
                         <td className="px-4 py-3">
                           <Link
-                            to={`/analytics/${project.id}`}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#1e2875] text-white rounded text-xs font-medium hover:bg-[#2a3488] transition"
+                            to={`/admin/analytics/${project.id}`}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 bg-primary text-primary-foreground rounded text-xs font-medium hover:bg-primary/80 transition"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path
@@ -248,26 +320,72 @@ export default function AdminDashboard() {
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
                             <Link
-                              to={`/admin/projects/${project.id}`}
-                              className="text-xs text-primary hover:underline"
-                            >
-                              View
-                            </Link>
-                            <Link
                               to={`/admin/projects/${project.id}/edit`}
                               className="text-xs text-primary hover:underline"
                             >
                               Edit
                             </Link>
+                            <button
+                              onClick={() => handleDeleteProject(project.id)}
+                              className="text-xs text-red-600 hover:underline"
+                            >
+                              Delete
+                            </button>
                           </div>
                         </td>
                       </tr>
                     )
                   })}
-                </tbody>
-              </table>
-            </div>
-          </div>
+                 </tbody>
+               </table>
+             </div>
+
+             {/* Pagination */}
+             {totalPages > 1 && (
+               <div className="flex items-center justify-between mt-6">
+                 <div className="text-sm text-muted-foreground">
+                   Showing {startIndex + 1}-{Math.min(endIndex, filteredProjects.length)} of {filteredProjects.length} projects
+                 </div>
+                 <div className="flex items-center gap-2">
+                   <button
+                     onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                     disabled={currentPage === 1}
+                     className="px-3 py-1 text-sm border border-border rounded hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
+                   >
+                     Previous
+                   </button>
+
+                   <div className="flex items-center gap-1">
+                     {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                       const pageNum = Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + i
+                       if (pageNum > totalPages) return null
+                       return (
+                         <button
+                           key={pageNum}
+                           onClick={() => setCurrentPage(pageNum)}
+                           className={`px-3 py-1 text-sm border rounded ${
+                             pageNum === currentPage
+                               ? 'bg-primary text-primary-foreground border-primary'
+                               : 'border-border hover:bg-muted'
+                           }`}
+                         >
+                           {pageNum}
+                         </button>
+                       )
+                     })}
+                   </div>
+
+                   <button
+                     onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                     disabled={currentPage === totalPages}
+                     className="px-3 py-1 text-sm border border-border rounded hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
+                   >
+                     Next
+                   </button>
+                 </div>
+               </div>
+             )}
+           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Recent Projects */}

@@ -1,8 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter, useParams } from "next/navigation"
-import Link from "next/link"
+import { useNavigate, useParams, Link } from "react-router-dom"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
@@ -14,7 +13,7 @@ import type { Project, User, Ticket } from "@/types"
 
 export default function ViewProjectPage() {
   const { isSignedIn, user } = useAuth()
-  const router = useRouter()
+  const navigate = useNavigate()
   const params = useParams()
   const projectId = params.id as string
 
@@ -27,11 +26,11 @@ export default function ViewProjectPage() {
 
   useEffect(() => {
     if (!isSignedIn) {
-      router.push("/login")
+      navigate("/login")
     } else if (user?.role !== "admin") {
-      router.push("/dashboard")
+      navigate("/dashboard")
     }
-  }, [isSignedIn, user, router])
+  }, [isSignedIn, user, navigate])
 
   useEffect(() => {
     if (projectId) {
@@ -49,10 +48,10 @@ export default function ViewProjectPage() {
 
         setIsLoading(false)
       } else {
-        router.push("/admin/dashboard")
+        navigate("/admin/dashboard")
       }
     }
-  }, [projectId, router])
+  }, [projectId, navigate])
 
   if (!user || user.role !== "admin") {
     return (
@@ -91,7 +90,7 @@ export default function ViewProjectPage() {
           <div className="mb-8">
             <div className="flex items-center gap-4 mb-4">
               <Link
-                href="/admin/dashboard"
+                to="/admin/dashboard"
                 className="text-primary hover:text-primary/80 transition"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -108,13 +107,13 @@ export default function ViewProjectPage() {
             </div>
             <div className="flex items-center gap-4">
               <Link
-                href={`/admin/projects/${projectId}/edit`}
+                to={`/admin/projects/${projectId}/edit`}
                 className="btn-primary"
               >
                 Edit Project
               </Link>
               <Link
-                href={`/analytics/${projectId}`}
+                to={`/admin/analytics/${projectId}`}
                 className="btn-outline"
               >
                 View Analytics
@@ -139,7 +138,7 @@ export default function ViewProjectPage() {
                   </div>
                   <div>
                     <div className="text-sm text-muted-foreground mb-1">Current Stage</div>
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                     <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary">
                       {getStageDisplayName(project.currentStage)}
                     </span>
                   </div>
@@ -269,7 +268,7 @@ export default function ViewProjectPage() {
                   <div className="text-sm text-muted-foreground">Total Tickets</div>
                 </div>
                 <div className="card text-center">
-                  <div className="text-2xl font-bold text-blue-600">{stats.openTickets}</div>
+                   <div className="text-2xl font-bold text-primary">{stats.openTickets}</div>
                   <div className="text-sm text-muted-foreground">Open</div>
                 </div>
                 <div className="card text-center">
@@ -296,10 +295,10 @@ export default function ViewProjectPage() {
                   <h2 className="text-xl font-bold text-foreground">
                     Tickets ({tickets.length})
                   </h2>
-                  <Link
-                    href={`/tickets?project=${projectId}`}
-                    className="text-primary hover:underline text-sm"
-                  >
+                    <Link
+                      to={`/admin/tickets?project=${projectId}`}
+                      className="text-primary hover:underline text-sm"
+                    >
                     View All Tickets
                   </Link>
                 </div>

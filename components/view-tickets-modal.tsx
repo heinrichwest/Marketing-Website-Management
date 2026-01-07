@@ -54,7 +54,7 @@ export default function ViewTicketsModal({ project, isOpen, onClose }: ViewTicke
               <div className="text-xs text-muted-foreground">Total</div>
             </div>
             <div className="card text-center">
-              <div className="text-2xl font-bold text-blue-600">{stats.open}</div>
+              <div className="text-2xl font-bold text-primary">{stats.open}</div>
               <div className="text-xs text-muted-foreground">Open</div>
             </div>
             <div className="card text-center">
@@ -94,15 +94,15 @@ export default function ViewTicketsModal({ project, isOpen, onClose }: ViewTicke
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="bg-[#1e2875] text-white">
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488] text-sm">#</th>
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488] text-sm">Title</th>
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488] text-sm">Type</th>
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488] text-sm">Priority</th>
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488] text-sm">Status</th>
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488] text-sm">Created By</th>
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488] text-sm">Assigned To</th>
-                    <th className="px-4 py-3 text-left font-semibold text-sm">Created</th>
+                   <tr className="bg-primary text-primary-foreground">
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50 text-sm">#</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50 text-sm">Title</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50 text-sm">Type</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50 text-sm">Priority</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50 text-sm">Status</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50 text-sm">Created By</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50 text-sm">Assigned To</th>
+                     <th className="px-4 py-3 text-left font-semibold text-sm">Created</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -114,8 +114,8 @@ export default function ViewTicketsModal({ project, isOpen, onClose }: ViewTicke
                       <tr
                         key={ticket.id}
                         className={`${
-                          index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                        } hover:bg-blue-50 transition border-b border-gray-200`}
+                          index % 2 === 0 ? "bg-background" : "bg-muted/30"
+                        } hover:bg-secondary/10 transition border-b border-border`}
                       >
                         <td className="px-4 py-3 text-sm">{index + 1}</td>
                         <td className="px-4 py-3">

@@ -4,6 +4,7 @@ import type {
   Project,
   Ticket,
   Comment,
+  Message,
   WebsiteAnalytics,
   SocialMediaAnalytics,
   ProjectStageHistory,
@@ -16,6 +17,7 @@ const STORAGE_KEYS = {
   PROJECTS: "marketing_management_website_projects",
   TICKETS: "marketing_management_website_tickets",
   COMMENTS: "marketing_management_website_comments",
+  MESSAGES: "marketing_management_website_messages",
   WEBSITE_ANALYTICS: "marketing_management_website_website_analytics",
   SOCIAL_ANALYTICS: "marketing_management_website_social_analytics",
   STAGE_HISTORY: "marketing_management_website_stage_history",
@@ -627,6 +629,93 @@ export const mockComments: Comment[] = [
   },
 ]
 
+// Mock Messages
+export const mockMessages: Message[] = [
+  {
+    id: "message-1",
+    senderId: "user-1", // Admin
+    recipientId: "user-2", // John Developer
+    subject: "Project Priority Update",
+    content: "Hi John, I've updated the priority for the SpecCon project. Please focus on the mobile navigation fixes first as they're impacting user experience significantly.",
+    isRead: false,
+    isBroadcast: false,
+    projectId: "proj-1",
+    createdAt: new Date("2025-02-09T08:00:00"),
+    updatedAt: new Date("2025-02-09T08:00:00"),
+  },
+  {
+    id: "message-2",
+    senderId: "user-4", // Sarah Cohen (Social Media Coordinator)
+    recipientId: "user-1", // Admin
+    subject: "Social Media Campaign Performance",
+    content: "The Q1 social media campaign is performing well. We've exceeded engagement targets by 25%. Should we allocate additional budget for boosted posts?",
+    isRead: true,
+    isBroadcast: false,
+    projectId: "proj-21",
+    createdAt: new Date("2025-02-08T14:30:00"),
+    updatedAt: new Date("2025-02-08T14:30:00"),
+  },
+  {
+    id: "message-3",
+    senderId: "user-5", // Michael Client
+    recipientId: "user-3", // Jane Smith
+    subject: "Andebe Platform Requirements",
+    content: "For the Andebe platform, we need to ensure all training modules include progress tracking and certificate generation. The client wants this to be mandatory for all courses.",
+    isRead: false,
+    isBroadcast: false,
+    projectId: "proj-2",
+    createdAt: new Date("2025-02-09T10:15:00"),
+    updatedAt: new Date("2025-02-09T10:15:00"),
+  },
+  {
+    id: "message-4",
+    senderId: "user-1", // Admin
+    recipientId: undefined, // Broadcast to all
+    subject: "System Maintenance Notice",
+    content: "Heads up team! We'll be performing system maintenance this Friday from 10 PM to 12 AM SAST. All services will be temporarily unavailable. Please save your work before then.",
+    isRead: false,
+    isBroadcast: true,
+    createdAt: new Date("2025-02-07T16:00:00"),
+    updatedAt: new Date("2025-02-07T16:00:00"),
+  },
+  {
+    id: "message-5",
+    senderId: "user-2", // John Developer
+    recipientId: "user-4", // Sarah Cohen
+    subject: "Website Launch Coordination",
+    content: "Sarah, the InfinityNPO website is ready for launch. Can we coordinate the social media posts to go live simultaneously with the website deployment?",
+    isRead: true,
+    isBroadcast: false,
+    projectId: "proj-5",
+    createdAt: new Date("2025-02-08T11:45:00"),
+    updatedAt: new Date("2025-02-08T11:45:00"),
+  },
+  {
+    id: "message-6",
+    senderId: "user-6", // Emma Business
+    recipientId: "user-1", // Admin
+    subject: "New Project Timeline",
+    content: "I've reviewed the proposed timeline for the Venueideas platform. The 3-month timeline seems aggressive. Can we extend it to 4 months to ensure quality?",
+    isRead: false,
+    isBroadcast: false,
+    projectId: "proj-10",
+    createdAt: new Date("2025-02-09T13:20:00"),
+    updatedAt: new Date("2025-02-09T13:20:00"),
+  },
+  {
+    id: "message-7",
+    senderId: "user-3", // Jane Smith
+    recipientId: "user-5", // Michael Client
+    subject: "Design Feedback Request",
+    content: "Michael, I've completed the initial design mockups for the Megrolowveld website. Could you please review them and let me know your thoughts on the color scheme and layout?",
+    isRead: true,
+    isBroadcast: false,
+    projectId: "proj-3",
+    createdAt: new Date("2025-02-08T09:30:00"),
+    updatedAt: new Date("2025-02-08T09:30:00"),
+  },
+]
+
 // Mock Website Analytics
 export const mockWebsiteAnalytics: WebsiteAnalytics[] = [
   {
@@ -832,6 +921,7 @@ export function initializeMockData(): void {
   saveToStorage(STORAGE_KEYS.PROJECTS, mockProjects)
   saveToStorage(STORAGE_KEYS.TICKETS, mockTickets)
   saveToStorage(STORAGE_KEYS.COMMENTS, mockComments)
+  saveToStorage(STORAGE_KEYS.MESSAGES, mockMessages)
   saveToStorage(STORAGE_KEYS.WEBSITE_ANALYTICS, mockWebsiteAnalytics)
   saveToStorage(STORAGE_KEYS.SOCIAL_ANALYTICS, mockSocialMediaAnalytics)
   saveToStorage(STORAGE_KEYS.STAGE_HISTORY, mockStageHistory)
@@ -881,6 +971,10 @@ export function addUser(user: User): void {
 
 export function getComments(): Comment[] {
   return loadFromStorage(STORAGE_KEYS.COMMENTS, mockComments)
+}
+
+export function getMessages(): Message[] {
+  return loadFromStorage(STORAGE_KEYS.MESSAGES, mockMessages)
 }
 
 export function getWebsiteAnalytics(): WebsiteAnalytics[] {
@@ -942,6 +1036,44 @@ export function getCommentsByTicketId(ticketId: string): Comment[] {
   return getComments().filter((comment) => comment.ticketId === ticketId)
 }
 
+export function getMessagesByUserId(userId: string): Message[] {
+  return getMessages().filter((message) =>
+    message.senderId === userId ||
+    message.recipientId === userId ||
+    message.isBroadcast
+  )
+}
+
+export function getUnreadMessagesByUserId(userId: string): Message[] {
+  return getMessagesByUserId(userId).filter((message) =>
+    !message.isRead && (message.recipientId === userId || message.isBroadcast)
+  )
+}
+
+export function markMessageAsRead(messageId: string): void {
+  const messages = getMessages()
+  const updatedMessages = messages.map(message =>
+    message.id === messageId ? { ...message, isRead: true, updatedAt: new Date() } : message
+  )
+  saveToStorage(STORAGE_KEYS.MESSAGES, updatedMessages)
+}
+
+export function deleteMessage(messageId: string): boolean {
+  const messages = getMessages()
+  const filteredMessages = messages.filter(message => message.id !== messageId)
+  if (filteredMessages.length < messages.length) {
+    saveToStorage(STORAGE_KEYS.MESSAGES, filteredMessages)
+    return true
+  }
+  return false
+}
+
+export function addMessage(message: Message): void {
+  const currentMessages = getMessages()
+  const updatedMessages = [...currentMessages, message]
+  saveToStorage(STORAGE_KEYS.MESSAGES, updatedMessages)
+}
+
 export function getAnalyticsByProjectId(projectId: string): {
   website: WebsiteAnalytics[]
   social: SocialMediaAnalytics[]
@@ -993,40 +1125,7 @@ export function createUser(userData: {
   return newUser
 }
 
-export function updateUser(
-  userId: string,
-  updates: {
-    email?: string
-    password?: string
-    fullName?: string
-    phone?: string
-    role?: UserRole
-    isActive?: boolean
-  }
-): User | null {
-  const users = getUsers()
-  const userIndex = users.findIndex((u) => u.id === userId)
 
-  if (userIndex === -1) {
-    return null
-  }
-
-  // If email is being updated, check if it's already taken by another user
-  if (updates.email && updates.email !== users[userIndex].email) {
-    if (users.some((u) => u.id !== userId && u.email === updates.email)) {
-      throw new Error("Email already in use by another user")
-    }
-  }
-
-  users[userIndex] = {
-    ...users[userIndex],
-    ...updates,
-    updatedAt: new Date(),
-  }
-
-  localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users))
-  return users[userIndex]
-}
 
 export function deleteUser(userId: string): boolean {
   const users = getUsers()

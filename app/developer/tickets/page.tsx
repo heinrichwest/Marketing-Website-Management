@@ -96,7 +96,7 @@ export default function DeveloperTicketsPage() {
             {/* Over 7 Days */}
             <div className="bg-white rounded-lg border border-gray-200 p-6">
               <div className="text-sm font-medium text-gray-600 mb-2">&gt; 7 DAYS</div>
-              <div className="text-4xl font-bold text-blue-600">{stats.overSevenDays}</div>
+              <div className="text-4xl font-bold text-primary">{stats.overSevenDays}</div>
             </div>
           </div>
 
@@ -152,21 +152,21 @@ export default function DeveloperTicketsPage() {
               <table className="w-full">
                 <thead className="bg-navy-900">
                   <tr className="border-b border-gray-200">
-                    <th className="px-6 py-4 text-left text-sm font-bold text-white uppercase tracking-wider bg-[#1e293b]">
-                      PROJECT
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-bold text-white uppercase tracking-wider bg-[#1e293b]">
-                      TITLE
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-bold text-white uppercase tracking-wider bg-[#1e293b]">
-                      STATUS
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-bold text-white uppercase tracking-wider bg-[#1e293b]">
-                      SEVERITY
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-bold text-white uppercase tracking-wider bg-[#1e293b]">
-                      DAYS OPEN
-                    </th>
+                     <th className="px-6 py-4 text-left text-sm font-bold text-primary-foreground uppercase tracking-wider bg-primary">
+                       PROJECT
+                     </th>
+                     <th className="px-6 py-4 text-left text-sm font-bold text-primary-foreground uppercase tracking-wider bg-primary">
+                       TITLE
+                     </th>
+                     <th className="px-6 py-4 text-left text-sm font-bold text-primary-foreground uppercase tracking-wider bg-primary">
+                       STATUS
+                     </th>
+                     <th className="px-6 py-4 text-left text-sm font-bold text-primary-foreground uppercase tracking-wider bg-primary">
+                       SEVERITY
+                     </th>
+                     <th className="px-6 py-4 text-left text-sm font-bold text-primary-foreground uppercase tracking-wider bg-primary">
+                       DAYS OPEN
+                     </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -180,7 +180,7 @@ export default function DeveloperTicketsPage() {
                           <td className="px-6 py-4 whitespace-nowrap">
                             <Link
                               to={`/projects/${ticket.projectId}`}
-                              className="text-blue-600 hover:text-blue-800 hover:underline"
+                              className="text-primary hover:text-primary-dark hover:underline"
                             >
                               {project?.name || "Unknown Project"}
                             </Link>
@@ -190,7 +190,7 @@ export default function DeveloperTicketsPage() {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             {ticket.status === "in_progress" && (
-                              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary">
                                 Dev started working on ticket
                               </span>
                             )}

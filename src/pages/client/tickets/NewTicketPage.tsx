@@ -201,9 +201,9 @@ export default function ClientNewTicketPage() {
           </div>
 
           {/* Help Text */}
-          <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <h3 className="text-sm font-semibold text-blue-900 mb-2">💡 Ticket Guidelines</h3>
-            <ul className="text-xs text-blue-700 space-y-1">
+          <div className="mt-8 p-4 bg-secondary/10 border border-secondary/20 rounded-lg">
+            <h3 className="text-sm font-semibold text-primary mb-2">💡 Ticket Guidelines</h3>
+            <ul className="text-xs text-primary/80 space-y-1">
               <li>• Be specific about what you need</li>
               <li>• Include any relevant details or examples</li>
               <li>• Choose the appropriate priority level</li>

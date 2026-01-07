@@ -75,9 +75,9 @@ export function getRoleDisplayName(role: UserRole): string {
 export function getRoleColor(role: UserRole): string {
   const roleColors: Record<UserRole, string> = {
     admin: "bg-purple-100 text-purple-700 border-purple-200",
-    web_developer: "bg-blue-100 text-blue-700 border-blue-200",
-    social_media_coordinator: "bg-pink-100 text-pink-700 border-pink-200",
-    client: "bg-green-100 text-green-700 border-green-200",
+    web_developer: "bg-primary/10 text-primary border-primary/20",
+    social_media_coordinator: "bg-accent/10 text-accent border-accent/20",
+    client: "bg-success/10 text-success border-success/20",
   }
   return roleColors[role]
 }

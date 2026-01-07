@@ -152,7 +152,7 @@ export default function DeveloperDashboard() {
                         <StatusBadge status={project.status} />
                       </div>
                       <div className="flex items-center gap-4 text-sm mt-3">
-                        <span className="inline-flex items-center px-2 py-1 rounded-md bg-blue-50 text-blue-700 text-xs font-medium">
+                        <span className="inline-flex items-center px-2 py-1 rounded-md bg-secondary/10 text-primary text-xs font-medium">
                           {getStageDisplayName(project.currentStage)}
                         </span>
                         <span className="text-muted-foreground text-xs">

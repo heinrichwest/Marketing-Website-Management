@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
+import { Pencil, UserX, UserCheck, Trash2 } from "lucide-react"
 import Navbar from "../../../components/navbar"
 import Footer from "../../../components/footer"
 import { useAuth } from "../../../context/auth-context"
-import { getUsers, updateUser, toggleUserActive } from "../../../lib/mock-data"
+import { getUsers, updateUser, toggleUserActive, deleteUser } from "../../../lib/mock-data"
 import RoleBadge from "../../../components/role-badge"
 import { formatRelativeTime } from "../../../lib/utils"
 import type { User } from "../../../types"
@@ -26,13 +27,27 @@ export default function AdminUsersPage() {
   }, [])
 
   const handleEditUser = (userId: string) => {
-    // For now, show an alert. In a real app, this would open an edit modal
-    alert("Edit functionality coming soon! User ID: " + userId)
+    navigate("/admin/users/" + userId + "/edit")
   }
 
   const handleToggleActive = (userId: string) => {
     toggleUserActive(userId)
     setUsers(getUsers()) // Refresh the users list
+  }
+
+  const handleDeleteUser = (userId: string) => {
+    if (!user) return
+    if (userId === user.id) {
+      alert("You cannot delete your own account.")
+      return
+    }
+    if (window.confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
+      if (deleteUser(userId)) {
+        setUsers(getUsers()) // Refresh the users list
+      } else {
+        alert("Failed to delete user.")
+      }
+    }
   }
 
   if (!user || user.role !== "admin") {
@@ -93,16 +108,16 @@ export default function AdminUsersPage() {
 
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
-                <thead>
-                  <tr className="bg-[#1e2875] text-white">
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">#</th>
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">Name</th>
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">Email</th>
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">Role</th>
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">Status</th>
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">Phone</th>
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">Joined</th>
-                    <th className="px-4 py-3 text-left font-semibold">Actions</th>
+                 <thead>
+                   <tr className="bg-primary text-primary-foreground">
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">#</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Name</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Email</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Role</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Status</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Phone</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Joined</th>
+                     <th className="px-4 py-3 text-left font-semibold">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -110,8 +125,8 @@ export default function AdminUsersPage() {
                     <tr
                       key={userData.id}
                       className={`${
-                        index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                      } hover:bg-blue-50 transition border-b border-gray-200`}
+                        index % 2 === 0 ? "bg-background" : "bg-muted/30"
+                      } hover:bg-secondary/10 transition border-b border-border`}
                     >
                       <td className="px-4 py-3 text-sm">{index + 1}</td>
                       <td className="px-4 py-3">
@@ -143,19 +158,30 @@ export default function AdminUsersPage() {
                         {formatRelativeTime(userData.createdAt)}
                       </td>
                       <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <button
-                            className="text-xs text-primary hover:underline"
-                            onClick={() => handleEditUser(userData.id)}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            className="text-xs text-red-600 hover:underline"
-                            onClick={() => handleToggleActive(userData.id)}
-                          >
-                            {userData.isActive ? "Deactivate" : "Activate"}
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <button
+                              className="text-xs text-primary hover:underline"
+                              onClick={() => handleEditUser(userData.id)}
+                              title="Edit"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </button>
+                             <button
+                               className="text-xs text-red-600 hover:underline"
+                               onClick={() => handleToggleActive(userData.id)}
+                               title={userData.isActive ? "Deactivate" : "Activate"}
+                             >
+                               {userData.isActive ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
+                             </button>
+                           {userData.role !== "admin" && (
+                             <button
+                               className="text-xs text-red-600 hover:underline"
+                               onClick={() => handleDeleteUser(userData.id)}
+                               title="Delete"
+                             >
+                               <Trash2 className="h-4 w-4" />
+                             </button>
+                           )}
                         </div>
                       </td>
                     </tr>

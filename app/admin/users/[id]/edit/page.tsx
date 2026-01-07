@@ -1,8 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter, useParams } from "next/navigation"
-import Link from "next/link"
+import { useNavigate, useParams } from "react-router-dom"
+import { Link } from "react-router-dom"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
@@ -11,7 +11,7 @@ import type { UserRole, User } from "@/types"
 
 export default function EditUserPage() {
   const { isSignedIn, user } = useAuth()
-  const router = useRouter()
+  const navigate = useNavigate()
   const params = useParams()
   const userId = params.id as string
 
@@ -33,11 +33,11 @@ export default function EditUserPage() {
 
   useEffect(() => {
     if (!isSignedIn) {
-      router.push("/login")
+      navigate("/login")
     } else if (user?.role !== "admin") {
-      router.push("/dashboard")
+      navigate("/dashboard")
     }
-  }, [isSignedIn, user, router])
+  }, [isSignedIn, user, navigate])
 
   useEffect(() => {
     if (userId) {
@@ -56,10 +56,10 @@ export default function EditUserPage() {
         })
         setIsLoading(false)
       } else {
-        router.push("/admin/users")
+        navigate("/admin/users")
       }
     }
-  }, [userId, router])
+  }, [userId, navigate])
 
   if (!user || user.role !== "admin") {
     return (
@@ -126,7 +126,7 @@ export default function EditUserPage() {
         ...(formData.changePassword && { password: formData.newPassword }),
       })
 
-      router.push("/admin/users")
+      navigate("/admin/users")
     } catch (err) {
       setError("Failed to update user. Please try again.")
       setIsSubmitting(false)
@@ -143,7 +143,7 @@ export default function EditUserPage() {
           <div className="mb-8">
             <div className="flex items-center gap-4 mb-4">
               <Link
-                href="/admin/users"
+                to="/admin/users"
                 className="text-primary hover:text-primary/80 transition"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -161,7 +161,7 @@ export default function EditUserPage() {
           </div>
 
           {/* Form */}
-          <div className="max-w-2xl">
+          <div className="max-w-2xl mx-auto">
             <form onSubmit={handleSubmit} className="card">
               {error && (
                 <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800">
@@ -333,7 +333,7 @@ export default function EditUserPage() {
 
               {/* Actions */}
               <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-border">
-                <Link href="/admin/users" className="btn-outline">
+                 <Link to="/admin/users" className="btn-outline">
                   Cancel
                 </Link>
                 <button type="submit" disabled={isSubmitting} className="btn-primary">

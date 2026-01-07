@@ -106,10 +106,10 @@ export default function AnalyticsPage() {
                   Open Google Analytics Dashboard
                 </a>
 
-                <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+                <div className="bg-secondary/10 border-l-4 border-primary p-4 rounded">
                   <div className="flex items-start gap-3">
                     <svg
-                      className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5"
+                      className="w-6 h-6 text-primary flex-shrink-0 mt-0.5"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -122,8 +122,8 @@ export default function AnalyticsPage() {
                       />
                     </svg>
                     <div>
-                      <h3 className="font-semibold text-blue-900 mb-1">Google Analytics Access Required</h3>
-                      <p className="text-sm text-blue-800">
+                      <h3 className="font-semibold text-primary mb-1">Google Analytics Access Required</h3>
+                      <p className="text-sm text-primary/80">
                         You need to be logged into Google Analytics and have access to this property (
                         {project.googleAnalyticsPropertyId || project.googleAnalyticsViewId}) to view the reports.
                       </p>
@@ -208,7 +208,7 @@ export default function AnalyticsPage() {
             {analytics.website && analytics.website.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {analytics.website.slice(0, 3).map((data: any) => (
-                  <div key={data.id} className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+                  <div key={data.id} className="p-6 bg-gradient-to-br from-secondary/10 to-primary/5 rounded-lg border border-secondary/20">
                     <p className="text-sm text-muted-foreground mb-2">
                       {new Date(data.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                     </p>

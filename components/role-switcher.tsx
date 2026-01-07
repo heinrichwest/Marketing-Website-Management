@@ -91,14 +91,14 @@ export default function RoleSwitcher({ className }: { className?: string }) {
                   disabled={user.role === role.value}
                   className={`w-full text-left p-3 rounded-lg transition mb-2 ${
                     user.role === role.value
-                      ? "bg-blue-50 border-2 border-[#1e2875] cursor-default"
-                      : "hover:bg-gray-50 border border-transparent"
+                      ? "bg-primary/10 border-2 border-primary cursor-default"
+                      : "hover:bg-muted/50 border border-transparent"
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="font-semibold text-[#1e2875] text-sm">{role.label}</span>
+                    <span className="font-semibold text-primary text-sm">{role.label}</span>
                     {user.role === role.value && (
-                      <span className="text-xs bg-[#1e2875] text-white px-2 py-0.5 rounded">Active</span>
+                       <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded">Active</span>
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground">{role.description}</p>

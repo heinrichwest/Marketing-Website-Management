@@ -32,7 +32,6 @@ let app: FirebaseApp
 if (getApps().length === 0) {
   try {
     app = initializeApp(firebaseConfig)
-    console.log('✓ Firebase initialized successfully')
   } catch (error) {
     console.error('❌ Firebase initialization failed:', error)
     throw error

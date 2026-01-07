@@ -60,6 +60,18 @@ export default function AdminProjectsPage() {
     return tickets.filter((t) => t.projectId === projectId).length
   }
 
+  const handleDeleteProject = (projectId: string) => {
+    if (window.confirm("Are you sure you want to delete this project? This action cannot be undone.")) {
+      // Remove from localStorage
+      const projects = JSON.parse(localStorage.getItem("marketing_management_website_projects") || "[]")
+      const updatedProjects = projects.filter((p: any) => p.id !== projectId)
+      localStorage.setItem("marketing_management_website_projects", JSON.stringify(updatedProjects))
+
+      // Refresh the page to update the list
+      window.location.reload()
+    }
+  }
+
   return (
     <>
       <Navbar />
@@ -120,16 +132,16 @@ export default function AdminProjectsPage() {
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="bg-[#1e2875] text-white">
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">#</th>
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">Project Name</th>
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">Status</th>
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">Current Stage</th>
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">Client</th>
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">Developer</th>
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">Tickets</th>
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">Analytics</th>
-                    <th className="px-4 py-3 text-left font-semibold">Actions</th>
+                   <tr className="bg-primary text-primary-foreground">
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">#</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Project Name</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Status</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Current Stage</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Client</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Developer</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Tickets</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Analytics</th>
+                     <th className="px-4 py-3 text-left font-semibold">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -143,10 +155,10 @@ export default function AdminProjectsPage() {
                       <tr
                         key={project.id}
                         className={`${
-                          index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                        } hover:bg-blue-50 transition border-b border-gray-200`}
+                          index % 2 === 0 ? "bg-background" : "bg-muted/30"
+                        } hover:bg-secondary/10 transition border-b border-border`}
                       >
-                        <td className="px-4 py-3 text-sm">{index + 1}</td>
+                        <td className="px-4 py-3 text-sm">{startIndex + index + 1}</td>
                         <td className="px-4 py-3">
                           <div>
                             <div className="font-semibold text-foreground">{project.name}</div>
@@ -157,7 +169,7 @@ export default function AdminProjectsPage() {
                           <StatusBadge status={project.status} />
                         </td>
                         <td className="px-4 py-3">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                           <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary">
                             {getStageDisplayName(project.currentStage)}
                           </span>
                         </td>
@@ -187,21 +199,21 @@ export default function AdminProjectsPage() {
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
-                            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-800 font-semibold text-sm">
+                             <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-semibold text-sm">
                               {ticketCount}
                             </span>
-                            <Link
-                              to={`/tickets?project=${project.id}`}
-                              className="text-xs text-primary hover:underline"
-                            >
-                              View
-                            </Link>
+                             <Link
+                               to={`/admin/tickets?project=${project.id}`}
+                               className="text-xs text-primary hover:underline"
+                             >
+                               View
+                             </Link>
                           </div>
                         </td>
                         <td className="px-4 py-3">
                           <Link
-                            to={`/analytics/${project.id}`}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#1e2875] text-white rounded text-xs font-medium hover:bg-[#2a3488] transition"
+                            to={`/admin/analytics/${project.id}`}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 bg-primary text-primary-foreground rounded text-xs font-medium hover:bg-primary/80 transition"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path
@@ -217,17 +229,17 @@ export default function AdminProjectsPage() {
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
                             <Link
-                              to={`/admin/projects/${project.id}`}
-                              className="text-xs text-primary hover:underline"
-                            >
-                              View
-                            </Link>
-                            <Link
                               to={`/admin/projects/${project.id}/edit`}
                               className="text-xs text-primary hover:underline"
                             >
                               Edit
                             </Link>
+                            <button
+                              onClick={() => handleDeleteProject(project.id)}
+                              className="text-xs text-red-600 hover:underline"
+                            >
+                              Delete
+                            </button>
                           </div>
                         </td>
                       </tr>

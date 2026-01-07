@@ -74,7 +74,7 @@ export default function SwitchRolePage() {
               </p>
               <p className="text-sm text-muted-foreground mt-2">
                 Current Role:{" "}
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-[#1e2875] text-white">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-primary text-primary-foreground">
                   {user.role.replace("_", " ").toUpperCase()}
                 </span>
               </p>
@@ -115,13 +115,13 @@ export default function SwitchRolePage() {
                     {/* Role Icon */}
                     <div
                       className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ${
-                        isCurrentRole ? "bg-white/20" : "bg-[#1e2875]/10"
+                        isCurrentRole ? "bg-white/20" : "bg-primary/10"
                       }`}
                     >
-                      {role.value === "admin" && (
-                        <svg
-                          className={`w-8 h-8 ${isCurrentRole ? "text-white" : "text-[#1e2875]"}`}
-                          fill="none"
+                       {role.value === "admin" && (
+                         <svg
+                           className={`w-8 h-8 ${isCurrentRole ? "text-white" : "text-primary"}`}
+                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
                         >

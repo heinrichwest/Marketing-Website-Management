@@ -2,6 +2,9 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from "
 import type { UserRole, Project, Ticket } from "@/types"
 import { getProjectsByUserId, mockUsers } from "@/lib/mock-data"
 import { auth, db } from "@/lib/firebase"
+
+// Storage key for messages
+const MESSAGES_STORAGE_KEY = "marketing_management_website_messages"
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -74,18 +77,62 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const mockSignUp = async (data: SignUpData): Promise<void> => {
-    // For mock, just create and sign in immediately
-    const newUser: AuthUser = {
-      id: `user-${Date.now()}`,
+    // For mock, create user and add to mockUsers array
+    const newUserId = `user-${Date.now()}`
+    const newUser = {
+      id: newUserId,
       email: data.email,
       fullName: data.fullName,
       role: data.role,
       phone: data.phone,
+      password: data.password, // Store password for mock auth
+      isActive: true, // New users start as active
+      createdAt: new Date(),
+      updatedAt: new Date(),
     }
 
-    setUser(newUser)
+    // Add new user to mockUsers and persist
+    mockUsers.push(newUser)
+    const currentUsers = JSON.parse(localStorage.getItem("marketing_management_website_users") || "[]")
+    currentUsers.push(newUser)
+    localStorage.setItem("marketing_management_website_users", JSON.stringify(currentUsers))
+
+    // Send notification to all admins about new user registration
+    const admins = mockUsers.filter(u => u.role === "admin")
+    const notificationMessage = {
+      id: `message-${Date.now()}`,
+      senderId: newUserId,
+      recipientId: undefined, // Broadcast to all admins
+      subject: "New User Registration",
+      content: `A new user has registered: ${newUser.fullName} (${newUser.email}) as ${newUser.role}. Please review and approve if necessary.`,
+      isRead: false,
+      isBroadcast: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+
+    // Add message to all admins
+    const currentMessages = JSON.parse(localStorage.getItem(MESSAGES_STORAGE_KEY) || "[]")
+    admins.forEach(admin => {
+      currentMessages.push({
+        ...notificationMessage,
+        recipientId: admin.id,
+        id: `message-${Date.now()}-${admin.id}`,
+      })
+    })
+    localStorage.setItem(MESSAGES_STORAGE_KEY, JSON.stringify(currentMessages))
+
+    const authUser: AuthUser = {
+      id: newUserId,
+      email: newUser.email,
+      fullName: newUser.fullName,
+      role: newUser.role,
+      phone: newUser.phone,
+    }
+
+    setUser(authUser)
     setIsSignedIn(true)
-    localStorage.setItem("mockAuthUser", JSON.stringify(newUser))
+    localStorage.setItem("mockAuthUser", JSON.stringify(authUser))
   }
 
   const mockSignOut = async (): Promise<void> => {

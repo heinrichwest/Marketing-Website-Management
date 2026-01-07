@@ -1,8 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter, useParams } from "next/navigation"
-import Link from "next/link"
+import { useNavigate, useParams } from "react-router-dom"
+import { Link } from "react-router-dom"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
@@ -14,7 +14,7 @@ import type { User, Project, Ticket } from "@/types"
 
 export default function ViewUserPage() {
   const { isSignedIn, user } = useAuth()
-  const router = useRouter()
+  const navigate = useNavigate()
   const params = useParams()
   const userId = params.id as string
 
@@ -25,11 +25,11 @@ export default function ViewUserPage() {
 
   useEffect(() => {
     if (!isSignedIn) {
-      router.push("/login")
+      navigate("/login")
     } else if (user?.role !== "admin") {
-      router.push("/dashboard")
+      navigate("/dashboard")
     }
-  }, [isSignedIn, user, router])
+  }, [isSignedIn, user, navigate])
 
   useEffect(() => {
     if (userId) {
@@ -56,10 +56,10 @@ export default function ViewUserPage() {
 
         setIsLoading(false)
       } else {
-        router.push("/admin/users")
+        navigate("/admin/users")
       }
     }
-  }, [userId, router])
+  }, [userId, navigate])
 
   if (!user || user.role !== "admin") {
     return (
@@ -98,7 +98,7 @@ export default function ViewUserPage() {
           <div className="mb-8">
             <div className="flex items-center gap-4 mb-4">
               <Link
-                href="/admin/users"
+                to="/admin/users"
                 className="text-primary hover:text-primary/80 transition"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -121,7 +121,7 @@ export default function ViewUserPage() {
             </div>
             <div className="flex items-center gap-4">
               <Link
-                href={`/admin/users/${userId}/edit`}
+                to={`/admin/users/${userId}/edit`}
                 className="btn-primary"
               >
                 Edit User
@@ -255,7 +255,7 @@ export default function ViewUserPage() {
                               Role: <span className="text-foreground font-medium">{role}</span>
                             </span>
                             <Link
-                              href={`/admin/projects/${project.id}`}
+                              to={`/admin/projects/${project.id}`}
                               className="text-primary hover:underline"
                             >
                               View Project
@@ -301,7 +301,7 @@ export default function ViewUserPage() {
                           </div>
                           <div className="flex items-center gap-2 flex-wrap">
                             <StatusBadge status={ticket.status} />
-                            <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">
+                            <span className="text-xs px-2 py-1 bg-primary/10 text-primary rounded">
                               {isCreator && "Creator"}
                               {isCreator && isAssigned && " & "}
                               {isAssigned && "Assigned"}

@@ -121,6 +121,20 @@ export interface SocialMediaAnalytics {
   notes?: string
 }
 
+// Message/Notification Types
+export interface Message {
+  id: string
+  senderId: string
+  recipientId?: string // null for broadcast messages
+  subject: string
+  content: string
+  isRead: boolean
+  isBroadcast: boolean // true if sent to all users
+  projectId?: string // optional association with project
+  createdAt: Date
+  updatedAt: Date
+}
+
 // Activity Log Types
 export interface Activity {
   id: string
@@ -129,6 +143,213 @@ export interface Activity {
   action: string
   description: string
   createdAt: Date
+}
+
+// Client Portal Types
+export interface ClientPortalAccess {
+  id: string
+  clientId: string
+  projectId: string
+  canViewProgress: boolean
+  canViewFiles: boolean
+  canDownloadFiles: boolean
+  canSubmitFeedback: boolean
+  canMessageTeam: boolean
+  lastLogin?: Date
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface ClientFeedback {
+  id: string
+  clientId: string
+  projectId: string
+  rating: number // 1-5 stars
+  feedback: string
+  category: 'design' | 'functionality' | 'communication' | 'timeline' | 'overall'
+  isPublic: boolean
+  response?: string
+  responseBy?: string
+  responseAt?: Date
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface FileShare {
+  id: string
+  projectId: string
+  uploadedBy: string
+  fileName: string
+  fileUrl: string
+  fileSize: number
+  fileType: string
+  isPublic: boolean // visible to client
+  description?: string
+  uploadedAt: Date
+}
+
+// Calendar & Scheduling Types
+export type EventType = 'meeting' | 'deadline' | 'milestone' | 'review' | 'maintenance' | 'kickoff' | 'presentation'
+export type EventPriority = 'low' | 'medium' | 'high' | 'critical'
+export type RecurrenceType = 'none' | 'daily' | 'weekly' | 'monthly' | 'yearly'
+
+export interface CalendarEvent {
+  id: string
+  title: string
+  description?: string
+  eventType: EventType
+  priority: EventPriority
+  startDate: Date
+  endDate: Date
+  allDay: boolean
+  location?: string
+  attendees: string[] // User IDs
+  organizerId: string
+  projectId?: string
+  isRecurring: boolean
+  recurrenceType: RecurrenceType
+  recurrenceEndDate?: Date
+  reminderMinutes: number // Minutes before event to send reminder
+  status: 'scheduled' | 'confirmed' | 'cancelled' | 'completed'
+  notes?: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface MeetingRoom {
+  id: string
+  name: string
+  capacity: number
+  location: string
+  amenities: string[]
+  isAvailable: boolean
+}
+
+export interface TimeBlock {
+  id: string
+  userId: string
+  title: string
+  startTime: Date
+  endTime: Date
+  type: 'busy' | 'available' | 'tentative'
+  eventId?: string
+}
+
+// Time Tracking Types
+export type TimeEntryType = 'development' | 'design' | 'meeting' | 'review' | 'planning' | 'testing' | 'maintenance' | 'other'
+export type TimerStatus = 'stopped' | 'running' | 'paused'
+
+export interface TimeEntry {
+  id: string
+  userId: string
+  projectId?: string
+  ticketId?: string
+  description: string
+  entryType: TimeEntryType
+  startTime: Date
+  endTime?: Date
+  duration: number // in minutes
+  isBillable: boolean
+  hourlyRate?: number
+  tags: string[]
+  notes?: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface TimerSession {
+  id: string
+  userId: string
+  projectId?: string
+  ticketId?: string
+  description: string
+  entryType: TimeEntryType
+  startTime: Date
+  endTime?: Date
+  status: TimerStatus
+  accumulatedTime: number // in minutes
+  isBillable: boolean
+  hourlyRate?: number
+  tags: string[]
+}
+
+export interface TimeReport {
+  id: string
+  userId: string
+  projectId?: string
+  period: 'daily' | 'weekly' | 'monthly' | 'custom'
+  startDate: Date
+  endDate: Date
+  totalHours: number
+  billableHours: number
+  totalAmount?: number
+  entries: TimeEntry[]
+  generatedAt: Date
+}
+
+// Project Template Types
+export interface ProjectTemplate {
+  id: string
+  name: string
+  description: string
+  category: 'website' | 'social_media' | 'branding' | 'ecommerce' | 'mobile' | 'custom'
+  estimatedDuration: number // in days
+  estimatedBudget: number
+  difficulty: 'beginner' | 'intermediate' | 'advanced'
+  tags: string[]
+  isPublic: boolean
+  createdBy: string
+  createdAt: Date
+  updatedAt: Date
+
+  // Template structure
+  phases: ProjectPhaseTemplate[]
+  deliverables: DeliverableTemplate[]
+  teamRoles: TeamRoleTemplate[]
+  checklists: ChecklistTemplate[]
+}
+
+export interface ProjectPhaseTemplate {
+  id: string
+  name: string
+  description: string
+  order: number
+  estimatedDuration: number // in days
+  dependencies: string[] // phase IDs this depends on
+  deliverables: string[] // deliverable IDs
+}
+
+export interface DeliverableTemplate {
+  id: string
+  name: string
+  description: string
+  phaseId: string
+  type: 'document' | 'design' | 'code' | 'content' | 'media' | 'other'
+  estimatedHours: number
+  isRequired: boolean
+}
+
+export interface TeamRoleTemplate {
+  id: string
+  role: string
+  required: boolean
+  estimatedHours: number
+  skills: string[]
+}
+
+export interface ChecklistTemplate {
+  id: string
+  name: string
+  description: string
+  phaseId: string
+  items: ChecklistItemTemplate[]
+}
+
+export interface ChecklistItemTemplate {
+  id: string
+  description: string
+  isRequired: boolean
+  estimatedHours: number
 }
 
 // Dashboard Stats Types

@@ -29,9 +29,9 @@ export default function DashboardPage() {
         case "social_media_coordinator":
           navigate("/coordinator/dashboard")
           break
-        case "client":
-          navigate("/client/dashboard")
-          break
+         case "client":
+           navigate("/client-portal/dashboard")
+           break
         default:
           navigate("/")
       }

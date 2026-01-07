@@ -45,9 +45,9 @@ export default function NotificationsPage() {
 
             <div className="space-y-6">
               {/* Current Status */}
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <h3 className="text-lg font-semibold text-blue-900 mb-2">Current Authentication Status</h3>
-                <p className="text-blue-700 mb-4">
+              <div className="p-4 bg-secondary/10 border border-secondary/20 rounded-lg">
+                <h3 className="text-lg font-semibold text-primary mb-2">Current Authentication Status</h3>
+                <p className="text-primary/80 mb-4">
                   <strong>Status:</strong> {useMockAuth ? 'Mock Authentication Active (localStorage-based)' : 'Firebase Authentication Active'}
                   <br />
                   <strong>Note:</strong> {useMockAuth ? 'Currently using demo authentication for testing.' : 'Using production Firebase authentication.'}
@@ -59,7 +59,7 @@ export default function NotificationsPage() {
                   >
                     Switch to {useMockAuth ? 'Firebase' : 'Mock'} Auth
                   </button>
-                  <span className="text-sm text-blue-600">
+                  <span className="text-sm text-primary">
                     ⚠️ Requires page refresh to take effect
                   </span>
                 </div>
@@ -115,13 +115,13 @@ export default function NotificationsPage() {
                     </ol>
                   </div>
 
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <h4 className="font-semibold text-blue-800 mb-2">🔧 Switching to Firebase:</h4>
+                  <div className="bg-secondary/10 p-4 rounded-lg">
+                    <h4 className="font-semibold text-primary mb-2">🔧 Switching to Firebase:</h4>
                     <div className="bg-gray-100 p-3 rounded text-sm font-mono mb-2">
                       // In context/auth-context.tsx<br/>
                       const USE_MOCK_AUTH = false
                     </div>
-                    <p className="text-sm text-blue-700">
+                    <p className="text-sm text-primary/80">
                       After changing this setting, restart the development server and use Firebase accounts.
                     </p>
                   </div>

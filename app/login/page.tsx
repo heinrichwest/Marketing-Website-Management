@@ -67,9 +67,9 @@ export default function LoginPage() {
 
           <div className="card">
             {/* Test Credentials Info */}
-            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-sm font-semibold text-blue-900 mb-2">Test Accounts:</p>
-              <ul className="text-xs text-blue-700 space-y-1">
+            <div className="mb-6 p-4 bg-secondary/10 border border-secondary/20 rounded-lg">
+              <p className="text-sm font-semibold text-primary mb-2">Test Accounts:</p>
+              <ul className="text-xs text-primary/80 space-y-1">
                 <li><strong>Administrator:</strong> admin@system.com / admin123</li>
                 <li><strong>Web Developer:</strong> dev@system.com / dev123</li>
                 <li><strong>Web Developer:</strong> jane.dev@system.com / dev123</li>

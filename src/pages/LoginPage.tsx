@@ -4,16 +4,19 @@ import { useState, useEffect } from "react"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
-import { Link, useNavigate } from "react-router-dom"
+import { Link, useNavigate, useLocation } from "react-router-dom"
 import { useToast, ToastContainer } from "@/components/toast"
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { toasts, showToast } = useToast()
   const { signIn, loading, isSignedIn } = useAuth()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const isClientPortal = new URLSearchParams(location.search).get('portal') === 'client'
 
   // Redirect to dashboard when user becomes signed in
   useEffect(() => {
@@ -67,23 +70,41 @@ export default function LoginPage() {
         <div className="w-full max-w-md">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-foreground mb-2">Sign In</h1>
-            <p className="text-muted-foreground">Access your Marketing Management Website account</p>
+            <h1 className="text-4xl font-bold text-foreground mb-2">
+              {isClientPortal ? "Client Portal" : "Sign In"}
+            </h1>
+            <p className="text-muted-foreground">
+              {isClientPortal ? "Welcome Back - Access your project updates and files" : "Access your Marketing Management Website account"}
+            </p>
           </div>
 
           <div className="card">
             {/* Test Credentials Info */}
-            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-sm font-semibold text-blue-900 mb-2">Test Accounts:</p>
-              <ul className="text-xs text-blue-700 space-y-1">
-                <li><strong>Administrator:</strong> admin@system.com / admin123</li>
-                <li><strong>Web Developer:</strong> dev@system.com / dev123</li>
-                <li><strong>Web Developer:</strong> jane.dev@system.com / dev123</li>
-                <li><strong>Social Media Coordinator:</strong> social@system.com / social123</li>
-                <li><strong>Client:</strong> client@system.com / client123</li>
-                <li><strong>Client:</strong> client2@company.com / client123</li>
-              </ul>
-            </div>
+            {!isClientPortal && (
+              <div className="mb-6 p-4 bg-secondary/10 border border-secondary/20 rounded-lg">
+                <p className="text-sm font-semibold text-primary mb-2">Test Accounts:</p>
+                <ul className="text-xs text-primary/80 space-y-1">
+                  <li><strong>Administrator:</strong> admin@system.com / admin123</li>
+                  <li><strong>Web Developer:</strong> dev@system.com / dev123</li>
+                  <li><strong>Web Developer:</strong> jane.dev@system.com / dev123</li>
+                  <li><strong>Social Media Coordinator:</strong> social@system.com / social123</li>
+                  <li><strong>Client:</strong> client@system.com / client123</li>
+                  <li><strong>Client:</strong> client2@company.com / client123</li>
+                </ul>
+              </div>
+            )}
+
+            {/* Client Portal Credentials */}
+            {isClientPortal && (
+              <div className="mb-6 p-4 bg-accent/10 border border-accent/20 rounded-lg">
+                <p className="text-sm font-semibold text-accent mb-2">Client Portal Test Accounts:</p>
+                <ul className="text-xs text-accent/80 space-y-1">
+                  <li><strong>Client:</strong> client@system.com / client123</li>
+                  <li><strong>Client:</strong> client2@company.com / client123</li>
+                </ul>
+                <p className="text-xs text-accent/60 mt-2">Don't have access? Contact support</p>
+              </div>
+            )}
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -146,13 +167,22 @@ export default function LoginPage() {
 
             </div>
 
-            {/* Signup Link */}
-            <p className="text-center mt-6 text-sm text-muted-foreground">
-              Don't have an account?{" "}
-              <Link to="/register" className="text-primary font-semibold hover:underline">
-                Sign up here
-              </Link>
-            </p>
+             {/* Signup Link */}
+             <p className="text-center mt-6 text-sm text-muted-foreground">
+               Don't have an account?{" "}
+               <Link to="/register" className="text-primary font-semibold hover:underline">
+                 Sign up here
+               </Link>
+             </p>
+
+             {/* Client Portal Back Link */}
+             {isClientPortal && (
+               <p className="text-center mt-4 text-sm text-muted-foreground">
+                 <Link to="/" className="text-primary font-semibold hover:underline">
+                   ← Back to Main Site
+                 </Link>
+               </p>
+             )}
           </div>
 
           {/* Trust Badge */}

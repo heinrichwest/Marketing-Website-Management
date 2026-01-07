@@ -1,8 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
+import { useNavigate, Link } from "react-router-dom"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
@@ -11,7 +10,7 @@ import type { UserRole } from "@/types"
 
 export default function NewUserPage() {
   const { isSignedIn, user } = useAuth()
-  const router = useRouter()
+  const navigate = useNavigate()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState("")
 
@@ -27,11 +26,11 @@ export default function NewUserPage() {
 
   useEffect(() => {
     if (!isSignedIn) {
-      router.push("/login")
+      navigate("/login")
     } else if (user?.role !== "admin") {
-      router.push("/dashboard")
+      navigate("/dashboard")
     }
-  }, [isSignedIn, user, router])
+  }, [isSignedIn, user, navigate])
 
   if (!user || user.role !== "admin") {
     return (
@@ -79,7 +78,7 @@ export default function NewUserPage() {
         isActive: formData.isActive,
       })
 
-      router.push("/admin/users")
+      navigate("/admin/users")
     } catch (err) {
       setError("Failed to create user. Email may already exist.")
       setIsSubmitting(false)
@@ -96,7 +95,7 @@ export default function NewUserPage() {
           <div className="mb-8">
             <div className="flex items-center gap-4 mb-4">
               <Link
-                href="/admin/users"
+                to="/admin/users"
                 className="text-primary hover:text-primary/80 transition"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -250,7 +249,7 @@ export default function NewUserPage() {
 
               {/* Actions */}
               <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-border">
-                <Link href="/admin/users" className="btn-outline">
+                <Link to="/admin/users" className="btn-outline">
                   Cancel
                 </Link>
                 <button type="submit" disabled={isSubmitting} className="btn-primary">

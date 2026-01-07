@@ -89,7 +89,7 @@ export default function ClientProjectsPage() {
 
                     {/* Current Stage */}
                     <div className="mb-4">
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary">
                         {getStageDisplayName(project.currentStage)}
                       </span>
                     </div>
