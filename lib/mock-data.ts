@@ -1000,20 +1000,16 @@ export function updateTicket(ticketId: string, updates: Partial<Ticket>): void {
   // Set resolvedAt when status changes to resolved
   if (updates.status === "resolved" && ticket.status !== "resolved") {
     updates.resolvedAt = new Date()
-    // Add resolution notes
-    const developerName = getUserById(ticket.assignedTo)?.fullName || 'developer'
-    const resolutionNotes = updates.resolutionNotes || `Ticket resolved by ${developerName}. The issue has been fixed and tested.`
-    updates.resolutionNotes = resolutionNotes
 
-    // Notify the ticket creator (client) with solution details
+    // Notify the ticket creator (client)
     const creator = getUserById(ticket.createdBy)
     if (creator && creator.role === "client") {
       const notification: Message = {
         id: `message-${Date.now()}`,
-        senderId: ticket.assignedTo || "system",
+        senderId: "system",
         recipientId: ticket.createdBy,
-        subject: "Ticket Resolved - Solution Details",
-        content: `Your ticket "${ticket.title}" has been resolved!\n\nSolution: ${resolutionNotes}\n\nPlease review the changes. If you have any questions about how this solution works or need further clarification, feel free to create a new ticket.`,
+        subject: "Ticket Resolved",
+        content: `Your ticket "${ticket.title}" has been resolved. Please review the changes.`,
         isRead: false,
         isBroadcast: false,
         createdAt: new Date(),
@@ -1024,15 +1020,15 @@ export function updateTicket(ticketId: string, updates: Partial<Ticket>): void {
       localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(currentMessages))
     }
 
-    // Notify all admins with solution details
+    // Notify all admins
     const admins = getUsers().filter(u => u.role === "admin")
     admins.forEach(admin => {
       const adminNotification: Message = {
         id: `message-${Date.now()}-admin-${admin.id}`,
-        senderId: ticket.assignedTo || "system",
+        senderId: "system",
         recipientId: admin.id,
-        subject: "Ticket Resolution Update",
-        content: `Ticket "${ticket.title}" has been resolved by ${developerName}.\n\nSolution Details: ${resolutionNotes}\n\nClient has been notified. This solution demonstrates best practices for ${ticket.type.replace('_', ' ')} issues.`,
+        subject: "Ticket Resolved",
+        content: `Ticket "${ticket.title}" has been marked as resolved.`,
         isRead: false,
         isBroadcast: false,
         createdAt: new Date(),
@@ -1042,10 +1038,6 @@ export function updateTicket(ticketId: string, updates: Partial<Ticket>): void {
       currentMessages.push(adminNotification)
       localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(currentMessages))
     })
-
-    // Optionally notify other developers for learning (commented out to avoid spam)
-    // const developers = getUsers().filter(u => u.role === "web_developer" && u.id !== ticket.assignedTo)
-    // developers.forEach(dev => { ... })
   }
 }
 
