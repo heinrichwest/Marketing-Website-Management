@@ -8,6 +8,7 @@ import StatCard from "@/components/stat-card"
 import StatusBadge from "@/components/status-badge"
 import PriorityBadge from "@/components/priority-badge"
 import { getStageDisplayName, formatRelativeTime } from "@/lib/utils"
+import { PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, BarChart, Bar, ResponsiveContainer } from 'recharts'
 
 export default function AdminDashboard() {
   const { isSignedIn, user } = useAuth()
@@ -100,6 +101,47 @@ export default function AdminDashboard() {
     }
   }
 
+  // Chart data calculations
+  const ticketStatusData = [
+    { name: 'Open', value: tickets.filter(t => t.status === 'open').length, color: '#ef4444' },
+    { name: 'In Progress', value: tickets.filter(t => t.status === 'in_progress').length, color: '#f59e0b' },
+    { name: 'Resolved', value: tickets.filter(t => t.status === 'resolved').length, color: '#10b981' },
+    { name: 'Closed', value: tickets.filter(t => t.status === 'closed').length, color: '#6b7280' }
+  ].filter(item => item.value > 0)
+
+  const projectStatusData = [
+    { name: 'Active', value: projects.filter(p => p.status === 'active').length },
+    { name: 'Paused', value: projects.filter(p => p.status === 'paused').length },
+    { name: 'Completed', value: projects.filter(p => p.status === 'completed').length }
+  ].filter(item => item.value > 0)
+
+  // Recent activity data (last 7 days)
+  const getActivityData = () => {
+    const last7Days = Array.from({ length: 7 }, (_, i) => {
+      const date = new Date()
+      date.setDate(date.getDate() - (6 - i))
+      return date
+    })
+
+    return last7Days.map(date => {
+      const dayTickets = tickets.filter(t =>
+        new Date(t.createdAt).toDateString() === date.toDateString()
+      ).length
+
+      const dayProjects = projects.filter(p =>
+        new Date(p.createdAt).toDateString() === date.toDateString()
+      ).length
+
+      return {
+        date: date.toLocaleDateString('en-US', { weekday: 'short' }),
+        tickets: dayTickets,
+        projects: dayProjects
+      }
+    })
+  }
+
+  const activityData = getActivityData()
+
   return (
     <>
       <Navbar />
@@ -114,6 +156,71 @@ export default function AdminDashboard() {
 
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
+          {/* Analytics Charts */}
+          <div className="lg:col-span-2 mb-8">
+            <h2 className="text-2xl font-bold text-foreground mb-6">Analytics Overview</h2>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              {/* Ticket Status Distribution */}
+              <div className="card">
+                <h3 className="text-lg font-semibold text-foreground mb-4">Ticket Status Distribution</h3>
+                <ResponsiveContainer width="100%" height={250}>
+                  <PieChart>
+                    <Pie
+                      data={ticketStatusData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={40}
+                      outerRadius={80}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {ticketStatusData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Project Status Overview */}
+              <div className="card">
+                <h3 className="text-lg font-semibold text-foreground mb-4">Project Status Overview</h3>
+                <ResponsiveContainer width="100%" height={250}>
+                  <BarChart data={projectStatusData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="value" fill="#3b82f6" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Activity Trends */}
+            <div className="card">
+              <h3 className="text-lg font-semibold text-foreground mb-4">Recent Activity (Last 7 Days)</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={activityData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Line type="monotone" dataKey="tickets" stroke="#ef4444" strokeWidth={2} name="New Tickets" />
+                  <Line type="monotone" dataKey="projects" stroke="#3b82f6" strokeWidth={2} name="New Projects" />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+
+          {/* Main Content Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <StatCard
               title="Total Projects"
               value={stats.totalProjects}
