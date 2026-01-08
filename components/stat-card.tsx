@@ -22,11 +22,11 @@ export default function StatCard({ title, value, icon, trend, className = "" }: 
           </p>
           {trend && (
             <div className="flex items-center gap-2 mt-3">
-              <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-                trend.isPositive
-                  ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                  : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-              }`}>
+               <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                 trend.isPositive
+                   ? "bg-success/10 text-success-foreground"
+                   : "bg-destructive/10 text-destructive-foreground"
+               }`}>
                 {trend.isPositive ? "↗" : "↘"} {Math.abs(trend.value)}%
               </span>
               <span className="text-xs text-muted-foreground">vs last period</span>

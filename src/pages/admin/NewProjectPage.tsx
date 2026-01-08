@@ -75,7 +75,7 @@ export default function NewProjectPage() {
       updatedAt: new Date(),
     }
 
-    console.log("Creating new project:", newProject)
+
     alert(`${projectType === "website" ? "Website" : "Social Media"} project "${formData.name}" created successfully!`)
     navigate("/admin/dashboard")
   }

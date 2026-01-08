@@ -84,13 +84,14 @@ export default function EditProjectModal({ project, isOpen, onClose, onSuccess }
   const coordinators = users.filter((u) => u.role === "social_media_coordinator")
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" role="dialog" aria-labelledby="edit-project-title">
       <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b border-border px-6 py-4 flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-foreground">Edit Project: {project.name}</h2>
+          <h2 id="edit-project-title" className="text-2xl font-bold text-foreground">Edit Project: {project.name}</h2>
           <button
             onClick={onClose}
             className="text-muted-foreground hover:text-foreground transition"
+            aria-label="Close modal"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

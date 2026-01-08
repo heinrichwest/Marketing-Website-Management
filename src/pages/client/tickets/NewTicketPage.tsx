@@ -63,7 +63,7 @@ export default function ClientNewTicketPage() {
     // Save the ticket to localStorage
     addTicket(newTicket)
 
-    console.log("Creating new ticket:", newTicket)
+
 
     // Reset form
     setTitle("")

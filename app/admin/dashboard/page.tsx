@@ -5,12 +5,14 @@ import { useNavigate, Link } from "react-router-dom"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
-import { getProjects, getTickets, getUsers } from "@/lib/mock-data"
+import { getProjects, getTickets, getUsers, deleteProject } from "@/lib/mock-data"
 import StatCard from "@/components/stat-card"
 import StatusBadge from "@/components/status-badge"
 import PriorityBadge from "@/components/priority-badge"
 import { StatCardSkeleton, ProjectCardSkeleton } from "@/components/skeleton"
 import { getStageDisplayName, formatRelativeTime } from "@/lib/utils"
+import { Edit, Trash2, Calendar, Palette, Code, CheckCircle, Rocket, Wrench } from "lucide-react"
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 
 export default function AdminDashboard() {
   const { isSignedIn, user } = useAuth()
@@ -28,6 +30,7 @@ export default function AdminDashboard() {
   const [searchTerm, setSearchTerm] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const [isLoading, setIsLoading] = useState(true)
+  const [refreshKey, setRefreshKey] = useState(0)
 
   // Simulate loading delay
   useEffect(() => {
@@ -45,19 +48,9 @@ export default function AdminDashboard() {
     )
   }
 
-  const projects = getProjects()
+  const projects = useMemo(() => getProjects(), [refreshKey])
   const tickets = getTickets()
   const users = getUsers()
-
-  const stats = {
-    totalProjects: projects.length,
-    activeProjects: projects.filter((p) => p.status === "active").length,
-    totalUsers: users.length,
-    openTickets: tickets.filter((t) => t.status === "open" || t.status === "in_progress").length,
-  }
-
-  const recentProjects = projects.slice(0, 5)
-  const recentTickets = tickets.slice(0, 5)
 
   // Filter projects based on search term
   const filteredProjects = useMemo(() => {
@@ -79,17 +72,52 @@ export default function AdminDashboard() {
     setCurrentPage(1)
   }, [searchTerm])
 
-  // Reset to first page when pageSize changes if current page exceeds total pages
-  useEffect(() => {
-    if (currentPage > totalPages && totalPages > 0) {
-      setCurrentPage(totalPages)
-    }
-  }, [pageSize, totalPages, currentPage])
-
-  // Calculate ticket count per project
-  const getProjectTicketCount = (projectId: string) => {
-    return tickets.filter((t) => t.projectId === projectId).length
+  const stats = {
+    totalProjects: projects.length,
+    activeProjects: projects.filter((p) => p.status === "active").length,
+    totalUsers: users.length,
+    openTickets: tickets.filter((t) => t.status === "open" || t.status === "in_progress").length,
   }
+
+  const recentProjects = projects.slice(0, 5)
+  const recentTickets = tickets.slice(0, 5)
+
+  const handleDeleteProject = (projectId: string) => {
+    if (window.confirm("Are you sure you want to delete this project? This action cannot be undone.")) {
+      // Remove from localStorage
+      const projects = JSON.parse(localStorage.getItem("marketing_management_website_projects") || "[]")
+      const updatedProjects = projects.filter((p: any) => p.id !== projectId)
+      localStorage.setItem("marketing_management_website_projects", JSON.stringify(updatedProjects))
+
+      // Refresh the page to update the list
+      window.location.reload()
+    }
+  }
+
+  const getStageIcon = (stageName: string) => {
+    switch (stageName.toLowerCase()) {
+      case 'planning': return Calendar
+      case 'design': return Palette
+      case 'development': return Code
+      case 'testing': return CheckCircle
+      case 'launch': return Rocket
+      case 'maintenance': return Wrench
+      default: return Calendar
+    }
+  }
+
+  const projectStageData = [
+    { name: 'Planning', value: 4 },
+    { name: 'Design', value: 3 },
+    { name: 'Development', value: 5 },
+    { name: 'Testing', value: 5 },
+    { name: 'Launch', value: 5 },
+    { name: 'Maintenance', value: 1 }
+  ]
+
+  const stageColors = ['#fbbf24', '#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444']
+
+
 
   return (
     <>
@@ -184,12 +212,13 @@ export default function AdminDashboard() {
                 </svg>
                 New Project
               </Link>
-              <Link to="/admin/projects" className="btn-outline">
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Manage Projects
-              </Link>
+               <Link to="/admin/projects" className="btn-outline">
+                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v0M8 5a2 2 0 012-2h4a2 2 0 012 2v0" />
+                 </svg>
+                 Manage Projects
+               </Link>
               <Link to="/admin/users" className="btn-outline">
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
@@ -203,9 +232,36 @@ export default function AdminDashboard() {
                 View Analytics
               </Link>
             </div>
-          </div>
+           </div>
 
-          {/* All Projects Table */}
+            {/* Project Stages Summary */}
+            <div className="card mb-8">
+              <h3 className="text-lg font-semibold text-foreground mb-4">Project Stages Summary</h3>
+              <ResponsiveContainer width="100%" height={350}>
+                <BarChart data={projectStageData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="name"
+                    angle={-45}
+                    textAnchor="end"
+                    height={80}
+                    interval={0}
+                  />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                    {projectStageData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={stageColors[index]} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+              <div className="mt-4 text-center text-sm text-muted-foreground">
+                Total projects across all stages: {projectStageData.reduce((sum, stage) => sum + stage.value, 0)}
+              </div>
+            </div>
+
+           {/* All Projects Table */}
           <div className="card mb-8">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-foreground">All Projects ({filteredProjects.length})</h2>
@@ -240,16 +296,16 @@ export default function AdminDashboard() {
             <div className="overflow-x-auto">
               <table key={`${pageSize}-${currentPage}`} className="w-full border-collapse">
                 <thead>
-                  <tr className="bg-[#1e2875] text-white">
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">#</th>
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">Project Name</th>
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">Status</th>
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">Current Stage</th>
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">Client</th>
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">Developer</th>
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">Tickets</th>
-                    <th className="px-4 py-3 text-left font-semibold border-r border-[#2a3488]">Analytics</th>
-                    <th className="px-4 py-3 text-left font-semibold">Actions</th>
+                   <tr className="bg-primary text-primary-foreground">
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">#</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Project Name</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Status</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Current Stage</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Client</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Developer</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Tickets</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Analytics</th>
+                     <th className="px-4 py-3 text-left font-semibold">Actions</th>
                   </tr>
                 </thead>
                  <tbody>
@@ -257,14 +313,14 @@ export default function AdminDashboard() {
                      const client = users.find((u) => u.id === project.clientId)
                      const developer = users.find((u) => u.id === project.webDeveloperId)
                      const coordinator = users.find((u) => u.id === project.socialMediaCoordinatorId)
-                     const ticketCount = getProjectTicketCount(project.id)
+                      const ticketCount = getTickets().filter(t => t.projectId === project.id).length
 
                      return (
                        <tr
                          key={project.id}
-                         className={`${
-                           index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                          } hover:bg-secondary/10 transition border-b border-border`}
+                          className={`${
+                            index % 2 === 0 ? "bg-background" : "bg-muted/30"
+                           } hover:bg-secondary/10 transition border-b border-border`}
                        >
                          <td className="px-4 py-3 text-sm">{startIndex + index + 1}</td>
                         <td className="px-4 py-3">
@@ -318,38 +374,40 @@ export default function AdminDashboard() {
                             </Link>
                           </div>
                         </td>
-                        <td className="px-4 py-3">
-                          <Link
-                            to={`/analytics/${project.id}`}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 bg-primary text-primary-foreground rounded text-xs font-medium hover:bg-primary/80 transition"
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                              />
-                            </svg>
-                            Analytics
-                          </Link>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-2">
-                            <Link
-                              to={`/admin/projects/${project.id}`}
-                              className="text-xs text-primary hover:underline"
-                            >
-                              View
-                            </Link>
-                            <Link
-                              to={`/admin/projects/${project.id}/edit`}
-                              className="text-xs text-primary hover:underline"
-                            >
-                              Edit
-                            </Link>
-                          </div>
-                        </td>
+                         <td className="px-4 py-3">
+                           <Link
+                             to={`/admin/analytics/${project.id}`}
+                             className="inline-flex items-center gap-1 px-3 py-1.5 bg-primary text-primary-foreground rounded text-xs font-medium hover:bg-primary/80 transition"
+                           >
+                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                               <path
+                                 strokeLinecap="round"
+                                 strokeLinejoin="round"
+                                 strokeWidth={2}
+                                 d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                               />
+                             </svg>
+                             Analytics
+                           </Link>
+                         </td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-2">
+                              <Link
+                                to={`/admin/projects/${project.id}/edit`}
+                                className="p-2 text-primary hover:bg-primary/10 rounded transition-colors"
+                                aria-label="Edit project"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Link>
+                              <button
+                                onClick={() => handleDeleteProject(project.id)}
+                                className="p-2 text-red-600 hover:bg-red-50 rounded transition-colors"
+                                aria-label="Delete project"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
                       </tr>
                     )
                   })}

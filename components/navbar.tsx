@@ -234,13 +234,13 @@ export default function Navbar() {
                     {unreadCount > 99 ? '99+' : unreadCount}
                   </span>
                 )}
-              </Link>
+               </Link>
 
-                <div className="text-sm text-right">
-                  <p className="font-semibold text-foreground">{user.fullName}</p>
-                </div>
+               <div className="text-sm text-right">
+                 <p className="font-semibold text-foreground">{user.fullName}</p>
+               </div>
 
-              <button onClick={handleSignOut} className="btn-secondary text-sm">
+               <button onClick={handleSignOut} className="btn-secondary text-sm">
                 Sign Out
               </button>
             </div>

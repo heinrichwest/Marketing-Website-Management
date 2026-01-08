@@ -7,6 +7,8 @@ import { getProjectById, getTicketsByProjectId, getMessagesByUserId } from "@/li
 import { getStatusColor } from "@/lib/utils"
 import type { Project, Ticket, Message } from "@/types"
 import { format } from "date-fns"
+import Navbar from "@/components/navbar"
+import Footer from "@/components/footer"
 
 export default function ClientPortalProjectPage() {
   const { id } = useParams<{ id: string }>()
@@ -77,34 +79,11 @@ export default function ClientPortalProjectPage() {
   }
 
   return (
-    <div className="min-h-screen bg-muted">
-      {/* Header */}
-      <header className="bg-white dark:bg-gray-800 border-b border-border/50 sticky top-0 z-40">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <Link to="/client-portal/dashboard" className="flex items-center gap-2 text-primary hover:text-primary-dark transition-colors">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Back to Dashboard
-            </Link>
+    <>
+      <Navbar />
 
-            <div className="flex items-center gap-4">
-              <Link
-                to="/messages"
-                className="p-2 rounded-lg hover:bg-muted transition-colors relative"
-                title="Messages"
-              >
-                <svg className="w-5 h-5 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="container mx-auto px-6 py-8">
+      <main className="min-h-screen bg-muted">
+        <div className="container mx-auto px-6 py-8">
         {/* Project Header */}
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-border/50 p-8 mb-8">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
@@ -302,7 +281,10 @@ export default function ClientPortalProjectPage() {
             </div>
           </div>
         </div>
+        </div>
       </main>
-    </div>
+
+      <Footer />
+    </>
   )
 }

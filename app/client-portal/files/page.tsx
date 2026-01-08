@@ -5,6 +5,8 @@ import { useAuth } from "@/context/auth-context"
 import { getProjectsByUserId } from "@/lib/mock-data"
 import type { Project } from "@/types"
 import { Link } from "react-router-dom"
+import Navbar from "@/components/navbar"
+import Footer from "@/components/footer"
 
 export default function ClientFileSharingPage() {
   const { user } = useAuth()
@@ -37,8 +39,6 @@ export default function ClientFileSharingPage() {
     await new Promise(resolve => setTimeout(resolve, 2000))
 
     // In a real app, you would upload to a cloud storage service
-    console.log("Uploading files:", uploadedFiles.map(f => f.name))
-    console.log("To project:", selectedProject)
 
     setUploadedFiles([])
     setIsUploading(false)
@@ -66,30 +66,11 @@ export default function ClientFileSharingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-muted">
-      {/* Header */}
-      <header className="bg-white dark:bg-gray-800 border-b border-border/50 sticky top-0 z-40">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <Link to="/client-portal/dashboard" className="flex items-center gap-3">
-              <img src="/Logo.png" alt="Logo" className="h-8 w-auto" />
-              <div>
-                <h1 className="text-xl font-bold text-primary">Client Portal</h1>
-                <p className="text-sm text-muted-foreground">File Sharing</p>
-              </div>
-            </Link>
+    <>
+      <Navbar />
 
-            <Link
-              to="/client-portal/dashboard"
-              className="text-primary hover:text-primary-dark transition-colors"
-            >
-              ← Back to Dashboard
-            </Link>
-          </div>
-        </div>
-      </header>
-
-      <main className="container mx-auto px-6 py-8">
+      <main className="min-h-screen bg-muted">
+        <div className="container mx-auto px-6 py-8">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="mb-8">
@@ -210,7 +191,10 @@ export default function ClientFileSharingPage() {
             </div>
           </div>
         </div>
+        </div>
       </main>
-    </div>
+
+      <Footer />
+    </>
   )
 }

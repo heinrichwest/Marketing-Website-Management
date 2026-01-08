@@ -108,37 +108,41 @@ export default function LoginPage() {
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-semibold text-foreground mb-2">Email Address</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground placeholder-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20"
-                />
-              </div>
+               <div>
+                 <label htmlFor="email" className="block text-sm font-semibold text-foreground mb-2">Email Address</label>
+                 <input
+                   id="email"
+                   type="email"
+                   value={email}
+                   onChange={(e) => setEmail(e.target.value)}
+                   placeholder="you@example.com"
+                   className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground placeholder-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20"
+                   required
+                 />
+               </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-foreground mb-2">Password</label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground placeholder-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20"
-                />
-              </div>
+               <div>
+                 <label htmlFor="password" className="block text-sm font-semibold text-foreground mb-2">Password</label>
+                 <input
+                   id="password"
+                   type="password"
+                   value={password}
+                   onChange={(e) => setPassword(e.target.value)}
+                   placeholder="••••••••"
+                   className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground placeholder-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20"
+                   required
+                 />
+               </div>
 
-              <div className="flex items-center justify-between">
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" className="rounded" />
-                  <span className="text-sm text-foreground">Remember me</span>
-                </label>
-                <Link to="#" className="text-sm text-primary hover:underline">
-                  Forgot password?
-                </Link>
-              </div>
+               <div className="flex items-center justify-between">
+                 <div className="flex items-center gap-2">
+                   <input id="remember" type="checkbox" className="rounded" />
+                   <label htmlFor="remember" className="text-sm text-foreground">Remember me</label>
+                 </div>
+                 <Link to="#" className="text-sm text-primary hover:underline">
+                   Forgot password?
+                 </Link>
+               </div>
 
               <button 
                 type="submit" 

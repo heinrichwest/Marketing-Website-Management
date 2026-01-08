@@ -7,6 +7,7 @@ import { getProjects, getUsers, getTickets } from "../../../lib/mock-data"
 import StatusBadge from "../../../components/status-badge"
 import { getStageDisplayName, formatRelativeTime } from "../../../lib/utils"
 import type { Project } from "../../../types"
+import { Edit, Trash2 } from "lucide-react"
 
 export default function AdminProjectsPage() {
   const { isSignedIn, user } = useAuth()
@@ -226,22 +227,24 @@ export default function AdminProjectsPage() {
                             Analytics
                           </Link>
                         </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-2">
-                            <Link
-                              to={`/admin/projects/${project.id}/edit`}
-                              className="text-xs text-primary hover:underline"
-                            >
-                              Edit
-                            </Link>
-                            <button
-                              onClick={() => handleDeleteProject(project.id)}
-                              className="text-xs text-red-600 hover:underline"
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        </td>
+                         <td className="px-4 py-3">
+                           <div className="flex items-center gap-2">
+                             <Link
+                               to={`/admin/projects/${project.id}/edit`}
+                               className="p-2 text-primary hover:bg-primary/10 rounded transition-colors"
+                               aria-label="Edit project"
+                             >
+                               <Edit className="w-4 h-4" />
+                             </Link>
+                             <button
+                               onClick={() => handleDeleteProject(project.id)}
+                               className="p-2 text-red-600 hover:bg-red-50 rounded transition-colors"
+                               aria-label="Delete project"
+                             >
+                               <Trash2 className="w-4 h-4" />
+                             </button>
+                           </div>
+                         </td>
                       </tr>
                     )
                   })}
