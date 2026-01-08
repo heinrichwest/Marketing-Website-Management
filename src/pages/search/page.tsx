@@ -105,6 +105,7 @@ export default function SearchPage() {
             <div>
               <h1 className="text-4xl font-bold text-foreground mb-2">Global Search</h1>
               <p className="text-muted-foreground">Find anything across your entire workspace - projects, tickets, users, and messages</p>
+              <p className="text-xs text-muted-foreground mt-2">🚀 Deployed automatically via GitHub Actions</p>
             </div>
           </div>
 
