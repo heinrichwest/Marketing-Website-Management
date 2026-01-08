@@ -75,6 +75,7 @@ export interface Ticket {
   createdAt: Date
   updatedAt: Date
   resolvedAt?: Date
+  resolutionNotes?: string
   attachments?: string[]
 }
 

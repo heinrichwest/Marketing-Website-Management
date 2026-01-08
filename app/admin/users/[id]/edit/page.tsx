@@ -10,7 +10,7 @@ import { getUserById, updateUser } from "@/lib/mock-data"
 import type { UserRole, User } from "@/types"
 
 export default function EditUserPage() {
-  const { isSignedIn, user } = useAuth()
+  const { isSignedIn, user, updateCurrentUser } = useAuth()
   const navigate = useNavigate()
   const params = useParams()
   const userId = params.id as string
@@ -125,6 +125,16 @@ export default function EditUserPage() {
         isActive: formData.isActive,
         ...(formData.changePassword && { password: formData.newPassword }),
       })
+
+      // Update current user context if editing own profile
+      if (user && userId === user.id) {
+        updateCurrentUser({
+          fullName: formData.fullName,
+          email: formData.email,
+          phone: formData.phone,
+          role: formData.role,
+        })
+      }
 
       navigate("/admin/users")
     } catch (err) {

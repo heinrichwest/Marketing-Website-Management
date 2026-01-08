@@ -59,27 +59,14 @@ export default function LoginPage() {
 
       <main className="min-h-screen bg-muted flex items-center justify-center py-12">
         <div className="w-full max-w-md">
-          {/* Header */}
+          {/* Simple Header */}
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-foreground mb-2">Sign In</h1>
-            <p className="text-muted-foreground">Access your Marketing Management Website account</p>
+            <h1 className="text-4xl font-bold text-foreground mb-2">Welcome Back</h1>
+            <p className="text-muted-foreground">Sign in to access your account</p>
           </div>
 
           <div className="card">
-            {/* Test Credentials Info */}
-            <div className="mb-6 p-4 bg-secondary/10 border border-secondary/20 rounded-lg">
-              <p className="text-sm font-semibold text-primary mb-2">Test Accounts:</p>
-              <ul className="text-xs text-primary/80 space-y-1">
-                <li><strong>Administrator:</strong> admin@system.com / admin123</li>
-                <li><strong>Web Developer:</strong> dev@system.com / dev123</li>
-                <li><strong>Web Developer:</strong> jane.dev@system.com / dev123</li>
-                <li><strong>Social Media Coordinator:</strong> social@system.com / social123</li>
-                <li><strong>Client:</strong> client@system.com / client123</li>
-                <li><strong>Client:</strong> client2@company.com / client123</li>
-              </ul>
-            </div>
-
-            {/* Form */}
+            {/* Simple Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-semibold text-foreground mb-2">Email Address</label>
@@ -89,6 +76,7 @@ export default function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
                   className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground placeholder-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  required
                 />
               </div>
 
@@ -100,53 +88,18 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground placeholder-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  required
                 />
               </div>
 
-              <div className="flex items-center justify-between">
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" className="rounded" />
-                  <span className="text-sm text-foreground">Remember me</span>
-                </label>
-                <Link to="#" className="text-sm text-primary hover:underline">
-                  Forgot password?
-                </Link>
-              </div>
-
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={isSubmitting || loading}
                 className="w-full btn-primary py-3 font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting || loading ? "Signing in..." : "Sign In"}
               </button>
             </form>
-
-            {/* Divider */}
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-border"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-background text-muted-foreground">Or</span>
-              </div>
-            </div>
-
-            {/* Social Buttons */}
-            <div className="space-y-3">
-              <button className="w-full flex items-center justify-center gap-2 border border-border rounded-lg py-3 font-semibold text-foreground hover:bg-muted transition">
-                <span>🔵</span> Continue with Google
-              </button>
-             
-            </div>
-
-            {/* Signup Link */}
-            <p className="text-center mt-6 text-sm text-muted-foreground">
-              Don't have an account?{" "}
-              <Link to="/register" className="text-primary font-semibold hover:underline">
-                Sign up here
-              </Link>
-            </p>
           </div>
 
           {/* Trust Badge */}

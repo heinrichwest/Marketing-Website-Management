@@ -20,7 +20,7 @@ export default function ClientPortalProjectPage() {
 
   useEffect(() => {
     if (!user || user.role !== "client") {
-      navigate("/client-portal/login")
+      navigate("/login?portal=client")
       return
     }
 

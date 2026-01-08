@@ -34,6 +34,18 @@ export default function ClientPortalDashboardPage() {
     setIsLoading(false)
   }, [user, navigate])
 
+  // Show loading while checking auth
+  if (!user || user.role !== "client") {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 to-primary/10 flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading Client Portal...</p>
+        </div>
+      </div>
+    )
+  }
+
   const handleSignOut = async () => {
     try {
       await signOut()
@@ -43,19 +55,25 @@ export default function ClientPortalDashboardPage() {
     }
   }
 
+  // Redirect to client login if not authenticated
+  if (!user || user.role !== "client") {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 to-primary/10 flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading Client Portal...</p>
+        </div>
+      </div>
+    )
+  }
+
   const activeProjects = projects.filter(p => p.status === "active")
   const recentTickets = tickets.slice(0, 3)
   const unreadMessages = messages.filter(msg =>
     !msg.isRead && msg.recipientId === user?.id
   )
 
-  if (!user || user.role !== "client") {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-muted">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    )
-  }
+
 
   return (
     <div className="min-h-screen bg-muted">
@@ -105,6 +123,22 @@ export default function ClientPortalDashboardPage() {
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-foreground mb-2">Project Dashboard</h2>
           <p className="text-muted-foreground">Track your project progress and communicate with our team</p>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="card mb-8">
+          <h2 className="text-xl font-bold text-foreground mb-4">Quick Actions</h2>
+          <div className="flex gap-4 flex-wrap">
+            <Link to="/client/tickets/new" className="btn-primary">
+              + Create New Ticket
+            </Link>
+            <Link to="/client-portal/files" className="btn-outline">
+              View Files
+            </Link>
+            <Link to="/messages" className="btn-outline">
+              Messages
+            </Link>
+          </div>
         </div>
 
         {/* Stats Overview */}

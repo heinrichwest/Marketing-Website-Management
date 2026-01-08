@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, Link } from "react-router-dom"
 import { useAuth } from "@/context/auth-context"
 import { getProjects, getTickets, getUsers } from "@/lib/mock-data"
 import type { Project, Ticket, User, TimerSession, TimeEntry, TimeEntryType } from "@/types"
@@ -253,6 +253,11 @@ export default function TimeTrackingPage() {
           {/* Header */}
           <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-6 mb-8">
             <div>
+              <div className="flex items-center gap-4 mb-4">
+                <Link to="/admin/dashboard" className="btn-outline text-sm">
+                  ← Back to Dashboard
+                </Link>
+              </div>
               <h1 className="text-4xl lg:text-5xl font-bold text-foreground mb-3">Time Tracking</h1>
               <p className="text-lg text-muted-foreground leading-relaxed">
                 Track your work hours, monitor productivity, and manage billable time

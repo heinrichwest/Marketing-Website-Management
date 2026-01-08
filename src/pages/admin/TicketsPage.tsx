@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams, Link } from "react-router-dom"
 import Navbar from "../../../components/navbar"
 import Footer from "../../../components/footer"
 import { useAuth } from "../../../context/auth-context"
-import { getTickets, getProjects, getUsers } from "../../../lib/mock-data"
+import { getTickets, getProjects, getUsers, updateTicket } from "../../../lib/mock-data"
 import StatusBadge from "../../../components/status-badge"
 import PriorityBadge from "../../../components/priority-badge"
 import { formatRelativeTime } from "../../../lib/utils"
@@ -14,7 +14,10 @@ export default function AdminTicketsPage() {
   const [searchParams] = useSearchParams()
   const [pageSize, setPageSize] = useState(10)
   const [searchTerm, setSearchTerm] = useState("")
+  const [statusFilter, setStatusFilter] = useState<"all" | "open" | "in_progress" | "resolved" | "closed">("all")
+  const [priorityFilter, setPriorityFilter] = useState<"all" | "low" | "medium" | "high" | "critical">("all")
   const [currentPage, setCurrentPage] = useState(1)
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
 
   useEffect(() => {
     if (!isSignedIn) {
@@ -36,6 +39,9 @@ export default function AdminTicketsPage() {
   const projects = getProjects()
   const allUsers = getUsers()
 
+  // Refresh tickets when assignment changes
+  useEffect(() => {}, [refreshTrigger])
+
   // Filter by project if query param exists
   const projectId = searchParams.get("project")
   let filteredTickets = allTickets
@@ -43,11 +49,22 @@ export default function AdminTicketsPage() {
     filteredTickets = allTickets.filter(ticket => ticket.projectId === projectId)
   }
 
-  // Filter by search term
-  filteredTickets = filteredTickets.filter(ticket =>
-    ticket.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    ticket.description.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  // Apply filters
+  filteredTickets = filteredTickets.filter(ticket => {
+    // Search term filter
+    const matchesSearch = !searchTerm ||
+      ticket.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ticket.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ticket.id.toLowerCase().includes(searchTerm.toLowerCase())
+
+    // Status filter
+    const matchesStatus = statusFilter === "all" || ticket.status === statusFilter
+
+    // Priority filter
+    const matchesPriority = priorityFilter === "all" || ticket.priority === priorityFilter
+
+    return matchesSearch && matchesStatus && matchesPriority
+  })
 
   // Paginate tickets
   const totalPages = Math.ceil(filteredTickets.length / pageSize)
@@ -55,10 +72,15 @@ export default function AdminTicketsPage() {
   const endIndex = startIndex + pageSize
   const paginatedTickets = filteredTickets.slice(startIndex, endIndex)
 
-  // Reset to first page when search changes
+  // Reset to first page when filters change
   useEffect(() => {
     setCurrentPage(1)
-  }, [searchTerm])
+  }, [searchTerm, statusFilter, priorityFilter])
+
+  const handleAssignmentChange = (ticketId: string, assignedTo: string) => {
+    updateTicket(ticketId, { assignedTo: assignedTo || undefined })
+    setRefreshTrigger(prev => prev + 1)
+  }
 
   return (
     <>
@@ -97,45 +119,129 @@ export default function AdminTicketsPage() {
                 Tickets ({filteredTickets.length})
               </h2>
             </div>
-            <div className="flex items-center justify-between gap-4 mb-6">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Show</span>
-                <select
-                  value={pageSize}
-                  onChange={(e) => setPageSize(Number(e.target.value))}
-                  className="border border-border rounded px-2 py-1 bg-background text-foreground hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
-                >
-                  <option value={10}>10</option>
-                  <option value={25}>25</option>
-                  <option value={50}>50</option>
-                  <option value={100}>100</option>
-                </select>
-                <span className="text-sm text-muted-foreground">entries</span>
+            <div className="flex flex-col gap-4 mb-6">
+              {/* Filters Row */}
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">Status:</span>
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value as any)}
+                      className="border border-border rounded px-2 py-1 bg-background text-foreground hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                    >
+                      <option value="all">All Status</option>
+                      <option value="open">Open</option>
+                      <option value="in_progress">In Progress</option>
+                      <option value="resolved">Resolved</option>
+                      <option value="closed">Closed</option>
+                    </select>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">Priority:</span>
+                    <select
+                      value={priorityFilter}
+                      onChange={(e) => setPriorityFilter(e.target.value as any)}
+                      className="border border-border rounded px-2 py-1 bg-background text-foreground hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                    >
+                      <option value="all">All Priority</option>
+                      <option value="low">Low</option>
+                      <option value="medium">Medium</option>
+                      <option value="high">High</option>
+                      <option value="critical">Critical</option>
+                    </select>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">Show:</span>
+                    <select
+                      value={pageSize}
+                      onChange={(e) => setPageSize(Number(e.target.value))}
+                      className="border border-border rounded px-2 py-1 bg-background text-foreground hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                    >
+                      <option value={10}>10</option>
+                      <option value={25}>25</option>
+                      <option value={50}>50</option>
+                      <option value={100}>100</option>
+                    </select>
+                    <span className="text-sm text-muted-foreground">entries</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Search:</span>
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="border border-border rounded px-3 py-1 bg-background text-foreground hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary min-w-[200px]"
+                    placeholder="Search tickets..."
+                  />
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Search:</span>
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="border border-border rounded px-3 py-1 bg-background text-foreground hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary min-w-[200px]"
-                  placeholder="Search tickets..."
-                />
-              </div>
+
+              {/* Active Filters Display */}
+              {(statusFilter !== "all" || priorityFilter !== "all" || searchTerm) && (
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="text-muted-foreground">Active filters:</span>
+                  {statusFilter !== "all" && (
+                    <span className="inline-flex items-center px-2 py-1 rounded bg-primary/10 text-primary text-xs">
+                      Status: {statusFilter.replace("_", " ")}
+                      <button
+                        onClick={() => setStatusFilter("all")}
+                        className="ml-1 hover:text-primary-dark"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  )}
+                  {priorityFilter !== "all" && (
+                    <span className="inline-flex items-center px-2 py-1 rounded bg-primary/10 text-primary text-xs">
+                      Priority: {priorityFilter}
+                      <button
+                        onClick={() => setPriorityFilter("all")}
+                        className="ml-1 hover:text-primary-dark"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  )}
+                  {searchTerm && (
+                    <span className="inline-flex items-center px-2 py-1 rounded bg-primary/10 text-primary text-xs">
+                      Search: "{searchTerm}"
+                      <button
+                        onClick={() => setSearchTerm("")}
+                        className="ml-1 hover:text-primary-dark"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  )}
+                  <button
+                    onClick={() => {
+                      setStatusFilter("all")
+                      setPriorityFilter("all")
+                      setSearchTerm("")
+                    }}
+                    className="text-primary hover:text-primary-dark text-xs underline"
+                  >
+                    Clear all
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead>
-                   <tr className="bg-primary text-primary-foreground">
-                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">#</th>
-                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Title</th>
-                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Project</th>
-                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Priority</th>
-                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Status</th>
-                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Type</th>
-                     <th className="px-4 py-3 text-left font-semibold">Created</th>
-                  </tr>
+                    <tr className="bg-primary text-primary-foreground">
+                      <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">#</th>
+                      <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Title</th>
+                      <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Project</th>
+                      <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Priority</th>
+                      <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Status</th>
+                      <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Type</th>
+                      <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Assigned To</th>
+                      <th className="px-4 py-3 text-left font-semibold">Created</th>
+                   </tr>
                 </thead>
                 <tbody>
                   {paginatedTickets.map((ticket, index) => {
@@ -154,35 +260,59 @@ export default function AdminTicketsPage() {
                             <div className="text-xs text-muted-foreground">{ticket.description}</div>
                           </div>
                         </td>
-                        <td className="px-4 py-3">
-                          <div className="text-sm">
-                            {project ? (
-                              <div className="font-medium text-foreground">{project.name}</div>
-                            ) : (
-                              <span className="text-xs text-muted-foreground italic">Unknown Project</span>
-                            )}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <PriorityBadge priority={ticket.priority} />
-                        </td>
-                        <td className="px-4 py-3">
-                          <StatusBadge status={ticket.status} />
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 capitalize">
-                            {ticket.type.replace("_", " ")}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className="text-sm text-muted-foreground">
-                            {formatRelativeTime(ticket.createdAt)}
-                          </span>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
+                         <td className="px-4 py-3">
+                           <div className="text-sm">
+                             {project ? (
+                               <div className="font-medium text-foreground">{project.name}</div>
+                             ) : (
+                               <span className="text-xs text-muted-foreground italic">Unknown Project</span>
+                             )}
+                           </div>
+                         </td>
+                         <td className="px-4 py-3">
+                           <PriorityBadge priority={ticket.priority} />
+                         </td>
+                         <td className="px-4 py-3">
+                           <StatusBadge status={ticket.status} />
+                         </td>
+                         <td className="px-4 py-3">
+                           <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 capitalize">
+                             {ticket.type.replace("_", " ")}
+                           </span>
+                         </td>
+                         <td className="px-4 py-3">
+                           <select
+                             value={ticket.assignedTo || ""}
+                             onChange={(e) => handleAssignmentChange(ticket.id, e.target.value)}
+                             className="text-sm border border-border rounded px-2 py-1 bg-background text-foreground min-w-[120px]"
+                           >
+                             <option value="">Not assigned</option>
+                             {allUsers
+                               .filter(u => u.role === "web_developer" || u.role === "social_media_coordinator")
+                               .map(user => (
+                                 <option key={user.id} value={user.id}>
+                                   {user.fullName}
+                                 </option>
+                               ))
+                             }
+                           </select>
+                         </td>
+                         <td className="px-4 py-3">
+                           <span className="text-sm text-muted-foreground">
+                             {formatRelativeTime(ticket.createdAt)}
+                           </span>
+                         </td>
+                       </tr>
+                     )
+                   })}
+                   {!paginatedTickets.length && (
+                     <tr>
+                       <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
+                         No tickets found matching the selected filter.
+                       </td>
+                     </tr>
+                   )}
+                 </tbody>
               </table>
             </div>
 

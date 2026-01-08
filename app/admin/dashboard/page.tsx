@@ -460,7 +460,7 @@ export default function AdminDashboard() {
             <div className="bg-white dark:bg-gray-800 rounded-xl border border-border/50 p-8 shadow-sm">
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-2xl font-bold text-foreground">Recent Tickets</h2>
-                <Link to="/tickets" className="inline-flex items-center gap-2 text-primary hover:text-primary-dark transition-colors text-sm font-medium">
+                 <Link to="/admin/tickets" className="inline-flex items-center gap-2 text-primary hover:text-primary-dark transition-colors text-sm font-medium">
                   View All
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

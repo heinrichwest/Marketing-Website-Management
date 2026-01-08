@@ -54,78 +54,39 @@ export default function Navbar() {
     }
   }
 
-  const is_admin_dashboard = pathname === "/admin/dashboard"
+   const is_dashboard_page = pathname.includes("/dashboard") || pathname.includes("/admin/dashboard") || pathname.includes("/developer/dashboard") || pathname.includes("/coordinator/dashboard") || pathname.includes("/client-portal/dashboard")
 
-  return (
-    <nav className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
-      <div className="container flex items-center justify-between py-4">
-        {pathname === "/admin/dashboard" ? (
-          <div className="flex items-center gap-2 text-2xl font-bold text-primary">
-            <img src="/Logo.png" alt="Marketing Website Logo" className="h-10 w-auto" />
-            <span>Marketing Website</span>
-          </div>
-        ) : (
-          <Link
-            to="/"
-            className="flex items-center gap-2 text-2xl font-bold text-primary hover:opacity-80 transition-opacity"
-          >
-            <img src="/Logo.png" alt="Marketing Website Logo" className="h-10 w-auto" />
-            <span>Marketing Website</span>
-          </Link>
-        )}
+   return (
+     <nav className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
+       <div className="container flex items-center justify-between py-4">
+         {is_dashboard_page ? (
+           <div className="flex items-center gap-2 text-2xl font-bold text-primary">
+             <img src="/Logo.png" alt="Marketing Website Logo" className="h-10 w-auto" />
+             <span>Marketing Website</span>
+           </div>
+         ) : (
+           <Link to="/" className="flex items-center gap-2 text-2xl font-bold text-primary hover:opacity-80 transition-opacity">
+             <img src="/Logo.png" alt="Marketing Website Logo" className="h-10 w-auto" />
+             <span>Marketing Website</span>
+           </Link>
+         )}
 
+        {/* Role-specific navigation - consistent layout */}
         <div className="hidden md:flex items-center gap-6">
           {isSignedIn && user && (
             <>
+              {/* Primary Role Action */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground uppercase tracking-wide">
+                  {user.role === "admin" && "Admin"}
+                  {user.role === "web_developer" && "Dev"}
+                  {user.role === "social_media_coordinator" && "Coord"}
+                  {user.role === "client" && "Client"}
+                </span>
+                <span className="text-foreground/50">|</span>
+              </div>
 
 
-              {/* Role-specific navigation */}
-
-
-              {user.role === "web_developer" && (
-                <>
-                  <Link to="/calendar" className="text-foreground hover:text-primary transition text-sm font-medium">
-                    Calendar
-                  </Link>
-                  <Link to="/time-tracking" className="text-foreground hover:text-primary transition text-sm font-medium">
-                    Time
-                  </Link>
-                  <Link to="/developer/tickets" className="text-foreground hover:text-primary transition text-sm font-medium">
-                    Tickets
-                  </Link>
-                </>
-              )}
-
-              {user.role === "social_media_coordinator" && (
-                <>
-                  <Link to="/calendar" className="text-foreground hover:text-primary transition text-sm font-medium">
-                    Calendar
-                  </Link>
-                  <Link to="/analytics" className="text-foreground hover:text-primary transition text-sm font-medium">
-                    Analytics
-                  </Link>
-                  <Link to="/coordinator/projects" className="text-foreground hover:text-primary transition text-sm font-medium">
-                    Projects
-                  </Link>
-                </>
-              )}
-
-               {user.role === "client" && (
-                 <>
-                   <Link to="/client-portal/dashboard" className="text-foreground hover:text-primary transition text-sm font-medium">
-                     Dashboard
-                   </Link>
-                   <Link to="/client/projects" className="text-foreground hover:text-primary transition text-sm font-medium">
-                     Projects
-                   </Link>
-                   <Link to="/client/tickets" className="text-foreground hover:text-primary transition text-sm font-medium">
-                     Tickets
-                   </Link>
-                   <Link to="/client-portal/files" className="text-foreground hover:text-primary transition text-sm font-medium">
-                     Files
-                   </Link>
-                 </>
-               )}
             </>
           )}
         </div>
@@ -133,49 +94,131 @@ export default function Navbar() {
         <div className="flex items-center gap-4">
           {isSignedIn && user ? (
              <div className="flex items-center gap-4">
-               {user.role === "admin" && (
-                 <div className="relative group">
-                   <button
-                     className="p-2 rounded-lg hover:bg-muted transition-colors"
-                     title="Management Tools"
-                   >
-                     <svg className="w-5 h-5 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                     </svg>
-                   </button>
+              {/* Role-specific tool dropdowns */}
+              {user.role === "admin" && (
+                <div className="relative group">
+                  <button
+                    className="p-2 rounded-lg hover:bg-muted transition-colors"
+                    title="Management Tools"
+                  >
+                    <svg className="w-5 h-5 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </button>
 
-                   <div className="absolute top-full right-0 mt-2 w-56 bg-background border border-border rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                     <div className="py-2">
-                       <Link to="/search" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
-                         🔍 Search
-                       </Link>
-                       <Link to="/calendar" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
-                         📅 Calendar
-                       </Link>
-                       <Link to="/time-tracking" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
-                         ⏱️ Time Tracking
-                       </Link>
-                       <Link to="/reports" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
-                         📊 Reports
-                       </Link>
-                       <div className="border-t border-border my-2"></div>
-                       <Link to="/ai-insights" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
-                         🤖 AI Insights
-                       </Link>
-                       <Link to="/integrations" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
-                         🔗 Integrations
-                       </Link>
-                       <Link to="/automation" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
-                         ⚡ Automation
-                       </Link>
-                       <Link to="/templates" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
-                         📋 Templates
-                       </Link>
-                     </div>
-                   </div>
-                 </div>
-               )}
+                  <div className="absolute top-full right-0 mt-2 w-56 bg-background border border-border rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <div className="py-2">
+                      <Link to="/search" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
+                        🔍 Search
+                      </Link>
+                      <Link to="/calendar" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
+                        📅 Calendar
+                      </Link>
+                      <Link to="/time-tracking" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
+                        ⏱️ Time Tracking
+                      </Link>
+                      <Link to="/reports" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
+                        📊 Reports
+                      </Link>
+                      <div className="border-t border-border my-2"></div>
+                      <Link to="/ai-insights" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
+                        🤖 AI Insights
+                      </Link>
+                      <Link to="/integrations" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
+                        🔗 Integrations
+                      </Link>
+                      <Link to="/automation" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
+                        ⚡ Automation
+                      </Link>
+                      <Link to="/templates" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
+                        📋 Templates
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {user.role === "web_developer" && (
+                <div className="relative group">
+                  <button
+                    className="p-2 rounded-lg hover:bg-muted transition-colors"
+                    title="Developer Tools"
+                  >
+                    <svg className="w-5 h-5 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                    </svg>
+                  </button>
+
+                  <div className="absolute top-full right-0 mt-2 w-56 bg-background border border-border rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <div className="py-2">
+                      <Link to="/time-tracking" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
+                        ⏱️ Time Tracking
+                      </Link>
+                      <Link to="/calendar" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
+                        📅 Calendar
+                      </Link>
+                      <Link to="/search" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
+                        🔍 Search
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {user.role === "social_media_coordinator" && (
+                <div className="relative group">
+                  <button
+                    className="p-2 rounded-lg hover:bg-muted transition-colors"
+                    title="Coordinator Tools"
+                  >
+                    <svg className="w-5 h-5 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </button>
+
+                  <div className="absolute top-full right-0 mt-2 w-56 bg-background border border-border rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <div className="py-2">
+                      <Link to="/analytics" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
+                        📊 Analytics
+                      </Link>
+                      <Link to="/calendar" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
+                        📅 Calendar
+                      </Link>
+                      <Link to="/search" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
+                        🔍 Search
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {user.role === "client" && (
+                <div className="relative group">
+                  <button
+                    className="p-2 rounded-lg hover:bg-muted transition-colors"
+                    title="Support Tools"
+                  >
+                    <svg className="w-5 h-5 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M12 3v6m0 6v6m6-9h-6m-6 3H3m6 3h6" />
+                    </svg>
+                  </button>
+
+                  <div className="absolute top-full right-0 mt-2 w-56 bg-background border border-border rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <div className="py-2">
+                      <Link to="/client-portal/files" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
+                        📁 Files
+                      </Link>
+                      <Link to="/messages" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
+                        💬 Messages
+                      </Link>
+                      <Link to="/client-portal/feedback" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
+                        ⭐ Feedback
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              )}
                
                {/* Messages Icon */}
               <Link
@@ -193,10 +236,9 @@ export default function Navbar() {
                 )}
               </Link>
 
-              <div className="text-sm text-right">
-                 <p className="font-semibold text-foreground">{user.fullName}</p>
-                 <RoleBadge role={user.role} className="mt-1" />
-               </div>
+                <div className="text-sm text-right">
+                  <p className="font-semibold text-foreground">{user.fullName}</p>
+                </div>
 
               <button onClick={handleSignOut} className="btn-secondary text-sm">
                 Sign Out

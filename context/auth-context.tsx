@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import type { UserRole, Project, Ticket } from "@/types"
-import { getProjectsByUserId, mockUsers } from "@/lib/mock-data"
+import { getProjectsByUserId, mockUsers, getUsers } from "@/lib/mock-data"
 import { auth, db } from "@/lib/firebase"
 
 // Storage key for messages
@@ -40,6 +40,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>
   signUp: (data: SignUpData) => Promise<void>
   signOut: () => Promise<void>
+  updateCurrentUser: (updates: Partial<AuthUser>) => void
   switchRole: (newRole: UserRole) => void
   hasRole: (roles: UserRole[]) => boolean
   canAccessProject: (projectId: string) => boolean
@@ -55,7 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Mock authentication functions
   const mockSignIn = async (email: string, password: string): Promise<void> => {
-    const mockUser = mockUsers.find(u => u.email === email && u.password === password)
+    const mockUser = getUsers().find(u => u.email === email && u.password === password)
     if (!mockUser) {
       throw new Error("Invalid email or password")
     }
@@ -93,12 +94,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Add new user to mockUsers and persist
     mockUsers.push(newUser)
-    const currentUsers = JSON.parse(localStorage.getItem("marketing_management_website_users") || "[]")
-    currentUsers.push(newUser)
-    localStorage.setItem("marketing_management_website_users", JSON.stringify(currentUsers))
+    localStorage.setItem("marketing_management_website_users", JSON.stringify(getUsers().concat(newUser)))
 
     // Send notification to all admins about new user registration
-    const admins = mockUsers.filter(u => u.role === "admin")
+    const admins = getUsers().filter(u => u.role === "admin")
     const notificationMessage = {
       id: `message-${Date.now()}`,
       senderId: newUserId,
@@ -299,6 +298,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const updateCurrentUser = (updates: Partial<AuthUser>) => {
+    if (!user) return
+    const updatedUser = { ...user, ...updates }
+    setUser(updatedUser)
+
+    if (USE_MOCK_AUTH) {
+      localStorage.setItem("mockAuthUser", JSON.stringify(updatedUser))
+    } else {
+      // For Firebase, update Firestore if needed
+      // But since updates are done via admin panel, assume Firestore is updated separately
+    }
+  }
+
   const signOut = async (): Promise<void> => {
     if (USE_MOCK_AUTH) {
       return mockSignOut()
@@ -355,6 +367,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signIn,
         signUp,
         signOut,
+        updateCurrentUser,
         switchRole,
         hasRole,
         canAccessProject,

@@ -186,6 +186,11 @@ export default function ExecutiveDashboardPage() {
           {/* Header */}
           <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-6 mb-8">
             <div>
+              <div className="flex items-center gap-4 mb-4">
+                <Link to="/admin/dashboard" className="btn-outline text-sm">
+                  ← Back to Dashboard
+                </Link>
+              </div>
               <h1 className="text-4xl lg:text-5xl font-bold text-foreground mb-3">Executive Dashboard</h1>
               <p className="text-lg text-muted-foreground leading-relaxed">
                 Comprehensive business overview and performance insights

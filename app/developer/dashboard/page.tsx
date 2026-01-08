@@ -117,14 +117,11 @@ export default function DeveloperDashboard() {
           {/* Quick Actions */}
           <div className="card mb-8">
             <h2 className="text-xl font-bold text-foreground mb-4">Quick Actions</h2>
-            <div className="flex gap-4 flex-wrap">
-              <Link to="/developer/projects" className="btn-primary">
-                View All Projects
-              </Link>
-              <Link to="/developer/tickets" className="btn-outline">
-                View All Tickets
-              </Link>
-            </div>
+             <div className="flex gap-4 flex-wrap">
+               <Link to="/developer/tickets" className="btn-primary">
+                 View Tickets
+               </Link>
+             </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -133,7 +130,7 @@ export default function DeveloperDashboard() {
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-foreground">My Projects</h2>
                 <Link to="/developer/projects" className="text-primary hover:underline text-sm">
-                  View All
+
                 </Link>
               </div>
 
@@ -174,7 +171,7 @@ export default function DeveloperDashboard() {
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-foreground">My Tickets</h2>
                 <Link to="/developer/tickets" className="text-primary hover:underline text-sm">
-                  View All
+
                 </Link>
               </div>
 

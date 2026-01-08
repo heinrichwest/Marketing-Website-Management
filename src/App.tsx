@@ -23,6 +23,7 @@ import ClientDashboardPage from './pages/client/DashboardPage'
 import ClientProjectsPage from './pages/client/ProjectsPage'
 import ClientTicketsPage from './pages/client/TicketsPage'
 import ClientNewTicketPage from './pages/client/tickets/NewTicketPage'
+import SearchPage from './pages/search/page'
 import SwitchRolePage from './pages/SwitchRolePage'
 import NewProjectPage from './pages/admin/NewProjectPage'
 import MessagesPage from '../app/messages/page'
@@ -36,7 +37,7 @@ import CalendarPage from '../app/calendar/page'
 import TimeTrackingPage from '../app/time-tracking/page'
 import ProjectTemplatesPage from '../app/templates/page'
 import ExecutiveDashboardPage from '../app/reports/page'
-import GlobalSearchPage from '../app/search/page'
+
 import NotificationsPage from '../app/notifications/page'
 import AIInsightsPage from '../app/ai-insights/page'
 import APIIntegrationsPage from '../app/integrations/page'
@@ -90,8 +91,7 @@ function App() {
           {/* Reports */}
           <Route path="/reports" element={<ExecutiveDashboardPage />} />
 
-          {/* Search */}
-          <Route path="/search" element={<GlobalSearchPage />} />
+
 
           {/* Notifications */}
           <Route path="/notifications" element={<NotificationsPage />} />
@@ -99,9 +99,10 @@ function App() {
           {/* Advanced Features */}
           <Route path="/ai-insights" element={<AIInsightsPage />} />
           <Route path="/integrations" element={<APIIntegrationsPage />} />
-          <Route path="/automation" element={<WorkflowAutomationPage />} />
+           <Route path="/automation" element={<WorkflowAutomationPage />} />
+           <Route path="/search" element={<SearchPage />} />
 
-          {/* Enhanced Dashboard */}
+           {/* Enhanced Dashboard */}
           <Route path="/dashboard/enhanced" element={<EnhancedDashboardPage />} />
           <Route path="/admin/tickets" element={<AdminTicketsPage />} />
           <Route path="/admin/notifications" element={<AdminNotificationsPage />} />
@@ -123,10 +124,10 @@ function App() {
           <Route path="/switch-role" element={<SwitchRolePage />} />
 
            {/* Client Portal login handled by main login */}
-          <Route path="/client-portal/dashboard" element={<ClientPortalDashboardPage />} />
-          <Route path="/client-portal/project/:id" element={<ClientPortalProjectPage />} />
-          <Route path="/client-portal/files" element={<ClientFileSharingPage />} />
-          <Route path="/client-portal/feedback" element={<ClientFeedbackPage />} />
+           <Route path="/client-portal/dashboard" element={<ClientPortalDashboardPage />} />
+           <Route path="/client-portal/project/:id" element={<ClientPortalProjectPage />} />
+           <Route path="/client-portal/files" element={<ClientFileSharingPage />} />
+           <Route path="/client-portal/feedback" element={<ClientFeedbackPage />} />
 
           {/* Catch all - redirect to home */}
           <Route path="*" element={<Navigate to="/" replace />} />

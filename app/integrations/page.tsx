@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, Link } from "react-router-dom"
 import { useAuth } from "@/context/auth-context"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
@@ -199,6 +199,11 @@ export default function APIIntegrationsPage() {
         <div className="container py-8 lg:py-12">
           {/* Header */}
           <div className="mb-8">
+            <div className="flex items-center gap-4 mb-4">
+              <Link to="/admin/dashboard" className="btn-outline text-sm">
+                ← Back to Dashboard
+              </Link>
+            </div>
             <h1 className="text-4xl lg:text-5xl font-bold text-foreground mb-3">
               🔗 API Integrations Hub
             </h1>

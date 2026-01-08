@@ -963,6 +963,92 @@ export function addTicket(ticket: Ticket): void {
   saveToStorage(STORAGE_KEYS.TICKETS, updatedTickets)
 }
 
+export function updateTicket(ticketId: string, updates: Partial<Ticket>): void {
+  const currentTickets = getTickets()
+  const ticket = currentTickets.find(t => t.id === ticketId)
+  if (!ticket) return
+
+  const wasAssigned = ticket.assignedTo
+  const newAssigned = updates.assignedTo
+
+  const updatedTickets = currentTickets.map(t =>
+    t.id === ticketId ? { ...t, ...updates, updatedAt: new Date() } : t
+  )
+  saveToStorage(STORAGE_KEYS.TICKETS, updatedTickets)
+
+  // Send notification if assignment changed
+  if (newAssigned && newAssigned !== wasAssigned) {
+    const assignedUser = getUserById(newAssigned)
+    if (assignedUser) {
+      const notification: Message = {
+        id: `message-${Date.now()}`,
+        senderId: "system",
+        recipientId: newAssigned,
+        subject: "New Ticket Assigned",
+        content: `You have been assigned a new ticket: "${ticket.title}". Please check your tickets.`,
+        isRead: false,
+        isBroadcast: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+      const currentMessages = JSON.parse(localStorage.getItem(STORAGE_KEYS.MESSAGES) || "[]")
+      currentMessages.push(notification)
+      localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(currentMessages))
+    }
+  }
+
+  // Set resolvedAt when status changes to resolved
+  if (updates.status === "resolved" && ticket.status !== "resolved") {
+    updates.resolvedAt = new Date()
+    // Add resolution notes
+    const developerName = getUserById(ticket.assignedTo)?.fullName || 'developer'
+    const resolutionNotes = updates.resolutionNotes || `Ticket resolved by ${developerName}. The issue has been fixed and tested.`
+    updates.resolutionNotes = resolutionNotes
+
+    // Notify the ticket creator (client) with solution details
+    const creator = getUserById(ticket.createdBy)
+    if (creator && creator.role === "client") {
+      const notification: Message = {
+        id: `message-${Date.now()}`,
+        senderId: ticket.assignedTo || "system",
+        recipientId: ticket.createdBy,
+        subject: "Ticket Resolved - Solution Details",
+        content: `Your ticket "${ticket.title}" has been resolved!\n\nSolution: ${resolutionNotes}\n\nPlease review the changes. If you have any questions about how this solution works or need further clarification, feel free to create a new ticket.`,
+        isRead: false,
+        isBroadcast: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+      const currentMessages = JSON.parse(localStorage.getItem(STORAGE_KEYS.MESSAGES) || "[]")
+      currentMessages.push(notification)
+      localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(currentMessages))
+    }
+
+    // Notify all admins with solution details
+    const admins = getUsers().filter(u => u.role === "admin")
+    admins.forEach(admin => {
+      const adminNotification: Message = {
+        id: `message-${Date.now()}-admin-${admin.id}`,
+        senderId: ticket.assignedTo || "system",
+        recipientId: admin.id,
+        subject: "Ticket Resolution Update",
+        content: `Ticket "${ticket.title}" has been resolved by ${developerName}.\n\nSolution Details: ${resolutionNotes}\n\nClient has been notified. This solution demonstrates best practices for ${ticket.type.replace('_', ' ')} issues.`,
+        isRead: false,
+        isBroadcast: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+      const currentMessages = JSON.parse(localStorage.getItem(STORAGE_KEYS.MESSAGES) || "[]")
+      currentMessages.push(adminNotification)
+      localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(currentMessages))
+    })
+
+    // Optionally notify other developers for learning (commented out to avoid spam)
+    // const developers = getUsers().filter(u => u.role === "web_developer" && u.id !== ticket.assignedTo)
+    // developers.forEach(dev => { ... })
+  }
+}
+
 export function addUser(user: User): void {
   const currentUsers = getUsers()
   const updatedUsers = [...currentUsers, user]

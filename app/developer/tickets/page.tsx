@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
-import { getTicketsByUserId, getProjectById } from "@/lib/mock-data"
+import { getTicketsByUserId, getProjectById, updateTicket } from "@/lib/mock-data"
 import StatusBadge from "@/components/status-badge"
 import PriorityBadge from "@/components/priority-badge"
 import { formatRelativeTime } from "@/lib/utils"
@@ -13,6 +13,9 @@ export default function DeveloperTicketsPage() {
   const { isSignedIn, user } = useAuth()
   const navigate = useNavigate()
   const [filter, setFilter] = useState<"all" | "open" | "in_progress" | "resolved">("all")
+  const [searchTerm, setSearchTerm] = useState("")
+  const [tickets, setTickets] = useState<any[]>([])
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
 
   useEffect(() => {
     if (!isSignedIn) {
@@ -22,6 +25,17 @@ export default function DeveloperTicketsPage() {
     }
   }, [isSignedIn, user, navigate])
 
+  const fetchTickets = () => {
+    if (user) {
+      const userTickets = getTicketsByUserId(user.id, user.role)
+      setTickets(userTickets)
+    }
+  }
+
+  useEffect(() => {
+    fetchTickets()
+  }, [user, refreshTrigger])
+
   if (!user || user.role !== "web_developer") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-muted">
@@ -30,11 +44,21 @@ export default function DeveloperTicketsPage() {
     )
   }
 
-  const allTickets = getTicketsByUserId(user.id, user.role)
+  const allTickets = tickets
 
-  const filteredTickets = filter === "all"
-    ? allTickets
-    : allTickets.filter(t => t.status === filter)
+  const filteredTickets = allTickets
+    .filter(t => filter === "all" || t.status === filter)
+    .filter(t =>
+      !searchTerm ||
+      t.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      t.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      t.id.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+
+  const handleStatusChange = (ticketId: string, newStatus: string) => {
+    updateTicket(ticketId, { status: newStatus as any })
+    setRefreshTrigger(prev => prev + 1) // Trigger re-fetch
+  }
 
   const stats = {
     totalAssigned: allTickets.length,
@@ -100,9 +124,10 @@ export default function DeveloperTicketsPage() {
             </div>
           </div>
 
-          {/* Filters */}
-          <div className="card mb-6">
-            <div className="flex gap-4 flex-wrap">
+           {/* Filters */}
+           <div className="card mb-6">
+             <div className="flex flex-col gap-4">
+               <div className="flex gap-4 flex-wrap items-center justify-between">
               <button
                 onClick={() => setFilter("all")}
                 className={`px-4 py-2 rounded-md font-medium transition ${
@@ -133,18 +158,31 @@ export default function DeveloperTicketsPage() {
               >
                 In Progress
               </button>
-              <button
-                onClick={() => setFilter("resolved")}
-                className={`px-4 py-2 rounded-md font-medium transition ${
-                  filter === "resolved"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:bg-muted/70"
-                }`}
-              >
-                Resolved
-              </button>
-            </div>
-          </div>
+               <button
+                 onClick={() => setFilter("resolved")}
+                 className={`px-4 py-2 rounded-md font-medium transition ${
+                   filter === "resolved"
+                     ? "bg-primary text-primary-foreground"
+                     : "bg-muted text-muted-foreground hover:bg-muted/70"
+                 }`}
+               >
+                 Resolved
+               </button>
+               </div>
+
+               {/* Search */}
+               <div className="flex items-center gap-2">
+                 <span className="text-sm text-muted-foreground">Search:</span>
+                 <input
+                   type="text"
+                   value={searchTerm}
+                   onChange={(e) => setSearchTerm(e.target.value)}
+                   className="border border-border rounded px-3 py-2 bg-background text-foreground hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary min-w-[200px]"
+                   placeholder="Search your tickets..."
+                 />
+               </div>
+             </div>
+           </div>
 
           {/* Tickets Table */}
           <div className="card overflow-hidden">
@@ -164,9 +202,9 @@ export default function DeveloperTicketsPage() {
                      <th className="px-6 py-4 text-left text-sm font-bold text-primary-foreground uppercase tracking-wider bg-primary">
                        SEVERITY
                      </th>
-                     <th className="px-6 py-4 text-left text-sm font-bold text-primary-foreground uppercase tracking-wider bg-primary">
-                       DAYS OPEN
-                     </th>
+                      <th className="px-6 py-4 text-left text-sm font-bold text-primary-foreground uppercase tracking-wider bg-primary">
+                        DAYS OPEN
+                      </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -188,28 +226,34 @@ export default function DeveloperTicketsPage() {
                           <td className="px-6 py-4">
                             <div className="text-sm font-medium text-gray-900">{ticket.title}</div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            {ticket.status === "in_progress" && (
-                              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary">
-                                Dev started working on ticket
-                              </span>
-                            )}
-                            {ticket.status === "resolved" && (
-                              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                                Resolved
-                              </span>
-                            )}
-                            {ticket.status === "open" && (
-                              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
-                                Open
-                              </span>
-                            )}
-                            {ticket.status === "closed" && (
-                              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-400 text-white">
-                                Closed
-                              </span>
-                            )}
-                          </td>
+                           <td className="px-6 py-4 whitespace-nowrap">
+                             <div className="flex flex-col gap-2">
+                               <select
+                                 value={ticket.status}
+                                 onChange={(e) => handleStatusChange(ticket.id, e.target.value)}
+                                 className="text-sm border border-border rounded px-2 py-1 bg-background text-foreground"
+                               >
+                                 <option value="open">Open</option>
+                                 <option value="in_progress">In Progress</option>
+                                 <option value="resolved">Resolved</option>
+                                 <option value="closed">Closed</option>
+                               </select>
+                               {ticket.status === "resolved" && (
+                                 <textarea
+                                   placeholder={ticket.resolutionNotes || "Add resolution notes..."}
+                                   defaultValue={ticket.resolutionNotes || ""}
+                                   className="text-xs border border-border rounded px-2 py-1 bg-background text-foreground w-32 h-16 resize-none"
+                                   onBlur={(e) => {
+                                     const value = e.target.value.trim()
+                                     if (value && value !== ticket.resolutionNotes) {
+                                       updateTicket(ticket.id, { resolutionNotes: value })
+                                       setRefreshTrigger(prev => prev + 1)
+                                     }
+                                   }}
+                                 />
+                               )}
+                             </div>
+                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             {ticket.priority === "critical" && (
                               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-red-500 text-white uppercase">
@@ -232,18 +276,18 @@ export default function DeveloperTicketsPage() {
                               </span>
                             )}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className="text-sm text-gray-900 font-medium">{daysOpen}</span>
-                          </td>
+                           <td className="px-6 py-4 whitespace-nowrap">
+                             <span className="text-sm text-gray-900 font-medium">{daysOpen}</span>
+                           </td>
                         </tr>
                       )
                     })
                   ) : (
-                    <tr>
-                      <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
-                        No tickets found matching the selected filter.
-                      </td>
-                    </tr>
+                     <tr>
+                       <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                         No tickets found matching the selected filter.
+                       </td>
+                     </tr>
                   )}
                 </tbody>
               </table>
