@@ -54,11 +54,7 @@ export default function Navbar() {
     }
   }
 
-    // Determine if we're in dashboard context
-    const is_dashboard_context = pathname.startsWith("/admin/") ||
-      pathname.startsWith("/developer/") ||
-      pathname.startsWith("/coordinator/") ||
-      pathname.startsWith("/client-portal/")
+
 
     return (
       <>
@@ -69,32 +65,14 @@ export default function Navbar() {
 
         <nav className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
         <div className="container flex items-center justify-between py-4">
-          {is_dashboard_context ? (
-            <div className="flex items-center gap-2">
-              <Link to="/" className="flex items-center gap-2 text-2xl font-bold text-primary hover:opacity-80 transition-opacity">
-                <img src="/Logo.png" alt="Marketing Website Logo" className="h-10 w-auto" />
-                <span>Marketing Website</span>
-              </Link>
-              <span className="text-muted-foreground">|</span>
-              <span className="text-sm text-muted-foreground">Dashboard</span>
-            </div>
-          ) : (
-            <Link to="/" className="flex items-center gap-2 text-2xl font-bold text-primary hover:opacity-80 transition-opacity">
-              <img src="/Logo.png" alt="Marketing Website Logo" className="h-10 w-auto" />
-              <span>Marketing Website</span>
-            </Link>
-          )}
+          <Link to="/" className="flex items-center gap-2 text-2xl font-bold text-primary hover:opacity-80 transition-opacity">
+            <img src="/Logo.png" alt="Marketing Website Logo" className="h-10 w-auto" />
+            <span>Marketing Website</span>
+          </Link>
 
         {/* Navigation Links */}
         <div className="hidden md:flex items-center gap-6">
-          {isSignedIn && user && is_dashboard_context && (
-            <Link
-              to="/"
-              className="text-sm text-muted-foreground hover:text-primary transition-colors"
-            >
-              ← Back to Home
-            </Link>
-          )}
+          {/* Navigation links can be added here if needed */}
         </div>
 
         {/* Role-specific navigation - consistent layout */}
