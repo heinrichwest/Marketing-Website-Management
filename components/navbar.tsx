@@ -56,8 +56,14 @@ export default function Navbar() {
 
    const is_dashboard_page = pathname.includes("/dashboard") || pathname.includes("/admin/dashboard") || pathname.includes("/developer/dashboard") || pathname.includes("/coordinator/dashboard") || pathname.includes("/client-portal/dashboard")
 
-   return (
-     <nav className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
+    return (
+      <>
+        {/* Skip link for accessibility */}
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
+
+        <nav className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
        <div className="container flex items-center justify-between py-4">
          {is_dashboard_page ? (
            <div className="flex items-center gap-2 text-2xl font-bold text-primary">
@@ -109,31 +115,31 @@ export default function Navbar() {
 
                   <div className="absolute top-full right-0 mt-2 w-56 bg-background border border-border rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                     <div className="py-2">
-                      <Link to="/search" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
-                        🔍 Search
-                      </Link>
-                      <Link to="/calendar" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
-                        📅 Calendar
-                      </Link>
-                      <Link to="/time-tracking" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
-                        ⏱️ Time Tracking
-                      </Link>
-                      <Link to="/reports" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
-                        📊 Reports
-                      </Link>
-                      <div className="border-t border-border my-2"></div>
-                      <Link to="/ai-insights" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
-                        🤖 AI Insights
-                      </Link>
-                      <Link to="/integrations" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
-                        🔗 Integrations
-                      </Link>
-                      <Link to="/automation" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
-                        ⚡ Automation
-                      </Link>
-                      <Link to="/templates" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
-                        📋 Templates
-                      </Link>
+                       <Link to="/search" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition text-center">
+                         Search
+                       </Link>
+                       <Link to="/calendar" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition text-center">
+                         Calendar
+                       </Link>
+                       <Link to="/time-tracking" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition text-center">
+                         Time Tracking
+                       </Link>
+                       <Link to="/reports" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition text-center">
+                         Reports
+                       </Link>
+                       <div className="border-t border-border my-2"></div>
+                       <Link to="/ai-insights" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition text-center">
+                         AI Insights
+                       </Link>
+                       <Link to="/integrations" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition text-center">
+                         Integrations
+                       </Link>
+                       <Link to="/automation" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition text-center">
+                         Automation
+                       </Link>
+                       <Link to="/templates" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition text-center">
+                         Templates
+                       </Link>
                     </div>
                   </div>
                 </div>
@@ -152,15 +158,15 @@ export default function Navbar() {
 
                   <div className="absolute top-full right-0 mt-2 w-56 bg-background border border-border rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                     <div className="py-2">
-                      <Link to="/time-tracking" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
-                        ⏱️ Time Tracking
-                      </Link>
-                      <Link to="/calendar" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
-                        📅 Calendar
-                      </Link>
-                      <Link to="/search" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
-                        🔍 Search
-                      </Link>
+                       <Link to="/search" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition text-center">
+                         Search
+                       </Link>
+                       <Link to="/calendar" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition text-center">
+                         Calendar
+                       </Link>
+                       <Link to="/time-tracking" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition text-center">
+                         Time Tracking
+                       </Link>
                     </div>
                   </div>
                 </div>
@@ -179,15 +185,15 @@ export default function Navbar() {
 
                   <div className="absolute top-full right-0 mt-2 w-56 bg-background border border-border rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                     <div className="py-2">
-                      <Link to="/analytics" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
-                        📊 Analytics
-                      </Link>
-                      <Link to="/calendar" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
-                        📅 Calendar
-                      </Link>
-                      <Link to="/search" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
-                        🔍 Search
-                      </Link>
+                       <Link to="/search" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition text-center">
+                         Search
+                       </Link>
+                       <Link to="/calendar" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition text-center">
+                         Calendar
+                       </Link>
+                       <Link to="/analytics" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition text-center">
+                         Analytics
+                       </Link>
                     </div>
                   </div>
                 </div>
@@ -206,15 +212,15 @@ export default function Navbar() {
 
                   <div className="absolute top-full right-0 mt-2 w-56 bg-background border border-border rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                     <div className="py-2">
-                      <Link to="/client-portal/files" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
-                        📁 Files
-                      </Link>
-                      <Link to="/messages" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
-                        💬 Messages
-                      </Link>
-                      <Link to="/client-portal/feedback" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition">
-                        ⭐ Feedback
-                      </Link>
+                       <Link to="/client-portal/files" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition text-center">
+                         Files
+                       </Link>
+                       <Link to="/messages" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition text-center">
+                         Messages
+                       </Link>
+                       <Link to="/client-portal/feedback" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition text-center">
+                         Feedback
+                       </Link>
                     </div>
                   </div>
                 </div>
@@ -254,8 +260,9 @@ export default function Navbar() {
               </Link>
             </>
           )}
-        </div>
-      </div>
-    </nav>
-  )
+         </div>
+       </div>
+     </nav>
+     </>
+   )
 }

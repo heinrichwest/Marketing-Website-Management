@@ -99,21 +99,47 @@ export default function CalendarPage() {
 
   const [currentDate, setCurrentDate] = useState(new Date())
   const [viewMode, setViewMode] = useState<"month" | "week" | "day">("month")
-  const [events, setEvents] = useState<CalendarEvent[]>(mockCalendarEvents)
+   const [events, setEvents] = useState<CalendarEvent[]>(() => {
+     const saved = localStorage.getItem("marketing_management_website_events")
+     return saved ? JSON.parse(saved).map((event: any) => ({
+       ...event,
+       startDate: new Date(event.startDate),
+       endDate: new Date(event.endDate),
+       createdAt: new Date(event.createdAt),
+       updatedAt: new Date(event.updatedAt),
+       recurrenceEndDate: event.recurrenceEndDate ? new Date(event.recurrenceEndDate) : undefined
+     })) : mockCalendarEvents
+   })
   const [projects, setProjects] = useState<Project[]>([])
   const [users, setUsers] = useState<User[]>([])
-  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null)
-  const [isEventModalOpen, setIsEventModalOpen] = useState(false)
+   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null)
+   const [isEventModalOpen, setIsEventModalOpen] = useState(false)
+   const [newEventData, setNewEventData] = useState({
+     title: '',
+     eventType: 'meeting' as const,
+     priority: 'medium' as const,
+     startDate: '',
+     startTime: '',
+     endDate: '',
+     endTime: '',
+     location: '',
+     description: '',
+     projectId: ''
+   })
 
-  useEffect(() => {
-    if (!isSignedIn) {
-      navigate("/login")
-      return
-    }
+   useEffect(() => {
+     if (!isSignedIn) {
+       navigate("/login")
+       return
+     }
 
-    setProjects(getProjects())
-    setUsers(getUsers())
-  }, [isSignedIn, navigate])
+     setProjects(getProjects())
+     setUsers(getUsers())
+   }, [isSignedIn, navigate])
+
+   useEffect(() => {
+     localStorage.setItem("marketing_management_website_events", JSON.stringify(events))
+   }, [events])
 
   // Get events for current view
   const getEventsForDate = (date: Date) => {
@@ -129,7 +155,9 @@ export default function CalendarPage() {
   const getMonthEvents = () => {
     const monthStart = startOfMonth(currentDate)
     const monthEnd = endOfMonth(currentDate)
-    const days = eachDayOfInterval({ start: monthStart, end: monthEnd })
+    const calendarStart = startOfWeek(monthStart)
+    const calendarEnd = endOfWeek(monthEnd)
+    const days = eachDayOfInterval({ start: calendarStart, end: calendarEnd })
 
     return days.map(day => ({
       date: day,
@@ -172,6 +200,73 @@ export default function CalendarPage() {
 
   const goToToday = () => {
     setCurrentDate(new Date())
+  }
+
+  const handleCreateEvent = () => {
+    if (!newEventData.title.trim()) {
+      alert('Please enter an event title')
+      return
+    }
+
+    if (!newEventData.startDate) {
+      alert('Please select a start date')
+      return
+    }
+
+    const startDateTime = new Date(`${newEventData.startDate}T${newEventData.startTime || '00:00'}`)
+    const endDateTime = new Date(`${newEventData.endDate || newEventData.startDate}T${newEventData.endTime || '23:59'}`)
+
+    const newEvent: CalendarEvent = {
+      id: `event-${Date.now()}`,
+      title: newEventData.title,
+      description: newEventData.description || undefined,
+      eventType: newEventData.eventType,
+      priority: newEventData.priority,
+      startDate: startDateTime,
+      endDate: endDateTime,
+      allDay: !newEventData.startTime && !newEventData.endTime,
+      location: newEventData.location || undefined,
+      attendees: [user?.id || 'user-1'], // Default to current user
+      organizerId: user?.id || 'user-1',
+      projectId: newEventData.projectId || undefined,
+      isRecurring: false,
+      recurrenceType: 'none',
+      reminderMinutes: 15,
+      status: 'scheduled',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
+
+    setEvents(prev => [...prev, newEvent])
+    setIsEventModalOpen(false)
+    setNewEventData({
+      title: '',
+      eventType: 'meeting' as const,
+      priority: 'medium' as const,
+      startDate: '',
+      startTime: '',
+      endDate: '',
+      endTime: '',
+      location: '',
+      description: '',
+      projectId: ''
+    })
+  }
+
+  const openNewEventModal = () => {
+    setNewEventData({
+      title: '',
+      eventType: 'meeting' as const,
+      priority: 'medium' as const,
+      startDate: '',
+      startTime: '',
+      endDate: '',
+      endTime: '',
+      location: '',
+      description: '',
+      projectId: ''
+    })
+    setIsEventModalOpen(true)
   }
 
   // Event styling functions
@@ -245,10 +340,10 @@ export default function CalendarPage() {
             </div>
 
             <div className="flex gap-3">
-              <button
-                onClick={() => setIsEventModalOpen(true)}
-                className="btn-primary px-6 py-3"
-              >
+               <button
+                 onClick={openNewEventModal}
+                 className="btn-primary px-6 py-3"
+               >
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
@@ -532,93 +627,255 @@ export default function CalendarPage() {
             </div>
           </div>
 
-          {/* Event Detail Modal */}
-          {selectedEvent && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-              <div className="bg-background rounded-xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                <div className="flex justify-between items-start mb-6">
-                  <h3 className="text-2xl font-bold text-foreground">{selectedEvent.title}</h3>
-                  <button
-                    onClick={() => setSelectedEvent(null)}
-                    className="p-2 hover:bg-muted rounded-lg transition-colors"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
+           {/* New Event Modal */}
+           {isEventModalOpen && (
+             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+               <div className="bg-background rounded-xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                 <div className="flex justify-between items-start mb-6">
+                   <h3 className="text-2xl font-bold text-foreground">Create New Event</h3>
+                   <button
+                     onClick={() => setIsEventModalOpen(false)}
+                     className="p-2 hover:bg-muted rounded-lg transition-colors"
+                   >
+                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                     </svg>
+                   </button>
+                 </div>
 
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <h4 className="font-semibold text-foreground mb-2">Date & Time</h4>
-                      <p className="text-foreground">{format(selectedEvent.startDate, "EEEE, MMMM dd, yyyy")}</p>
-                      <p className="text-muted-foreground">{formatEventTime(selectedEvent)}</p>
-                    </div>
+                 <div className="space-y-6">
+                   <form className="space-y-4">
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                       <div>
+                         <label className="block text-sm font-medium text-foreground mb-2">Title</label>
+                         <input
+                           type="text"
+                           className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                           placeholder="Event title"
+                           value={newEventData.title}
+                           onChange={(e) => setNewEventData(prev => ({ ...prev, title: e.target.value }))}
+                         />
+                       </div>
 
-                    <div>
-                      <h4 className="font-semibold text-foreground mb-2">Type & Priority</h4>
-                      <div className="flex gap-2">
-                        <span className={`text-xs px-2 py-1 rounded ${getEventTypeColor(selectedEvent.eventType)}`}>
-                          {selectedEvent.eventType}
-                        </span>
-                        <span className={`text-xs px-2 py-1 rounded ${
-                          selectedEvent.priority === 'critical' ? 'bg-red-100 text-red-800' :
-                          selectedEvent.priority === 'high' ? 'bg-orange-100 text-orange-800' :
-                          selectedEvent.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-green-100 text-green-800'
-                        }`}>
-                          {selectedEvent.priority}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+                       <div>
+                         <label className="block text-sm font-medium text-foreground mb-2">Event Type</label>
+                         <select
+                           className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                           value={newEventData.eventType}
+                           onChange={(e) => setNewEventData(prev => ({ ...prev, eventType: e.target.value as typeof prev.eventType }))}
+                         >
+                           <option value="meeting">Meeting</option>
+                           <option value="deadline">Deadline</option>
+                           <option value="presentation">Presentation</option>
+                           <option value="review">Review</option>
+                           <option value="milestone">Milestone</option>
+                         </select>
+                       </div>
+                     </div>
 
-                  {selectedEvent.location && (
-                    <div>
-                      <h4 className="font-semibold text-foreground mb-2">Location</h4>
-                      <p className="text-foreground">📍 {selectedEvent.location}</p>
-                    </div>
-                  )}
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                       <div>
+                         <label className="block text-sm font-medium text-foreground mb-2">Start Date</label>
+                         <input
+                           type="date"
+                           className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                           value={newEventData.startDate}
+                           onChange={(e) => setNewEventData(prev => ({ ...prev, startDate: e.target.value }))}
+                         />
+                       </div>
 
-                  {selectedEvent.description && (
-                    <div>
-                      <h4 className="font-semibold text-foreground mb-2">Description</h4>
-                      <p className="text-foreground">{selectedEvent.description}</p>
-                    </div>
-                  )}
+                       <div>
+                         <label className="block text-sm font-medium text-foreground mb-2">Start Time</label>
+                         <input
+                           type="time"
+                           className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                           value={newEventData.startTime}
+                           onChange={(e) => setNewEventData(prev => ({ ...prev, startTime: e.target.value }))}
+                         />
+                       </div>
+                     </div>
 
-                  <div>
-                    <h4 className="font-semibold text-foreground mb-2">Attendees</h4>
-                    <p className="text-foreground">{getAttendeeNames(selectedEvent.attendees)}</p>
-                  </div>
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                       <div>
+                         <label className="block text-sm font-medium text-foreground mb-2">End Date</label>
+                         <input
+                           type="date"
+                           className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                           value={newEventData.endDate}
+                           onChange={(e) => setNewEventData(prev => ({ ...prev, endDate: e.target.value }))}
+                         />
+                       </div>
 
-                  {selectedEvent.projectId && (
-                    <div>
-                      <h4 className="font-semibold text-foreground mb-2">Related Project</h4>
-                      <p className="text-foreground">{getProjectName(selectedEvent.projectId)}</p>
-                    </div>
-                  )}
+                       <div>
+                         <label className="block text-sm font-medium text-foreground mb-2">End Time</label>
+                         <input
+                           type="time"
+                           className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                           value={newEventData.endTime}
+                           onChange={(e) => setNewEventData(prev => ({ ...prev, endTime: e.target.value }))}
+                         />
+                       </div>
+                     </div>
 
-                  {selectedEvent.notes && (
-                    <div>
-                      <h4 className="font-semibold text-foreground mb-2">Notes</h4>
-                      <p className="text-foreground">{selectedEvent.notes}</p>
-                    </div>
-                  )}
+                     <div>
+                       <label className="block text-sm font-medium text-foreground mb-2">Location</label>
+                       <input
+                         type="text"
+                         className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                         placeholder="Event location"
+                         value={newEventData.location}
+                         onChange={(e) => setNewEventData(prev => ({ ...prev, location: e.target.value }))}
+                       />
+                     </div>
 
-                  <div className="flex justify-end gap-3 pt-6 border-t border-border">
-                    <button
-                      onClick={() => setSelectedEvent(null)}
-                      className="btn-outline px-6 py-2"
-                    >
-                      Close
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+                     <div>
+                       <label className="block text-sm font-medium text-foreground mb-2">Description</label>
+                       <textarea
+                         className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                         rows={3}
+                         placeholder="Event description"
+                         value={newEventData.description}
+                         onChange={(e) => setNewEventData(prev => ({ ...prev, description: e.target.value }))}
+                       />
+                     </div>
+
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                       <div>
+                         <label className="block text-sm font-medium text-foreground mb-2">Priority</label>
+                         <select
+                           className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                           value={newEventData.priority}
+                           onChange={(e) => setNewEventData(prev => ({ ...prev, priority: e.target.value as typeof prev.priority }))}
+                         >
+                           <option value="low">Low</option>
+                           <option value="medium">Medium</option>
+                           <option value="high">High</option>
+                           <option value="critical">Critical</option>
+                         </select>
+                       </div>
+
+                       <div>
+                         <label className="block text-sm font-medium text-foreground mb-2">Project</label>
+                         <select
+                           className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                           value={newEventData.projectId}
+                           onChange={(e) => setNewEventData(prev => ({ ...prev, projectId: e.target.value }))}
+                         >
+                           <option value="">Select project</option>
+                           {projects.map(project => (
+                             <option key={project.id} value={project.id}>{project.name}</option>
+                           ))}
+                         </select>
+                       </div>
+                     </div>
+                   </form>
+
+                   <div className="flex justify-end gap-3 pt-6 border-t border-border">
+                     <button
+                       onClick={() => setIsEventModalOpen(false)}
+                       className="btn-outline px-6 py-2"
+                     >
+                       Cancel
+                     </button>
+                     <button
+                       onClick={handleCreateEvent}
+                       className="btn-primary px-6 py-2"
+                     >
+                       Create Event
+                     </button>
+                   </div>
+                 </div>
+               </div>
+             </div>
+           )}
+
+           {/* Event Detail Modal */}
+           {selectedEvent && (
+             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+               <div className="bg-background rounded-xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                 <div className="flex justify-between items-start mb-6">
+                   <h3 className="text-2xl font-bold text-foreground">{selectedEvent.title}</h3>
+                   <button
+                     onClick={() => setSelectedEvent(null)}
+                     className="p-2 hover:bg-muted rounded-lg transition-colors"
+                   >
+                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                     </svg>
+                   </button>
+                 </div>
+
+                 <div className="space-y-6">
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                     <div>
+                       <h4 className="font-semibold text-foreground mb-2">Date & Time</h4>
+                       <p className="text-foreground">{format(selectedEvent.startDate, "EEEE, MMMM dd, yyyy")}</p>
+                       <p className="text-muted-foreground">{formatEventTime(selectedEvent)}</p>
+                     </div>
+
+                     <div>
+                       <h4 className="font-semibold text-foreground mb-2">Type & Priority</h4>
+                       <div className="flex gap-2">
+                         <span className={`text-xs px-2 py-1 rounded ${getEventTypeColor(selectedEvent.eventType)}`}>
+                           {selectedEvent.eventType}
+                         </span>
+                         <span className={`text-xs px-2 py-1 rounded ${
+                           selectedEvent.priority === 'critical' ? 'bg-red-100 text-red-800' :
+                           selectedEvent.priority === 'high' ? 'bg-orange-100 text-orange-800' :
+                           selectedEvent.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                           'bg-green-100 text-green-800'
+                         }`}>
+                           {selectedEvent.priority}
+                         </span>
+                       </div>
+                     </div>
+                   </div>
+
+                   {selectedEvent.location && (
+                     <div>
+                       <h4 className="font-semibold text-foreground mb-2">Location</h4>
+                       <p className="text-foreground">📍 {selectedEvent.location}</p>
+                     </div>
+                   )}
+
+                   {selectedEvent.description && (
+                     <div>
+                       <h4 className="font-semibold text-foreground mb-2">Description</h4>
+                       <p className="text-foreground">{selectedEvent.description}</p>
+                     </div>
+                   )}
+
+                   <div>
+                     <h4 className="font-semibold text-foreground mb-2">Attendees</h4>
+                     <p className="text-foreground">{getAttendeeNames(selectedEvent.attendees)}</p>
+                   </div>
+
+                   {selectedEvent.projectId && (
+                     <div>
+                       <h4 className="font-semibold text-foreground mb-2">Related Project</h4>
+                       <p className="text-foreground">{getProjectName(selectedEvent.projectId)}</p>
+                     </div>
+                   )}
+
+                   {selectedEvent.notes && (
+                     <div>
+                       <h4 className="font-semibold text-foreground mb-2">Notes</h4>
+                       <p className="text-foreground">{selectedEvent.notes}</p>
+                     </div>
+                   )}
+
+                   <div className="flex justify-end gap-3 pt-6 border-t border-border">
+                     <button
+                       onClick={() => setSelectedEvent(null)}
+                       className="btn-outline px-6 py-2"
+                     >
+                       Close
+                     </button>
+                   </div>
+                 </div>
+               </div>
+             </div>
+           )}
         </div>
       </main>
 

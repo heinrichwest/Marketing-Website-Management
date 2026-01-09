@@ -1063,6 +1063,12 @@ export function getSocialMediaAnalytics(): SocialMediaAnalytics[] {
   return loadFromStorage(STORAGE_KEYS.SOCIAL_ANALYTICS, mockSocialMediaAnalytics)
 }
 
+export function addSocialMediaAnalytics(analytics: SocialMediaAnalytics): void {
+  const currentAnalytics = getSocialMediaAnalytics()
+  const updatedAnalytics = [...currentAnalytics, analytics]
+  saveToStorage(STORAGE_KEYS.SOCIAL_ANALYTICS, updatedAnalytics)
+}
+
 export function getStageHistory(): ProjectStageHistory[] {
   return loadFromStorage(STORAGE_KEYS.STAGE_HISTORY, mockStageHistory)
 }

@@ -19,6 +19,8 @@ import NewUserPage from './pages/admin/NewUserPage'
 import DeveloperDashboardPage from './pages/developer/DashboardPage'
 import DeveloperTicketsPage from './pages/developer/TicketsPage'
 import CoordinatorDashboardPage from './pages/coordinator/DashboardPage'
+import CoordinatorProjectsPage from '../app/coordinator/projects/page'
+import CoordinatorNewAnalyticsPage from '../app/coordinator/analytics/new/page'
 import ClientDashboardPage from './pages/client/DashboardPage'
 import ClientProjectsPage from './pages/client/ProjectsPage'
 import ClientTicketsPage from './pages/client/TicketsPage'
@@ -33,6 +35,7 @@ import ClientPortalProjectPage from '../app/client-portal/project/[id]/page'
 import ClientFileSharingPage from '../app/client-portal/files/page'
 import ClientFeedbackPage from '../app/client-portal/feedback/page'
 import AnalyticsDashboardPage from '../app/analytics/page'
+import ProjectAnalyticsPage from '../app/analytics/[id]/page'
 import CalendarPage from '../app/calendar/page'
 import TimeTrackingPage from '../app/time-tracking/page'
 import ProjectTemplatesPage from '../app/templates/page'
@@ -76,7 +79,8 @@ function App() {
            <Route path="/admin/projects/new" element={<NewProjectPage />} />
            <Route path="/admin/projects/:id" element={<AdminProjectDetailPage />} />
            <Route path="/admin/projects/:id/edit" element={<AdminEditProjectPage />} />
-          <Route path="/analytics" element={<AnalyticsDashboardPage />} />
+           <Route path="/analytics" element={<AnalyticsDashboardPage />} />
+           <Route path="/analytics/:id" element={<ProjectAnalyticsPage />} />
           <Route path="/admin/analytics/:id" element={<AdminProjectAnalyticsPage />} />
 
           {/* Calendar */}
@@ -113,6 +117,8 @@ function App() {
 
           {/* Coordinator Routes */}
           <Route path="/coordinator/dashboard" element={<CoordinatorDashboardPage />} />
+          <Route path="/coordinator/projects" element={<CoordinatorProjectsPage />} />
+          <Route path="/coordinator/analytics/new" element={<CoordinatorNewAnalyticsPage />} />
 
            {/* Client Routes */}
            <Route path="/client/dashboard" element={<ClientDashboardPage />} />

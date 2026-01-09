@@ -53,7 +53,7 @@ export default function CoordinatorDashboard() {
     <>
       <Navbar />
 
-      <main className="min-h-screen bg-muted">
+      <main id="main-content" className="min-h-screen bg-muted">
         <div className="container py-12">
           {/* Header */}
           <div className="mb-8">

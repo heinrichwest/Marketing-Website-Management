@@ -155,6 +155,44 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Skip link for screen readers */
+  .skip-link {
+    @apply absolute left-0 top-0 z-50 bg-primary text-white px-4 py-2 text-sm font-medium transform -translate-y-full focus:translate-y-0 transition-transform;
+  }
+
+  /* Improved focus styles for accessibility */
+  *:focus {
+    @apply outline-2 outline-offset-2 outline-primary;
+  }
+
+  /* Ensure focus is visible on interactive elements */
+  button:focus,
+  a:focus,
+  input:focus,
+  textarea:focus,
+  select:focus {
+    @apply ring-2 ring-primary ring-offset-2 ring-offset-background;
+  }
+
+  /* High contrast focus for better visibility */
+  .dark button:focus,
+  .dark a:focus,
+  .dark input:focus,
+  .dark textarea:focus,
+  .dark select:focus {
+    @apply ring-2 ring-white ring-offset-2 ring-offset-gray-900;
+  }
+
+  /* Screen reader only text */
+  .sr-only {
+    @apply absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0;
+  }
+
+  /* Focus within for form groups */
+  .form-group:focus-within label {
+    @apply text-primary;
+  }
 }
 
 * {
