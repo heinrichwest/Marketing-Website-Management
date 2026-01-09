@@ -5,7 +5,7 @@ import { useNavigate, Link } from "react-router-dom"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
-import { getProjects, getTickets, getUsers, deleteProject } from "@/lib/mock-data"
+import { getProjects, getTickets, getUsers, deleteProject, mockProjects } from "@/lib/mock-data"
 import type { Project } from "@/types"
 import StatCard from "@/components/stat-card"
 import StatusBadge from "@/components/status-badge"
@@ -96,6 +96,18 @@ export default function AdminDashboard() {
     }
   }
 
+  const handleRestoreProjects = () => {
+    if (window.confirm(`Are you sure you want to restore all ${mockProjects.length} projects? This will replace any existing projects.`)) {
+      try {
+        localStorage.setItem("marketing_management_website_projects", JSON.stringify(mockProjects))
+        alert(`Successfully restored ${mockProjects.length} projects!`)
+        window.location.reload()
+      } catch (error) {
+        alert("Failed to restore projects. Please try again.")
+      }
+    }
+  }
+
   const getStageIcon = (stageName: string) => {
     switch (stageName.toLowerCase()) {
       case 'planning': return Calendar
@@ -127,11 +139,24 @@ export default function AdminDashboard() {
 
       <main className="min-h-screen bg-muted">
         <div className="container py-8 lg:py-12">
-          {/* Header */}
-          <div className="mb-12">
-            <h1 className="text-4xl lg:text-5xl font-bold text-foreground mb-3">Administrator Dashboard</h1>
-            <p className="text-lg text-muted-foreground leading-relaxed">Welcome back, Administrator {user.fullName}! Here&apos;s your complete system overview and management controls.</p>
-          </div>
+           {/* Header */}
+           <div className="mb-12">
+             <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+               <div className="flex-1">
+                 <h1 className="text-4xl lg:text-5xl font-bold text-foreground mb-3">Administrator Dashboard</h1>
+                 <p className="text-lg text-muted-foreground leading-relaxed">Welcome back, Administrator {user.fullName}! Here&apos;s your complete system overview and management controls.</p>
+               </div>
+               <div className="flex gap-3 lg:flex-shrink-0">
+                 <button
+                   onClick={handleRestoreProjects}
+                   className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                   title="Restore all projects to original state"
+                 >
+                   🔄 Restore Projects ({mockProjects.length})
+                 </button>
+               </div>
+             </div>
+           </div>
 
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
