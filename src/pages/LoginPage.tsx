@@ -206,9 +206,24 @@ export default function LoginPage() {
           <div className="mt-8 text-center">
             <p className="text-xs text-muted-foreground mb-3">Professional Project Management</p>
             <div className="flex items-center justify-center gap-4">
-              <span className="text-lg">🛡️ Secure</span>
-              <span className="text-lg">✓ Collaborative</span>
-              <span className="text-lg">⚡ Efficient</span>
+              <span className="inline-flex items-center gap-1 text-sm">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                  <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd"/>
+                </svg>
+                Secure
+              </span>
+              <span className="inline-flex items-center gap-1 text-sm">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Collaborative
+              </span>
+              <span className="inline-flex items-center gap-1 text-sm">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                  <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd"/>
+                </svg>
+                Efficient
+              </span>
             </div>
           </div>
         </div>
