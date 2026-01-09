@@ -51,7 +51,7 @@ export default function HomePage() {
               </p>
 
                {/* CTA Buttons */}
-               <div className="flex gap-6 justify-center items-center flex-wrap mb-16">
+               <div className="flex gap-8 justify-center items-center flex-wrap mb-16">
                  <Link
                    to="/register"
                    className="group relative bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-xl font-bold text-lg hover:shadow-2xl hover:shadow-primary/25 transition-all duration-300 transform hover:-translate-y-1 overflow-hidden min-w-[200px] text-center"
@@ -79,17 +79,7 @@ export default function HomePage() {
                    </span>
                  </Link>
 
-                 <a
-                   href="#features"
-                   className="group border border-border text-foreground px-8 py-4 rounded-xl font-bold text-lg hover:bg-muted hover:border-primary/50 transition-all duration-300 transform hover:-translate-y-1 min-w-[200px] text-center inline-block"
-                 >
-                   <span className="flex items-center justify-center gap-3">
-                     <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                     </svg>
-                     <span>Learn More</span>
-                   </span>
-                 </a>
+
                </div>
 
 
