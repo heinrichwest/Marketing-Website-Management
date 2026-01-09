@@ -64,8 +64,8 @@ export default function RegisterPage() {
       })
       showToast("Account created successfully!", "success")
       // Navigation will happen automatically via useEffect when auth state changes
-    } catch (error: any) {
-      showToast(error.message || "Failed to create account", "error")
+    } catch (error: unknown) {
+      showToast((error as Error).message || "Failed to create account", "error")
     } finally {
       setIsSubmitting(false)
     }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import { useAuth } from "@/context/auth-context"
 import { getProjects, getTickets, getUsers } from "@/lib/mock-data"
@@ -67,7 +67,8 @@ export default function TimeTrackingPage() {
 
   const [activeTimer, setActiveTimer] = useState<TimerSession | null>(null)
   const [timerSessions, setTimerSessions] = useState<TimerSession[]>(mockTimerSessions)
-  const [timeEntries, setTimeEntries] = useState<TimeEntry[]>(mockTimeEntries)
+  const initialTimeEntries = useMemo(() => mockTimeEntries, [])
+  const [timeEntries, setTimeEntries] = useState<TimeEntry[]>(initialTimeEntries)
   const [projects, setProjects] = useState<Project[]>([])
   const [tickets, setTickets] = useState<Ticket[]>([])
   const [users, setUsers] = useState<User[]>([])

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import { useAuth } from "@/context/auth-context"
 import Navbar from "@/components/navbar"
@@ -98,38 +98,38 @@ const availableIntegrations = [
   }
 ]
 
-const connectedIntegrations = [
-  {
-    id: "slack-connected",
-    integrationId: "slack",
-    status: "connected",
-    connectedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
-    lastSync: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
-    settings: {
-      channels: ["#general", "#projects", "#client-updates"],
-      notifications: ["project_updates", "deadline_alerts", "client_messages"]
-    }
-  },
-  {
-    id: "google-calendar-connected",
-    integrationId: "google-calendar",
-    status: "connected",
-    connectedAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000), // 14 days ago
-    lastSync: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
-    settings: {
-      calendars: ["Work Calendar", "Client Meetings"],
-      syncDirection: "two-way",
-      reminderTime: 15
-    }
-  }
-]
-
 export default function APIIntegrationsPage() {
   const { user, isSignedIn } = useAuth()
   const navigate = useNavigate()
 
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
   const [connectingIntegration, setConnectingIntegration] = useState<string | null>(null)
+
+  const connectedIntegrations = useMemo(() => [
+    {
+      id: "slack-connected",
+      integrationId: "slack",
+      status: "connected",
+      connectedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
+      lastSync: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
+      settings: {
+        channels: ["#general", "#projects", "#client-updates"],
+        notifications: ["project_updates", "deadline_alerts", "client_messages"]
+      }
+    },
+    {
+      id: "google-calendar-connected",
+      integrationId: "google-calendar",
+      status: "connected",
+      connectedAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000), // 14 days ago
+      lastSync: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
+      settings: {
+        calendars: ["Work Calendar", "Client Meetings"],
+        syncDirection: "two-way",
+        reminderTime: 15
+      }
+    }
+  ], [])
 
   useEffect(() => {
     if (!isSignedIn) {

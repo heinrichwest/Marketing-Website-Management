@@ -4,7 +4,7 @@ import { useAuth } from "@/context/auth-context"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { getProjectById, getAnalyticsByProjectId } from "@/lib/mock-data"
-import type { Project } from "@/types"
+import type { Project, WebsiteAnalytics, SocialMediaAnalytics } from "@/types"
 
 export default function AnalyticsPage() {
   const { isSignedIn, user } = useAuth()
@@ -207,7 +207,7 @@ export default function AnalyticsPage() {
 
             {analytics.website && analytics.website.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {analytics.website.slice(0, 3).map((data: any) => (
+                {analytics.website.slice(0, 3).map((data: WebsiteAnalytics) => (
                   <div key={data.id} className="p-6 bg-gradient-to-br from-secondary/10 to-primary/5 rounded-lg border border-secondary/20">
                     <p className="text-sm text-muted-foreground mb-2">
                       {new Date(data.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
@@ -240,7 +240,7 @@ export default function AnalyticsPage() {
 
             {analytics.social && analytics.social.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {analytics.social.map((data: any) => (
+                {analytics.social.map((data: SocialMediaAnalytics) => (
                   <div key={data.id} className="p-6 bg-gradient-to-br from-pink-50 to-purple-50 rounded-lg border border-pink-200">
                     <div className="flex items-center justify-between mb-4">
                       <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-pink-100 text-pink-700 capitalize">

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import { useAuth } from "@/context/auth-context"
 import Navbar from "@/components/navbar"
@@ -165,7 +165,8 @@ export default function WorkflowAutomationPage() {
   const { user, isSignedIn } = useAuth()
   const navigate = useNavigate()
 
-  const [workflows, setWorkflows] = useState(sampleWorkflows)
+  const initialWorkflows = useMemo(() => sampleWorkflows, [])
+  const [workflows, setWorkflows] = useState(initialWorkflows)
   const [selectedWorkflow, setSelectedWorkflow] = useState<any>(null)
   const [isCreatingWorkflow, setIsCreatingWorkflow] = useState(false)
   const [newWorkflow, setNewWorkflow] = useState({

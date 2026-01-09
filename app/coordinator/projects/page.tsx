@@ -6,7 +6,7 @@ import { useAuth } from "@/context/auth-context"
 import { getProjectsByUserId, getSocialMediaAnalytics } from "@/lib/mock-data"
 import StatusBadge from "@/components/status-badge"
 import { getStageDisplayName, formatDate } from "@/lib/utils"
-import type { Project } from "@/types"
+import type { Project, SocialMediaAnalytics } from "@/types"
 
 export default function CoordinatorProjectsPage() {
   const { isSignedIn, user } = useAuth()
@@ -48,9 +48,9 @@ export default function CoordinatorProjectsPage() {
 
   const getProjectAnalyticsSummary = (projectId: string) => {
     const projectAnalytics = analytics[projectId] || []
-    const totalReach = projectAnalytics.reduce((sum: number, a: any) => sum + a.reach, 0)
-    const totalEngagement = projectAnalytics.reduce((sum: number, a: any) => sum + a.engagement, 0)
-    const totalPosts = projectAnalytics.reduce((sum: number, a: any) => sum + a.posts, 0)
+    const totalReach = projectAnalytics.reduce((sum: number, a: SocialMediaAnalytics) => sum + a.reach, 0)
+    const totalEngagement = projectAnalytics.reduce((sum: number, a: SocialMediaAnalytics) => sum + a.engagement, 0)
+    const totalPosts = projectAnalytics.reduce((sum: number, a: SocialMediaAnalytics) => sum + a.posts, 0)
 
     return { totalReach, totalEngagement, totalPosts, entryCount: projectAnalytics.length }
   }

@@ -5,6 +5,25 @@ import { useNavigate, Link } from "react-router-dom"
 import { useAuth } from "@/context/auth-context"
 import { getProjects, getUsers } from "@/lib/mock-data"
 import type { CalendarEvent, Project, User } from "@/types"
+
+interface StoredCalendarEvent {
+  id: string
+  title: string
+  description?: string
+  eventType: string
+  priority: string
+  startDate: string
+  endDate: string
+  createdAt: string
+  updatedAt: string
+  recurrenceEndDate?: string
+  projectId?: string
+  attendees?: string[]
+  location?: string
+  notes?: string
+  isRecurring?: boolean
+  recurrencePattern?: string
+}
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, addDays, addWeeks, subWeeks, addMonths, subMonths } from "date-fns"
@@ -99,17 +118,7 @@ export default function CalendarPage() {
 
   const [currentDate, setCurrentDate] = useState(new Date())
   const [viewMode, setViewMode] = useState<"month" | "week" | "day">("month")
-   const [events, setEvents] = useState<CalendarEvent[]>(() => {
-     const saved = localStorage.getItem("marketing_management_website_events")
-     return saved ? JSON.parse(saved).map((event: any) => ({
-       ...event,
-       startDate: new Date(event.startDate),
-       endDate: new Date(event.endDate),
-       createdAt: new Date(event.createdAt),
-       updatedAt: new Date(event.updatedAt),
-       recurrenceEndDate: event.recurrenceEndDate ? new Date(event.recurrenceEndDate) : undefined
-     })) : mockCalendarEvents
-   })
+  const [events, setEvents] = useState<CalendarEvent[]>(mockCalendarEvents)
   const [projects, setProjects] = useState<Project[]>(() => getProjects())
   const [users, setUsers] = useState<User[]>(() => getUsers())
    const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null)

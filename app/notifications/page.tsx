@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/context/auth-context"
 import Navbar from "@/components/navbar"
@@ -24,8 +24,8 @@ export default function NotificationsPage() {
   const { user, isSignedIn } = useAuth()
   const navigate = useNavigate()
 
-  // Mock notifications data
-  const [notifications, setNotifications] = useState<NotificationItem[]>([
+  // Mock notifications data - use useMemo to avoid Date.now() during render
+  const initialNotifications = useMemo<NotificationItem[]>(() => [
     {
       id: "notif-1",
       type: "project",
@@ -94,7 +94,9 @@ export default function NotificationsPage() {
       priority: "low",
       metadata: { maintenanceStart: new Date(Date.now() + 1000 * 60 * 60 * 2) }
     }
-  ])
+  ], [])
+
+  const [notifications, setNotifications] = useState<NotificationItem[]>(initialNotifications)
 
   const [filter, setFilter] = useState<'all' | 'unread' | 'read'>('all')
   const [typeFilter, setTypeFilter] = useState<string>('all')
