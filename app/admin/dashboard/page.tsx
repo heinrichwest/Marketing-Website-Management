@@ -147,13 +147,29 @@ export default function AdminDashboard() {
                  <p className="text-lg text-muted-foreground leading-relaxed">Welcome back, Administrator {user.fullName}! Here&apos;s your complete system overview and management controls.</p>
                </div>
                <div className="flex gap-3 lg:flex-shrink-0">
-                 <button
-                   onClick={handleRestoreProjects}
-                   className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
-                   title="Restore all projects to original state"
-                 >
-                   🔄 Restore Projects ({mockProjects.length})
-                 </button>
+                 <div className="flex flex-col gap-2">
+                   <button
+                     onClick={handleRestoreProjects}
+                     className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                     title="Restore all projects to original state"
+                   >
+                     🔄 Restore Projects ({mockProjects.length})
+                   </button>
+                   <button
+                     onClick={() => {
+                       const projectsData = JSON.stringify(mockProjects, null, 2);
+                       navigator.clipboard.writeText(projectsData).then(() => {
+                         alert('Projects data copied to clipboard! Open browser console and run the manual restore command.');
+                       }).catch(() => {
+                         alert('Failed to copy. Open browser console and paste this command: \n\nlocalStorage.setItem("marketing_management_website_projects", ' + JSON.stringify(projectsData) + ');\nwindow.location.reload();');
+                       });
+                     }}
+                     className="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-sm"
+                     title="Manual restore for deployed site"
+                   >
+                     📋 Manual Restore (Console)
+                   </button>
+                 </div>
                </div>
              </div>
            </div>
