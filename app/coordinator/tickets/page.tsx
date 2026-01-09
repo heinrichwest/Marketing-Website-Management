@@ -126,58 +126,59 @@ export default function CoordinatorTicketsPage() {
 
            {/* Filters */}
            <div className="card mb-6">
-             <div className="flex flex-col gap-4">
-               <div className="flex gap-4 flex-wrap items-center justify-between">
-              <button
-                onClick={() => setFilter("all")}
-                className={`px-4 py-2 rounded-md font-medium transition ${
-                  filter === "all"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:bg-muted/70"
-                }`}
-              >
-                All Tickets
-              </button>
-              <button
-                onClick={() => setFilter("open")}
-                className={`px-4 py-2 rounded-md font-medium transition ${
-                  filter === "open"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:bg-muted/70"
-                }`}
-              >
-                Open
-              </button>
-              <button
-                onClick={() => setFilter("in_progress")}
-                className={`px-4 py-2 rounded-md font-medium transition ${
-                  filter === "in_progress"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:bg-muted/70"
-                }`}
-              >
-                In Progress
-              </button>
-               <button
-                 onClick={() => setFilter("resolved")}
-                 className={`px-4 py-2 rounded-md font-medium transition ${
-                   filter === "resolved"
-                     ? "bg-primary text-primary-foreground"
-                     : "bg-muted text-muted-foreground hover:bg-muted/70"
-                 }`}
-               >
-                 Resolved
-               </button>
+             <div className="flex flex-col gap-6">
+               {/* Filter Buttons */}
+               <div className="flex gap-3 flex-wrap">
+                <button
+                  onClick={() => setFilter("all")}
+                  className={`px-4 py-2 rounded-md font-medium transition ${
+                    filter === "all"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground hover:bg-muted/70"
+                  }`}
+                >
+                  All Tickets
+                </button>
+                <button
+                  onClick={() => setFilter("open")}
+                  className={`px-4 py-2 rounded-md font-medium transition ${
+                    filter === "open"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground hover:bg-muted/70"
+                  }`}
+                >
+                  Open
+                </button>
+                <button
+                  onClick={() => setFilter("in_progress")}
+                  className={`px-4 py-2 rounded-md font-medium transition ${
+                    filter === "in_progress"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground hover:bg-muted/70"
+                  }`}
+                >
+                  In Progress
+                </button>
+                 <button
+                   onClick={() => setFilter("resolved")}
+                   className={`px-4 py-2 rounded-md font-medium transition ${
+                     filter === "resolved"
+                       ? "bg-primary text-primary-foreground"
+                       : "bg-muted text-muted-foreground hover:bg-muted/70"
+                   }`}
+                 >
+                   Resolved
+                 </button>
                </div>
 
                {/* Search */}
-               <div className="flex items-center gap-2">
-                 <span className="text-sm text-muted-foreground">Search:</span>
+               <div className="flex items-center gap-3">
+                 <span className="text-sm font-medium text-foreground whitespace-nowrap">Search:</span>
                  <input
                    type="text"
                    value={searchTerm}
                    onChange={(e) => setSearchTerm(e.target.value)}
-                   className="border border-border rounded px-3 py-2 bg-background text-foreground hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary min-w-[200px]"
+                   className="border border-border rounded px-3 py-2 bg-background text-foreground hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary flex-1"
                    placeholder="Search your tickets..."
                  />
                </div>
