@@ -29,11 +29,11 @@ export default function LoginPage() {
       showToast("Signing in...", "success")
       // Navigation will happen automatically when auth state changes
       navigate("/dashboard")
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Handle Firebase Auth errors
       let errorMessage = "Failed to sign in. Please try again."
-      
-      if (error.message) {
+
+      if (error instanceof Error && error.message) {
         if (error.message.includes("auth/user-not-found") || error.message.includes("auth/wrong-password")) {
           errorMessage = "Invalid email or password"
         } else if (error.message.includes("auth/invalid-email")) {

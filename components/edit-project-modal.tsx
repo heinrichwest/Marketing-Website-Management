@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { useState, useEffect } from "react"
 import { updateProject, getUsers } from "@/lib/mock-data"
 import type { Project, User, ProjectStage, ProjectStatus } from "@/types"
@@ -31,7 +32,8 @@ export default function EditProjectModal({ project, isOpen, onClose, onSuccess }
     if (isOpen && project) {
       const allUsers = getUsers()
       setUsers(allUsers)
-      setFormData({
+      setFormData(prevData => ({
+        ...prevData,
         name: project.name,
         description: project.description,
         websiteUrl: project.websiteUrl || "",
@@ -43,7 +45,7 @@ export default function EditProjectModal({ project, isOpen, onClose, onSuccess }
         currentStage: project.currentStage,
         status: project.status,
         notes: project.notes || "",
-      })
+      }))
     }
   }, [isOpen, project])
 

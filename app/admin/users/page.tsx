@@ -12,7 +12,7 @@ import type { User } from "@/types"
 export default function AdminUsersPage() {
   const { isSignedIn, user } = useAuth()
   const navigate = useNavigate()
-  const [users, setUsers] = useState<User[]>([])
+  const [users, setUsers] = useState<User[]>(() => getUsers())
 
   useEffect(() => {
     if (!isSignedIn) {
@@ -21,10 +21,6 @@ export default function AdminUsersPage() {
       navigate("/dashboard")
     }
   }, [isSignedIn, user, navigate])
-
-  useEffect(() => {
-    setUsers(getUsers())
-  }, [])
 
   const handleEditUser = (userId: string) => {
     navigate("/admin/users/" + userId + "/edit")

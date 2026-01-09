@@ -1,6 +1,6 @@
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
@@ -38,25 +38,37 @@ export default function LoginPage() {
       await signIn(email, password)
       showToast("Signing in...", "success")
       // Navigation will happen automatically via useEffect when auth state changes
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Handle Firebase Auth errors
       let errorMessage = "Failed to sign in. Please try again."
-      
-      if (error.message) {
-        if (error.message.includes("auth/user-not-found") || error.message.includes("auth/wrong-password")) {
-          errorMessage = "Invalid email or password"
-        } else if (error.message.includes("auth/invalid-email")) {
-          errorMessage = "Invalid email address"
-        } else if (error.message.includes("auth/too-many-requests")) {
-          errorMessage = "Too many failed attempts. Please try again later."
-        } else if (error.message.includes("auth/user-disabled")) {
-          errorMessage = "This account has been disabled"
-        } else {
-          errorMessage = error.message
+
+      if (error instanceof Error && 'message' in error) {
+        errorMessage = error.message
+      } else if (typeof error === 'object' && error !== null && 'code' in error) {
+        // Handle specific Firebase Auth error codes
+        const errorObj = error as { code?: string }
+        switch (errorObj.code) {
+          case "auth/user-not-found":
+            errorMessage = "No account found with this email address."
+            break
+          case "auth/wrong-password":
+            errorMessage = "Incorrect password. Please try again."
+            break
+          case "auth/invalid-email":
+            errorMessage = "Please enter a valid email address."
+            break
+          case "auth/user-disabled":
+            errorMessage = "This account has been disabled."
+            break
+          case "auth/too-many-requests":
+            errorMessage = "Too many failed login attempts. Please try again later."
+            break
+          default:
+            errorMessage = "Authentication failed. Please try again."
         }
-      }
-      
-      showToast(errorMessage, "error")
+         }
+
+       showToast(errorMessage, "error");
     } finally {
       setIsSubmitting(false)
     }

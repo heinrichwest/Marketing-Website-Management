@@ -6,6 +6,7 @@ import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
 import { getProjects, getTickets, getUsers, deleteProject } from "@/lib/mock-data"
+import type { Project } from "@/types"
 import StatCard from "@/components/stat-card"
 import StatusBadge from "@/components/status-badge"
 import PriorityBadge from "@/components/priority-badge"
@@ -87,7 +88,7 @@ export default function AdminDashboard() {
     if (window.confirm("Are you sure you want to delete this project? This action cannot be undone.")) {
       // Remove from localStorage
       const projects = JSON.parse(localStorage.getItem("marketing_management_website_projects") || "[]")
-      const updatedProjects = projects.filter((p: any) => p.id !== projectId)
+      const updatedProjects = projects.filter((p: Project) => p.id !== projectId)
       localStorage.setItem("marketing_management_website_projects", JSON.stringify(updatedProjects))
 
       // Refresh the page to update the list
@@ -129,7 +130,7 @@ export default function AdminDashboard() {
           {/* Header */}
           <div className="mb-12">
             <h1 className="text-4xl lg:text-5xl font-bold text-foreground mb-3">Administrator Dashboard</h1>
-            <p className="text-lg text-muted-foreground leading-relaxed">Welcome back, Administrator {user.fullName}! Here's your complete system overview and management controls.</p>
+            <p className="text-lg text-muted-foreground leading-relaxed">Welcome back, Administrator {user.fullName}! Here&apos;s your complete system overview and management controls.</p>
           </div>
 
           {/* Stats Grid */}

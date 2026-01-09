@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import React from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { useAuth } from "../../../context/auth-context"
 import Navbar from "../../../components/navbar"
@@ -64,7 +65,8 @@ export default function EditProjectPage() {
       }
 
       // Check if data has actually changed
-      return JSON.stringify(prevData) === JSON.stringify(newData) ? prevData : newData
+      const hasChanged = JSON.stringify(prevData) !== JSON.stringify(newData)
+      return hasChanged ? newData : prevData
     })
 
     const allUsers = getUsers()
