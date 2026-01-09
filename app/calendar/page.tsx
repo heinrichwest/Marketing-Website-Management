@@ -110,8 +110,8 @@ export default function CalendarPage() {
        recurrenceEndDate: event.recurrenceEndDate ? new Date(event.recurrenceEndDate) : undefined
      })) : mockCalendarEvents
    })
-  const [projects, setProjects] = useState<Project[]>([])
-  const [users, setUsers] = useState<User[]>([])
+  const [projects, setProjects] = useState<Project[]>(() => getProjects())
+  const [users, setUsers] = useState<User[]>(() => getUsers())
    const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null)
    const [isEventModalOpen, setIsEventModalOpen] = useState(false)
    const [newEventData, setNewEventData] = useState({
@@ -133,8 +133,7 @@ export default function CalendarPage() {
        return
      }
 
-     setProjects(getProjects())
-     setUsers(getUsers())
+
    }, [isSignedIn, navigate])
 
    useEffect(() => {
