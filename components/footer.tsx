@@ -73,7 +73,7 @@ export default function Footer() {
           </div>
 
           <div className="border-t border-border pt-8">
-            <p className="text-center text-sm text-muted-foreground">© 2025 SpecCon Marketing Management Website. All rights reserved.</p>
+            <p className="text-center text-sm text-muted-foreground">© 2026 SpecCon Marketing Management Website. All rights reserved.</p>
           </div>
         </div>
       </footer>

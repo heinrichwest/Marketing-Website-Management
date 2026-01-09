@@ -950,7 +950,13 @@ export function toggleUserActive(userId: string): void {
 }
 
 export function getProjects(): Project[] {
-  return loadFromStorage(STORAGE_KEYS.PROJECTS, mockProjects)
+  const projects = loadFromStorage(STORAGE_KEYS.PROJECTS, mockProjects)
+  // If no projects in storage, initialize with mock data
+  if (projects.length === 0) {
+    saveToStorage(STORAGE_KEYS.PROJECTS, mockProjects)
+    return mockProjects
+  }
+  return projects
 }
 
 export function getTickets(): Ticket[] {
