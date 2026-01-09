@@ -53,7 +53,7 @@ export default function ClientDashboard() {
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-foreground mb-2">Client Dashboard</h1>
-            <p className="text-muted-foreground">Welcome back, {user.fullName}! Here's your project status.</p>
+            <p className="text-muted-foreground">Welcome back, {user.fullName}! Here&apos;s your project status.</p>
           </div>
 
           {/* Stats Grid */}

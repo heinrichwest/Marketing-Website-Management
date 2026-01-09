@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { useAuth } from "@/context/auth-context"
 import { getProjectsByUserId } from "@/lib/mock-data"
 import type { Project } from "@/types"
@@ -213,7 +213,7 @@ export default function ClientFeedbackPage() {
               💡 Tips for Better Feedback
             </h3>
             <ul className="space-y-2 text-sm text-primary dark:text-primary">
-              <li>• Be specific about what you liked or didn't like</li>
+              <li>• Be specific about what you liked or didn&apos;t like</li>
               <li>• Include examples from your experience</li>
               <li>• Suggest improvements when possible</li>
               <li>• Mention both positive aspects and areas for growth</li>

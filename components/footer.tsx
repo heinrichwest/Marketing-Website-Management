@@ -285,7 +285,7 @@ export default function Footer() {
               </div>
 
               <div>
-                <h3 className="font-bold text-foreground mb-2">9. Children's Privacy</h3>
+                <h3 className="font-bold text-foreground mb-2">9. Children&apos;s Privacy</h3>
                 <p className="text-muted-foreground">
                   SpecCon Marketing Management Website is a business platform not intended for users under the age of 18. We do not knowingly collect personal information from children.
                 </p>
@@ -410,7 +410,7 @@ export default function Footer() {
                   Users are prohibited from:
                 </p>
                 <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4">
-                  <li>Unauthorized access to other users' projects or data</li>
+                  <li>Unauthorized access to other users&apos; projects or data</li>
                   <li>Sharing confidential client information</li>
                   <li>Submitting false or misleading analytics data</li>
                   <li>Harassing other users or team members</li>
