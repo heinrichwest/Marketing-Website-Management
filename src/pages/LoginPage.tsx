@@ -139,9 +139,13 @@ export default function LoginPage() {
                    <input id="remember" type="checkbox" className="rounded" />
                    <label htmlFor="remember" className="text-sm text-foreground">Remember me</label>
                  </div>
-                 <Link to="#" className="text-sm text-primary hover:underline">
-                   Forgot password?
-                 </Link>
+                  <button
+                    type="button"
+                    onClick={() => showToast("Password reset feature coming soon. Please contact support.", "info")}
+                    className="text-sm text-primary hover:underline bg-transparent border-none p-0 cursor-pointer"
+                  >
+                    Forgot password?
+                  </button>
                </div>
 
               <button 
