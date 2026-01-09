@@ -8,7 +8,27 @@ import Footer from "@/components/footer"
 import type { Project, Ticket } from "@/types"
 
 // Mock automation workflows
-const sampleWorkflows: any[] = [
+interface AutomationAction {
+  type: string
+  config: Record<string, unknown>
+}
+
+interface AutomationWorkflow {
+  id: string
+  name: string
+  description: string
+  trigger: {
+    type: string
+    conditions: unknown[]
+  }
+  actions: AutomationAction[]
+  isActive: boolean
+  createdAt: Date
+  lastTriggered: Date | null
+  triggerCount: number
+}
+
+const sampleWorkflows: AutomationWorkflow[] = [
   {
     id: "workflow-1",
     name: "New Project Welcome Email",
@@ -511,7 +531,7 @@ export default function WorkflowAutomationPage() {
                     <div>
                       <h3 className="text-lg font-semibold text-foreground mb-4">Configured Actions</h3>
                       <div className="space-y-3">
-                        {selectedWorkflow.actions.map((action: any, index: number) => (
+                        {selectedWorkflow.actions.map((action: AutomationAction, index: number) => (
                           <div key={index} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
                             <span className="text-xl">
                               {availableActions.find(a => a.id === action.type)?.icon || "⚡"}

@@ -1,10 +1,10 @@
-import { useState } from "react"
+import React, { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
 import { getProjectsByUserId, addSocialMediaAnalytics } from "@/lib/mock-data"
-import type { SocialMediaAnalytics } from "@/types"
+import type { SocialMediaAnalytics, SocialMediaPlatform } from "@/types"
 
 export default function NewAnalyticsEntryPage() {
   const { user } = useAuth()
@@ -43,7 +43,7 @@ export default function NewAnalyticsEntryPage() {
       const newEntry: SocialMediaAnalytics = {
         id: `analytics-${Date.now()}`,
         projectId: formData.projectId,
-        platform: formData.platform as any,
+         platform: formData.platform as SocialMediaPlatform,
         date: new Date(formData.date),
         reach: parseInt(formData.reach),
         engagement: parseInt(formData.engagement),

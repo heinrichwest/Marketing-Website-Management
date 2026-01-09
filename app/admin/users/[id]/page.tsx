@@ -18,10 +18,24 @@ export default function ViewUserPage() {
   const params = useParams()
   const userId = params.id as string
 
+  // Get data synchronously - avoid setState in effects
+  const userData = userId ? getUserById(userId) : null
+  const allProjects = getProjects()
+  const relatedProjects = userData ? allProjects.filter(
+    (p) =>
+      p.clientId === userId ||
+      p.webDeveloperId === userId ||
+      p.socialMediaCoordinatorId === userId
+  ) : []
+  const allTickets = getTickets()
+  const relatedTickets = userData ? allTickets.filter(
+    (t) => t.createdBy === userId || t.assignedTo === userId
+  ) : []
+
   const [isLoading, setIsLoading] = useState(true)
-  const [currentUser, setCurrentUser] = useState<User | null>(null)
-  const [userProjects, setUserProjects] = useState<Project[]>([])
-  const [userTickets, setUserTickets] = useState<Ticket[]>([])
+  const [currentUser, setCurrentUser] = useState<User | null>(userData || null)
+  const [userProjects, setUserProjects] = useState<Project[]>(relatedProjects)
+  const [userTickets, setUserTickets] = useState<Ticket[]>(relatedTickets)
 
   useEffect(() => {
     if (!isSignedIn) {
@@ -32,34 +46,12 @@ export default function ViewUserPage() {
   }, [isSignedIn, user, navigate])
 
   useEffect(() => {
-    if (userId) {
-      const userData = getUserById(userId)
-      if (userData) {
-        setCurrentUser(userData)
-
-        // Get projects associated with this user
-        const allProjects = getProjects()
-        const relatedProjects = allProjects.filter(
-          (p) =>
-            p.clientId === userId ||
-            p.webDeveloperId === userId ||
-            p.socialMediaCoordinatorId === userId
-        )
-        setUserProjects(relatedProjects)
-
-        // Get tickets created by or assigned to this user
-        const allTickets = getTickets()
-        const relatedTickets = allTickets.filter(
-          (t) => t.createdBy === userId || t.assignedTo === userId
-        )
-        setUserTickets(relatedTickets)
-
-        setIsLoading(false)
-      } else {
-        navigate("/admin/users")
-      }
+    if (userData) {
+      setIsLoading(false)
+    } else {
+      navigate("/admin/users")
     }
-  }, [userId, navigate])
+  }, [userData, navigate])
 
   if (!user || user.role !== "admin") {
     return (

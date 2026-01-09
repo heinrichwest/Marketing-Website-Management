@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { useAuth } from "@/context/auth-context"
 import Navbar from "@/components/navbar"
@@ -12,20 +12,41 @@ export default function EditProjectPage() {
   const params = useParams()
   const projectId = params.id as string
 
-  const [project, setProject] = useState<Project | null>(null)
-  const [users, setUsers] = useState<User[]>([])
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    websiteUrl: "",
-    googleAnalyticsPropertyId: "",
-    googleAnalyticsViewId: "",
-    clientId: "",
-    webDeveloperId: "",
-    socialMediaCoordinatorId: "",
-    currentStage: "planning" as ProjectStage,
-    status: "active" as ProjectStatus,
-    notes: "",
+  // Get data synchronously - avoid setState in effects
+  const projectData = getProjectById(projectId)
+  const allUsers = getUsers()
+
+  const [project, setProject] = useState<Project | null>(projectData || null)
+  const [users, setUsers] = useState<User[]>(allUsers)
+  const [formData, setFormData] = useState(() => {
+    if (projectData) {
+      return {
+        name: projectData.name,
+        description: projectData.description,
+        websiteUrl: projectData.websiteUrl || "",
+        googleAnalyticsPropertyId: projectData.googleAnalyticsPropertyId || "",
+        googleAnalyticsViewId: projectData.googleAnalyticsViewId || "",
+        clientId: projectData.clientId,
+        webDeveloperId: projectData.webDeveloperId || "",
+        socialMediaCoordinatorId: projectData.socialMediaCoordinatorId || "",
+        currentStage: projectData.currentStage,
+        status: projectData.status,
+        notes: projectData.notes || "",
+      }
+    }
+    return {
+      name: "",
+      description: "",
+      websiteUrl: "",
+      googleAnalyticsPropertyId: "",
+      googleAnalyticsViewId: "",
+      clientId: "",
+      webDeveloperId: "",
+      socialMediaCoordinatorId: "",
+      currentStage: "planning" as ProjectStage,
+      status: "active" as ProjectStatus,
+      notes: "",
+    }
   })
 
   useEffect(() => {
@@ -39,29 +60,10 @@ export default function EditProjectPage() {
       return
     }
 
-    const projectData = getProjectById(projectId)
     if (!projectData) {
       navigate("/admin/dashboard")
       return
     }
-
-    setProject(projectData)
-    setFormData({
-      name: projectData.name,
-      description: projectData.description,
-      websiteUrl: projectData.websiteUrl || "",
-      googleAnalyticsPropertyId: projectData.googleAnalyticsPropertyId || "",
-      googleAnalyticsViewId: projectData.googleAnalyticsViewId || "",
-      clientId: projectData.clientId,
-      webDeveloperId: projectData.webDeveloperId || "",
-      socialMediaCoordinatorId: projectData.socialMediaCoordinatorId || "",
-      currentStage: projectData.currentStage,
-      status: projectData.status,
-      notes: projectData.notes || "",
-    })
-
-    const allUsers = getUsers()
-    setUsers(allUsers)
   }, [isSignedIn, user, projectId, navigate])
 
   const handleSubmit = (e: React.FormEvent) => {

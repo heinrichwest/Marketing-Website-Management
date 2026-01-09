@@ -33,23 +33,7 @@ export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(true)
   const [refreshKey, setRefreshKey] = useState(0)
 
-  // Simulate loading delay
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 1000) // Simulate network delay
-    return () => clearTimeout(timer)
-  }, [])
-
-  if (!user || user.role !== "admin") {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-muted">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    )
-  }
-
-  // Initialize data after role check
+  // Initialize data - hooks must be called before any conditional returns
   const projects = getProjects()
   const tickets = getTickets()
   const users = getUsers()
@@ -69,10 +53,26 @@ export default function AdminDashboard() {
   const endIndex = startIndex + pageSize
   const paginatedProjects = filteredProjects.slice(startIndex, endIndex)
 
+  // Simulate loading delay
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false)
+    }, 1000) // Simulate network delay
+    return () => clearTimeout(timer)
+  }, [])
+
   // Reset to first page when search changes
   useEffect(() => {
     setCurrentPage(1)
   }, [searchTerm])
+
+  if (!user || user.role !== "admin") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-muted">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    )
+  }
 
   const stats = {
     totalProjects: projects.length,

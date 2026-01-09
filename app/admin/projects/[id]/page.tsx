@@ -17,12 +17,23 @@ export default function ViewProjectPage() {
   const params = useParams()
   const projectId = params.id as string
 
-  const [isLoading, setIsLoading] = useState(true)
-  const [project, setProject] = useState<Project | null>(null)
-  const [client, setClient] = useState<User | null>(null)
-  const [developer, setDeveloper] = useState<User | null>(null)
-  const [coordinator, setCoordinator] = useState<User | null>(null)
-  const [tickets, setTickets] = useState<Ticket[]>([])
+  // Get data synchronously - avoid setState in effects
+  const projectData = projectId ? getProjectById(projectId) : null
+  const users = getUsers()
+  const projectTickets = projectId ? getTicketsByProjectId(projectId) : []
+
+  const [isLoading, setIsLoading] = useState(!projectData)
+  const [project, setProject] = useState<Project | null>(projectData || null)
+  const [client, setClient] = useState<User | null>(
+    projectData ? users.find((u) => u.id === projectData.clientId) || null : null
+  )
+  const [developer, setDeveloper] = useState<User | null>(
+    projectData ? users.find((u) => u.id === projectData.webDeveloperId) || null : null
+  )
+  const [coordinator, setCoordinator] = useState<User | null>(
+    projectData ? users.find((u) => u.id === projectData.socialMediaCoordinatorId) || null : null
+  )
+  const [tickets, setTickets] = useState<Ticket[]>(projectTickets)
 
   useEffect(() => {
     if (!isSignedIn) {
@@ -33,25 +44,10 @@ export default function ViewProjectPage() {
   }, [isSignedIn, user, navigate])
 
   useEffect(() => {
-    if (projectId) {
-      const projectData = getProjectById(projectId)
-      if (projectData) {
-        setProject(projectData)
-
-        const users = getUsers()
-        setClient(users.find((u) => u.id === projectData.clientId) || null)
-        setDeveloper(users.find((u) => u.id === projectData.webDeveloperId) || null)
-        setCoordinator(users.find((u) => u.id === projectData.socialMediaCoordinatorId) || null)
-
-        const projectTickets = getTicketsByProjectId(projectId)
-        setTickets(projectTickets)
-
-        setIsLoading(false)
-      } else {
-        navigate("/admin/dashboard")
-      }
+    if (!projectData) {
+      navigate("/admin/dashboard")
     }
-  }, [projectId, navigate])
+  }, [projectData, navigate])
 
   if (!user || user.role !== "admin") {
     return (

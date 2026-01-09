@@ -15,20 +15,37 @@ export default function EditUserPage() {
   const params = useParams()
   const userId = params.id as string
 
+  // Get data synchronously - avoid setState in effects
+  const userData = userId ? getUserById(userId) : null
+
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState("")
-  const [currentUser, setCurrentUser] = useState<User | null>(null)
+  const [currentUser, setCurrentUser] = useState<User | null>(userData || null)
 
-  const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    phone: "",
-    role: "client" as UserRole,
-    isActive: true,
-    changePassword: false,
-    newPassword: "",
-    confirmPassword: "",
+  const [formData, setFormData] = useState(() => {
+    if (userData) {
+      return {
+        fullName: userData.fullName,
+        email: userData.email,
+        phone: userData.phone,
+        role: userData.role,
+        isActive: userData.isActive,
+        changePassword: false,
+        newPassword: "",
+        confirmPassword: "",
+      }
+    }
+    return {
+      fullName: "",
+      email: "",
+      phone: "",
+      role: "client" as UserRole,
+      isActive: true,
+      changePassword: false,
+      newPassword: "",
+      confirmPassword: "",
+    }
   })
 
   useEffect(() => {
@@ -40,26 +57,12 @@ export default function EditUserPage() {
   }, [isSignedIn, user, navigate])
 
   useEffect(() => {
-    if (userId) {
-      const userData = getUserById(userId)
-      if (userData) {
-        setCurrentUser(userData)
-        setFormData({
-          fullName: userData.fullName,
-          email: userData.email,
-          phone: userData.phone,
-          role: userData.role,
-          isActive: userData.isActive,
-          changePassword: false,
-          newPassword: "",
-          confirmPassword: "",
-        })
-        setIsLoading(false)
-      } else {
-        navigate("/admin/users")
-      }
+    if (userData) {
+      setIsLoading(false)
+    } else {
+      navigate("/admin/users")
     }
-  }, [userId, navigate])
+  }, [userData, navigate])
 
   if (!user || user.role !== "admin") {
     return (
