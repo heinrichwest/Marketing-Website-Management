@@ -54,22 +54,11 @@ export default function Navbar() {
     }
   }
 
-    // Determine if we're in dashboard context (not just any page with dashboard in path)
-    const is_dashboard_context = (
-      pathname.startsWith("/admin/") ||
+    // Determine if we're in dashboard context
+    const is_dashboard_context = pathname.startsWith("/admin/") ||
       pathname.startsWith("/developer/") ||
       pathname.startsWith("/coordinator/") ||
       pathname.startsWith("/client-portal/")
-    ) && (
-      pathname.includes("/dashboard") ||
-      pathname.includes("/projects") ||
-      pathname.includes("/tickets") ||
-      pathname.includes("/analytics") ||
-      pathname.includes("/users") ||
-      pathname.includes("/files") ||
-      pathname.includes("/messages") ||
-      pathname.includes("/feedback")
-    )
 
     return (
       <>

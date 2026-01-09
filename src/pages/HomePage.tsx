@@ -3,24 +3,8 @@ import Footer from "@/components/footer"
 import { Link } from "react-router-dom"
 import { useAuth } from "@/context/auth-context"
 
-// Helper function to get the correct dashboard route for each role
-const getDashboardRoute = (role: string) => {
-  switch (role) {
-    case "admin":
-      return "/admin/dashboard"
-    case "web_developer":
-      return "/developer/dashboard"
-    case "social_media_coordinator":
-      return "/coordinator/dashboard"
-    case "client":
-      return "/client-portal/dashboard"
-    default:
-      return "/dashboard"
-  }
-}
-
 export default function HomePage() {
-  const { isSignedIn, user } = useAuth()
+  const { isSignedIn } = useAuth()
 
   return (
     <>
@@ -67,36 +51,46 @@ export default function HomePage() {
               </p>
 
                {/* CTA Buttons */}
-               <div className="flex gap-8 justify-center items-center flex-wrap mb-16">
+               <div className="flex gap-6 justify-center items-center flex-wrap mb-16">
                  <Link
-                   to={isSignedIn && user ? getDashboardRoute(user.role) : "/register"}
-                   className="group relative bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-xl font-bold text-lg hover:shadow-2xl hover:shadow-primary/25 transition-all duration-300 transform hover:-translate-y-1 overflow-hidden w-[220px] text-center whitespace-nowrap"
+                   to="/register"
+                   className="group relative bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-xl font-bold text-lg hover:shadow-2xl hover:shadow-primary/25 transition-all duration-300 transform hover:-translate-y-1 overflow-hidden min-w-[200px] text-center"
                  >
                    <span className="relative z-10 flex items-center justify-center gap-3">
                      <span className="w-5 h-5 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
                        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                        </svg>
                      </span>
-                     <span className="truncate">
-                       {isSignedIn && user ? "Go to Dashboard" : "Get Started"}
-                     </span>
+                     <span>Get Started</span>
                    </span>
                    <div className="absolute inset-0 bg-gradient-to-r from-accent/20 to-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                  </Link>
 
-                <Link
-                  to="/login"
-                  className="group border-2 border-primary/30 text-primary px-8 py-4 rounded-xl font-bold text-lg hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 transform hover:-translate-y-1 w-[220px] text-center whitespace-nowrap"
-                >
-                  <span className="flex items-center justify-center gap-3">
-                    <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
-                    </svg>
-                    <span className="truncate">Sign In</span>
-                  </span>
-                </Link>
-              </div>
+                 <Link
+                   to="/login"
+                   className="group border-2 border-primary/30 text-primary px-8 py-4 rounded-xl font-bold text-lg hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 transform hover:-translate-y-1 min-w-[200px] text-center"
+                 >
+                   <span className="flex items-center justify-center gap-3">
+                     <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                     </svg>
+                     <span>Sign In</span>
+                   </span>
+                 </Link>
+
+                 <Link
+                   to="#features"
+                   className="group border border-border text-foreground px-8 py-4 rounded-xl font-bold text-lg hover:bg-muted hover:border-primary/50 transition-all duration-300 transform hover:-translate-y-1 min-w-[200px] text-center"
+                 >
+                   <span className="flex items-center justify-center gap-3">
+                     <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                     </svg>
+                     <span>Learn More</span>
+                   </span>
+                 </Link>
+               </div>
 
 
             </div>
