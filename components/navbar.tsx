@@ -184,17 +184,20 @@ export default function Navbar() {
                   </button>
 
                   <div className="absolute top-full right-0 mt-2 w-56 bg-background border border-border rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                    <div className="py-2">
-                       <Link to="/search" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition text-center">
-                         Search
-                       </Link>
-                       <Link to="/calendar" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition text-center">
-                         Calendar
-                       </Link>
-                       <Link to="/analytics" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition text-center">
-                         Analytics
-                       </Link>
-                    </div>
+                   <div className="py-2">
+                        <Link to="/search" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition text-center">
+                          Search
+                        </Link>
+                        <Link to="/calendar" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition text-center">
+                          Calendar
+                        </Link>
+                        <Link to="/analytics" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition text-center">
+                          Analytics
+                        </Link>
+                        <Link to="/tickets" className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition text-center">
+                          Tickets
+                        </Link>
+                     </div>
                   </div>
                 </div>
               )}

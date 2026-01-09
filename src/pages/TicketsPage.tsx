@@ -23,7 +23,7 @@ export default function TicketsPage() {
         navigate("/developer/tickets")
         break
       case "social_media_coordinator":
-        navigate("/coordinator/dashboard") // Coordinators don't have a specific tickets page, redirect to dashboard
+        navigate("/coordinator/tickets")
         break
       case "client":
         navigate("/client/tickets")

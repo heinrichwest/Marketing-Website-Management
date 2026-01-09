@@ -120,26 +120,26 @@ export default function Footer() {
                 </ul>
               </div>
 
-              <div>
-                <h3 className="font-bold text-foreground mb-2">For Developers</h3>
-                <p className="text-muted-foreground mb-2">
-                  Managing your assigned projects:
-                </p>
-                <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4">
-                  <li>Access all your assigned website projects</li>
-                  <li>Update project stages as work progresses</li>
-                  <li>Manage and resolve client tickets</li>
-                  <li>Track time and deliverables</li>
-                  <li>Collaborate with social media coordinators</li>
-                </ul>
-              </div>
+               <div>
+                 <h3 className="font-bold text-foreground mb-2">For Developers</h3>
+                 <p className="text-muted-foreground mb-2">
+                   Managing your assigned projects:
+                 </p>
+                 <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4">
+                   <li>Access all your assigned website projects</li>
+                   <li>Update project stages as work progresses</li>
+                   <li>Manage and resolve technical tickets</li>
+                   <li>Track time and deliverables</li>
+                   <li>Collaborate with social media coordinators</li>
+                 </ul>
+               </div>
 
-              <div>
-                <h3 className="font-bold text-foreground mb-2">For Social Media Coordinators</h3>
-                <p className="text-muted-foreground">
-                  Track and manage social media analytics for your assigned projects. Add analytics entries for reach, engagement, and posts across different platforms. Generate reports and monitor performance trends.
-                </p>
-              </div>
+               <div>
+                 <h3 className="font-bold text-foreground mb-2">For Social Media Coordinators</h3>
+                 <p className="text-muted-foreground">
+                   Track and manage social media analytics for your assigned projects. Add analytics entries for reach, engagement, and posts across different platforms. Generate reports, monitor performance trends, and handle support tickets related to social media coordination.
+                 </p>
+               </div>
 
               <div>
                 <h3 className="font-bold text-foreground mb-2">Ticketing System</h3>

@@ -21,6 +21,7 @@ import DeveloperDashboardPage from './pages/developer/DashboardPage'
 import DeveloperTicketsPage from './pages/developer/TicketsPage'
 import CoordinatorDashboardPage from './pages/coordinator/DashboardPage'
 import CoordinatorProjectsPage from '../app/coordinator/projects/page'
+import CoordinatorTicketsPage from '../app/coordinator/tickets/page'
 import CoordinatorNewAnalyticsPage from '../app/coordinator/analytics/new/page'
 import ClientDashboardPage from './pages/client/DashboardPage'
 import ClientProjectsPage from './pages/client/ProjectsPage'
@@ -124,10 +125,11 @@ function App() {
           <Route path="/developer/dashboard" element={<DeveloperDashboardPage />} />
           <Route path="/developer/tickets" element={<DeveloperTicketsPage />} />
 
-          {/* Coordinator Routes */}
-          <Route path="/coordinator/dashboard" element={<CoordinatorDashboardPage />} />
-          <Route path="/coordinator/projects" element={<CoordinatorProjectsPage />} />
-          <Route path="/coordinator/analytics/new" element={<CoordinatorNewAnalyticsPage />} />
+           {/* Coordinator Routes */}
+           <Route path="/coordinator/dashboard" element={<CoordinatorDashboardPage />} />
+           <Route path="/coordinator/projects" element={<CoordinatorProjectsPage />} />
+           <Route path="/coordinator/tickets" element={<CoordinatorTicketsPage />} />
+           <Route path="/coordinator/analytics/new" element={<CoordinatorNewAnalyticsPage />} />
 
            {/* Client Routes */}
            <Route path="/client/dashboard" element={<ClientDashboardPage />} />
