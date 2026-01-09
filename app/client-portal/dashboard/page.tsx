@@ -24,8 +24,22 @@ export default function ClientPortalDashboardPage() {
       return
     }
 
+    // Strict role checking - redirect unauthorized users
     if (user.role !== "client") {
-      navigate("/dashboard")
+      // Redirect to appropriate dashboard or home based on role
+      switch (user.role) {
+        case "admin":
+          navigate("/admin/dashboard")
+          break
+        case "web_developer":
+          navigate("/developer/dashboard")
+          break
+        case "social_media_coordinator":
+          navigate("/coordinator/dashboard")
+          break
+        default:
+          navigate("/")
+      }
       return
     }
 

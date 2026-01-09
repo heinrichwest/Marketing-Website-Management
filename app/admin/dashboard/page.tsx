@@ -22,8 +22,30 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (!isSignedIn) {
       navigate("/login")
-    } else if (user?.role !== "admin") {
-      navigate("/dashboard")
+      return
+    }
+
+    if (!user) {
+      return
+    }
+
+    // Strict role checking - redirect unauthorized users
+    if (user.role !== "admin") {
+      // Redirect to appropriate dashboard or home based on role
+      switch (user.role) {
+        case "web_developer":
+          navigate("/developer/dashboard")
+          break
+        case "social_media_coordinator":
+          navigate("/coordinator/dashboard")
+          break
+        case "client":
+          navigate("/client-portal/dashboard")
+          break
+        default:
+          navigate("/")
+      }
+      return
     }
   }, [isSignedIn, user, navigate])
 

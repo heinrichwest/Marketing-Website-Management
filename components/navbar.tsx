@@ -54,7 +54,22 @@ export default function Navbar() {
     }
   }
 
-   const is_dashboard_page = pathname.includes("/dashboard") || pathname.includes("/admin/dashboard") || pathname.includes("/developer/dashboard") || pathname.includes("/coordinator/dashboard") || pathname.includes("/client-portal/dashboard")
+    // Determine if we're in dashboard context (not just any page with dashboard in path)
+    const is_dashboard_context = (
+      pathname.startsWith("/admin/") ||
+      pathname.startsWith("/developer/") ||
+      pathname.startsWith("/coordinator/") ||
+      pathname.startsWith("/client-portal/")
+    ) && (
+      pathname.includes("/dashboard") ||
+      pathname.includes("/projects") ||
+      pathname.includes("/tickets") ||
+      pathname.includes("/analytics") ||
+      pathname.includes("/users") ||
+      pathname.includes("/files") ||
+      pathname.includes("/messages") ||
+      pathname.includes("/feedback")
+    )
 
     return (
       <>
@@ -64,18 +79,34 @@ export default function Navbar() {
         </a>
 
         <nav className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
-       <div className="container flex items-center justify-between py-4">
-         {is_dashboard_page ? (
-           <div className="flex items-center gap-2 text-2xl font-bold text-primary">
-             <img src="/Logo.png" alt="Marketing Website Logo" className="h-10 w-auto" />
-             <span>Marketing Website</span>
-           </div>
-         ) : (
-           <Link to="/" className="flex items-center gap-2 text-2xl font-bold text-primary hover:opacity-80 transition-opacity">
-             <img src="/Logo.png" alt="Marketing Website Logo" className="h-10 w-auto" />
-             <span>Marketing Website</span>
-           </Link>
-         )}
+        <div className="container flex items-center justify-between py-4">
+          {is_dashboard_context ? (
+            <div className="flex items-center gap-2">
+              <Link to="/" className="flex items-center gap-2 text-2xl font-bold text-primary hover:opacity-80 transition-opacity">
+                <img src="/Logo.png" alt="Marketing Website Logo" className="h-10 w-auto" />
+                <span>Marketing Website</span>
+              </Link>
+              <span className="text-muted-foreground">|</span>
+              <span className="text-sm text-muted-foreground">Dashboard</span>
+            </div>
+          ) : (
+            <Link to="/" className="flex items-center gap-2 text-2xl font-bold text-primary hover:opacity-80 transition-opacity">
+              <img src="/Logo.png" alt="Marketing Website Logo" className="h-10 w-auto" />
+              <span>Marketing Website</span>
+            </Link>
+          )}
+
+        {/* Navigation Links */}
+        <div className="hidden md:flex items-center gap-6">
+          {isSignedIn && user && is_dashboard_context && (
+            <Link
+              to="/"
+              className="text-sm text-muted-foreground hover:text-primary transition-colors"
+            >
+              ← Back to Home
+            </Link>
+          )}
+        </div>
 
         {/* Role-specific navigation - consistent layout */}
         <div className="hidden md:flex items-center gap-6">

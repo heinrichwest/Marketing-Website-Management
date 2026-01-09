@@ -3,8 +3,24 @@ import Footer from "@/components/footer"
 import { Link } from "react-router-dom"
 import { useAuth } from "@/context/auth-context"
 
+// Helper function to get the correct dashboard route for each role
+const getDashboardRoute = (role: string) => {
+  switch (role) {
+    case "admin":
+      return "/admin/dashboard"
+    case "web_developer":
+      return "/developer/dashboard"
+    case "social_media_coordinator":
+      return "/coordinator/dashboard"
+    case "client":
+      return "/client-portal/dashboard"
+    default:
+      return "/dashboard"
+  }
+}
+
 export default function HomePage() {
-  const { isSignedIn } = useAuth()
+  const { isSignedIn, user } = useAuth()
 
   return (
     <>
@@ -50,24 +66,24 @@ export default function HomePage() {
                 coordination with team collaboration, real-time analytics, and intelligent ticketing.
               </p>
 
-              {/* CTA Buttons */}
-              <div className="flex gap-8 justify-center items-center flex-wrap mb-16">
-                <Link
-                  to={isSignedIn ? "/dashboard" : "/register"}
-                  className="group relative bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-xl font-bold text-lg hover:shadow-2xl hover:shadow-primary/25 transition-all duration-300 transform hover:-translate-y-1 overflow-hidden w-[220px] text-center whitespace-nowrap"
-                >
-                  <span className="relative z-10 flex items-center justify-center gap-3">
-                    <span className="w-5 h-5 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
-                      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                      </svg>
-                    </span>
-                    <span className="truncate">
-                      {isSignedIn ? "Go to Dashboard" : "Get Started"}
-                    </span>
-                  </span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-accent/20 to-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                </Link>
+               {/* CTA Buttons */}
+               <div className="flex gap-8 justify-center items-center flex-wrap mb-16">
+                 <Link
+                   to={isSignedIn && user ? getDashboardRoute(user.role) : "/register"}
+                   className="group relative bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-xl font-bold text-lg hover:shadow-2xl hover:shadow-primary/25 transition-all duration-300 transform hover:-translate-y-1 overflow-hidden w-[220px] text-center whitespace-nowrap"
+                 >
+                   <span className="relative z-10 flex items-center justify-center gap-3">
+                     <span className="w-5 h-5 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
+                       <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                       </svg>
+                     </span>
+                     <span className="truncate">
+                       {isSignedIn && user ? "Go to Dashboard" : "Get Started"}
+                     </span>
+                   </span>
+                   <div className="absolute inset-0 bg-gradient-to-r from-accent/20 to-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                 </Link>
 
                 <Link
                   to="/login"
