@@ -46,18 +46,25 @@ export default function EditProjectPage() {
     }
 
     setProject(projectData)
-    setFormData({
-      name: projectData.name,
-      description: projectData.description,
-      websiteUrl: projectData.websiteUrl || "",
-      googleAnalyticsPropertyId: projectData.googleAnalyticsPropertyId || "",
-      googleAnalyticsViewId: projectData.googleAnalyticsViewId || "",
-      clientId: projectData.clientId,
-      webDeveloperId: projectData.webDeveloperId || "",
-      socialMediaCoordinatorId: projectData.socialMediaCoordinatorId || "",
-      currentStage: projectData.currentStage,
-      status: projectData.status,
-      notes: projectData.notes || "",
+
+    // Only update form data if it's different to avoid unnecessary re-renders
+    setFormData(prevData => {
+      const newData = {
+        name: projectData.name,
+        description: projectData.description,
+        websiteUrl: projectData.websiteUrl || "",
+        googleAnalyticsPropertyId: projectData.googleAnalyticsPropertyId || "",
+        googleAnalyticsViewId: projectData.googleAnalyticsViewId || "",
+        clientId: projectData.clientId,
+        webDeveloperId: projectData.webDeveloperId || "",
+        socialMediaCoordinatorId: projectData.socialMediaCoordinatorId || "",
+        currentStage: projectData.currentStage,
+        status: projectData.status,
+        notes: projectData.notes || "",
+      }
+
+      // Check if data has actually changed
+      return JSON.stringify(prevData) === JSON.stringify(newData) ? prevData : newData
     })
 
     const allUsers = getUsers()

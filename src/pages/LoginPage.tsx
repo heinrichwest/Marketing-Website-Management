@@ -102,7 +102,7 @@ export default function LoginPage() {
                   <li><strong>Client:</strong> client@system.com / client123</li>
                   <li><strong>Client:</strong> client2@company.com / client123</li>
                 </ul>
-                <p className="text-xs text-accent/60 mt-2">Don't have access? Contact support</p>
+                <p className="text-xs text-accent/60 mt-2">Don&apos;t have access? Contact support</p>
               </div>
             )}
 
@@ -186,7 +186,7 @@ export default function LoginPage() {
 
              {/* Signup Link */}
              <p className="text-center mt-6 text-sm text-muted-foreground">
-               Don't have an account?{" "}
+               Don&apos;t have an account?{" "}
                <Link to="/register" className="text-primary font-semibold hover:underline">
                  Sign up here
                </Link>
@@ -205,22 +205,23 @@ export default function LoginPage() {
           {/* Trust Badge */}
           <div className="mt-8 text-center">
             <p className="text-xs text-muted-foreground mb-3">Professional Project Management</p>
-            <div className="flex items-center justify-center gap-4">
-              <span className="inline-flex items-center gap-1 text-sm">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                  <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd"/>
+            <div className="flex items-center justify-center gap-6">
+              <span className="inline-flex items-center gap-2 text-sm font-medium">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                 </svg>
                 Secure
               </span>
-              <span className="inline-flex items-center gap-1 text-sm">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              <span className="inline-flex items-center gap-2 text-sm font-medium">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
                 </svg>
                 Collaborative
               </span>
-              <span className="inline-flex items-center gap-1 text-sm">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                  <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd"/>
+              <span className="inline-flex items-center gap-2 text-sm font-medium">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                  <circle cx="12" cy="12" r="2"/>
                 </svg>
                 Efficient
               </span>

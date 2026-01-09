@@ -12,6 +12,7 @@ import AdminUsersPage from './pages/admin/UsersPage'
 import AdminEditUserPage from '../app/admin/users/[id]/edit/page'
 import AdminProjectsPage from './pages/admin/ProjectsPage'
 import AdminTicketsPage from './pages/admin/TicketsPage'
+import TicketsPage, { AnalyticsPage } from './pages/TicketsPage'
 import AdminEditProjectPage from './pages/admin/EditProjectPage'
 import AdminProjectAnalyticsPage from './pages/admin/ProjectAnalyticsPage'
 import AdminNotificationsPage from './pages/admin/NotificationsPage'
@@ -36,6 +37,9 @@ import ClientFileSharingPage from '../app/client-portal/files/page'
 import ClientFeedbackPage from '../app/client-portal/feedback/page'
 import AnalyticsDashboardPage from '../app/analytics/page'
 import ProjectAnalyticsPage from '../app/analytics/[id]/page'
+import DeveloperAnalyticsPage from '../app/developer/analytics/page'
+import CoordinatorAnalyticsPage from '../app/coordinator/analytics/page'
+import ClientAnalyticsPage from '../app/client/analytics/page'
 import CalendarPage from '../app/calendar/page'
 import TimeTrackingPage from '../app/time-tracking/page'
 import ProjectTemplatesPage from '../app/templates/page'
@@ -79,7 +83,12 @@ function App() {
            <Route path="/admin/projects/new" element={<NewProjectPage />} />
            <Route path="/admin/projects/:id" element={<AdminProjectDetailPage />} />
            <Route path="/admin/projects/:id/edit" element={<AdminEditProjectPage />} />
-           <Route path="/analytics" element={<AnalyticsDashboardPage />} />
+           <Route path="/tickets" element={<TicketsPage />} />
+           <Route path="/analytics" element={<AnalyticsPage />} />
+           <Route path="/admin/analytics" element={<AnalyticsDashboardPage />} />
+           <Route path="/developer/analytics" element={<DeveloperAnalyticsPage />} />
+           <Route path="/coordinator/analytics" element={<CoordinatorAnalyticsPage />} />
+           <Route path="/client/analytics" element={<ClientAnalyticsPage />} />
            <Route path="/analytics/:id" element={<ProjectAnalyticsPage />} />
           <Route path="/admin/analytics/:id" element={<AdminProjectAnalyticsPage />} />
 

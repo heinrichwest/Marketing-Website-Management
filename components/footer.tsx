@@ -31,23 +31,23 @@ export default function Footer() {
 
             <div>
               <h5 className="font-bold text-foreground mb-3">Features</h5>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>
-                  <a href="#" className="hover:text-primary">
-                    Project Management
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-primary">
-                    Ticketing System
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-primary">
-                    Analytics Tracking
-                  </a>
-                </li>
-              </ul>
+               <ul className="space-y-2 text-sm text-muted-foreground">
+                 <li>
+                   <a href="/dashboard" className="hover:text-primary">
+                     Project Management
+                   </a>
+                 </li>
+                 <li>
+                   <a href="/tickets" className="hover:text-primary">
+                     Ticketing System
+                   </a>
+                 </li>
+                 <li>
+                   <a href="/analytics" className="hover:text-primary">
+                     Analytics Tracking
+                   </a>
+                 </li>
+               </ul>
             </div>
 
             <div>

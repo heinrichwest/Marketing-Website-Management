@@ -51,7 +51,7 @@ export default function DeveloperDashboard() {
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-foreground mb-2">Developer Dashboard</h1>
-            <p className="text-muted-foreground">Welcome back, {user.fullName}! Here's your project overview.</p>
+            <p className="text-muted-foreground">Welcome back, {user.fullName}! Here&apos;s your project overview.</p>
           </div>
 
           {/* Stats Grid */}

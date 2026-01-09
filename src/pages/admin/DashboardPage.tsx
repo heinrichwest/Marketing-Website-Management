@@ -169,7 +169,7 @@ export default function AdminDashboard() {
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-foreground mb-2">Admin Dashboard</h1>
-            <p className="text-muted-foreground">Welcome back, {user.fullName}! Here's your system overview.</p>
+            <p className="text-muted-foreground">Welcome back, {user.fullName}! Here&apos;s your system overview.</p>
           </div>
 
           {/* Stats Grid */}
