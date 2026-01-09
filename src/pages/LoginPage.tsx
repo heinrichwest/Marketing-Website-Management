@@ -167,13 +167,16 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Social Buttons */}
-            <div className="space-y-3">
-              <button className="w-full flex items-center justify-center gap-2 border border-border rounded-lg py-3 font-semibold text-foreground hover:bg-muted transition">
-                <span>🔵</span> Continue with Google
-              </button>
+             {/* Social Buttons */}
+             <div className="space-y-3">
+               <button
+                 onClick={() => showToast("Google sign-in feature coming soon. Please use email/password for now.", "info")}
+                 className="w-full flex items-center justify-center gap-2 border border-border rounded-lg py-3 font-semibold text-foreground hover:bg-muted transition"
+               >
+                 <span>🔵</span> Continue with Google
+               </button>
 
-            </div>
+             </div>
 
              {/* Signup Link */}
              <p className="text-center mt-6 text-sm text-muted-foreground">
