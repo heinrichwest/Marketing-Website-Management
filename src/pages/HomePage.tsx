@@ -211,7 +211,7 @@ export default function HomePage() {
                 Built for Every Role
               </h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Tailored experiences designed specifically for each team member's workflow and responsibilities.
+                Tailored experiences designed specifically for each team member&apos;s workflow and responsibilities.
               </p>
             </div>
 

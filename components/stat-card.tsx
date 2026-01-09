@@ -1,5 +1,7 @@
 import { formatNumber } from "@/lib/utils"
 
+import React from "react"
+
 interface StatCardProps {
   title: string
   value: number | string

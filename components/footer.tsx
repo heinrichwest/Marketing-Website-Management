@@ -96,7 +96,7 @@ export default function Footer() {
               <div>
                 <h3 className="font-bold text-foreground mb-2">Getting Started</h3>
                 <p className="text-muted-foreground mb-2">
-                  Welcome to SpecCon Marketing Management Website! Here's how to get started:
+                  Welcome to SpecCon Marketing Management Website! Here&apos;s how to get started:
                 </p>
                 <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4">
                   <li>Create an account with your assigned role</li>

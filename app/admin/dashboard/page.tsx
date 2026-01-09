@@ -32,20 +32,6 @@ export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(true)
   const [refreshKey, setRefreshKey] = useState(0)
 
-  // Move hooks before conditional returns
-  const projects = useMemo(() => getProjects(), [refreshKey])
-  const tickets = getTickets()
-  const users = getUsers()
-
-  // Filter projects based on search term
-  const filteredProjects = useMemo(() => {
-    return projects.filter(project =>
-      project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.projectType.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  }, [projects, searchTerm])
-
   // Simulate loading delay
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -61,6 +47,20 @@ export default function AdminDashboard() {
       </div>
     )
   }
+
+  // Initialize data after role check
+  const projects = getProjects()
+  const tickets = getTickets()
+  const users = getUsers()
+
+  // Filter projects based on search term
+  const filteredProjects = useMemo(() => {
+    return projects.filter(project =>
+      project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.projectType.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  }, [projects, searchTerm])
 
   // Paginate projects
   const totalPages = Math.ceil(filteredProjects.length / pageSize)
