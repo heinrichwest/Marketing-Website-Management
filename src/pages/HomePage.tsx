@@ -79,9 +79,9 @@ export default function HomePage() {
                    </span>
                  </Link>
 
-                 <Link
-                   to="#features"
-                   className="group border border-border text-foreground px-8 py-4 rounded-xl font-bold text-lg hover:bg-muted hover:border-primary/50 transition-all duration-300 transform hover:-translate-y-1 min-w-[200px] text-center"
+                 <a
+                   href="#features"
+                   className="group border border-border text-foreground px-8 py-4 rounded-xl font-bold text-lg hover:bg-muted hover:border-primary/50 transition-all duration-300 transform hover:-translate-y-1 min-w-[200px] text-center inline-block"
                  >
                    <span className="flex items-center justify-center gap-3">
                      <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -89,7 +89,7 @@ export default function HomePage() {
                      </svg>
                      <span>Learn More</span>
                    </span>
-                 </Link>
+                 </a>
                </div>
 
 
@@ -105,7 +105,7 @@ export default function HomePage() {
         </section>
 
         {/* Features Section */}
-        <section className="py-24 bg-gradient-to-b from-background to-muted/30 relative overflow-hidden">
+        <section id="features" className="py-24 bg-gradient-to-b from-background to-muted/30 relative overflow-hidden">
           {/* Background Pattern */}
           <div className="absolute inset-0 opacity-5">
             <div className="absolute inset-0" style={{
