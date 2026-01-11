@@ -75,7 +75,7 @@ export default function NewUserPage() {
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-foreground mb-2">Create New User</h1>
             <p className="text-muted-foreground mb-4">Add a new user to the system</p>
-            <Link to="/admin/users" className="btn-outline inline-flex items-center gap-2">
+            <Link to="/admin/users" className="btn-outline inline-flex items-center gap-2 hover:border-accent hover:text-accent">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
@@ -189,17 +189,17 @@ export default function NewUserPage() {
 
             {/* Submit Buttons */}
             <div className="flex gap-4 pt-4">
-              <button
+               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-accent/20"
               >
                 {isSubmitting ? "Creating..." : "Create User"}
               </button>
-              <button
+               <button
                 type="button"
                 onClick={() => navigate("/admin/users")}
-                className="btn-outline flex-1"
+                className="btn-outline flex-1 hover:border-accent hover:text-accent"
                 disabled={isSubmitting}
               >
                 Cancel

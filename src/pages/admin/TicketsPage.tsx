@@ -100,11 +100,11 @@ export default function AdminTicketsPage() {
                 </p>
               </div>
               <div className="flex gap-4">
-                <Link to="/admin/dashboard" className="btn-outline">
+                <Link to="/admin/dashboard" className="btn-outline hover:border-accent hover:text-accent">
                   ← Back to Dashboard
                 </Link>
                 {projectId && (
-                  <Link to={`/admin/projects/${projectId}`} className="btn-outline">
+                  <Link to={`/admin/projects/${projectId}`} className="btn-outline hover:border-accent hover:text-accent">
                     View Project
                   </Link>
                 )}

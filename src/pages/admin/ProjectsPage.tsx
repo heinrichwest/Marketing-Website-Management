@@ -87,10 +87,10 @@ export default function AdminProjectsPage() {
                 <p className="text-muted-foreground">View and manage all projects in the system.</p>
               </div>
               <div className="flex gap-4">
-                <Link to="/admin/dashboard" className="btn-outline">
+                <Link to="/admin/dashboard" className="btn-outline hover:border-accent hover:text-accent">
                   ← Back to Dashboard
                 </Link>
-                <Link to="/admin/projects/new" className="btn-primary">
+                <Link to="/admin/projects/new" className="btn-primary hover:shadow-accent/20">
                   + New Project
                 </Link>
               </div>

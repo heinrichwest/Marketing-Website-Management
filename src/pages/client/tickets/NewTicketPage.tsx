@@ -91,7 +91,7 @@ export default function ClientNewTicketPage() {
                 <h1 className="text-4xl font-bold text-foreground mb-2">Create New Ticket</h1>
                 <p className="text-muted-foreground">Submit a request for your project team</p>
               </div>
-              <Link to="/client/dashboard" className="btn-outline">
+              <Link to="/client/dashboard" className="btn-outline hover:border-accent hover:text-accent">
                 ← Back to Dashboard
               </Link>
             </div>
@@ -189,11 +189,11 @@ export default function ClientNewTicketPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting || !projectId}
-                  className="btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-accent/20"
                 >
                   {isSubmitting ? "Creating..." : "Create Ticket"}
                 </button>
-                <Link to="/client/dashboard" className="btn-outline">
+                <Link to="/client/dashboard" className="btn-outline hover:border-accent hover:text-accent">
                   Cancel
                 </Link>
               </div>

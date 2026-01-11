@@ -45,11 +45,11 @@ export default function ClientTicketsPage() {
                 <h1 className="text-4xl font-bold text-foreground mb-2">My Tickets</h1>
                 <p className="text-muted-foreground">View and manage all your project tickets</p>
               </div>
-              <div className="flex gap-4">
-                <Link to="/client/dashboard" className="btn-outline">
+               <div className="flex gap-4">
+                <Link to="/client/dashboard" className="btn-outline hover:border-accent hover:text-accent">
                   ← Back to Dashboard
                 </Link>
-                <Link to="/client/tickets/new" className="btn-primary">
+                <Link to="/client/tickets/new" className="btn-primary hover:shadow-accent/20">
                   + Create New Ticket
                 </Link>
               </div>

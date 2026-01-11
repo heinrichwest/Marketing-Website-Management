@@ -71,7 +71,7 @@ export default function AdminUsersPage() {
                 <h1 className="text-4xl font-bold text-foreground mb-2">Manage Users</h1>
                 <p className="text-muted-foreground">View and manage all system users and their roles.</p>
               </div>
-              <Link to="/admin/dashboard" className="btn-outline">
+              <Link to="/admin/dashboard" className="btn-outline hover:border-accent hover:text-accent">
                 ← Back to Dashboard
               </Link>
             </div>
@@ -100,7 +100,7 @@ export default function AdminUsersPage() {
                     placeholder="Search users..."
                   />
                 </div>
-                <Link to="/admin/users/new" className="btn-primary">
+                <Link to="/admin/users/new" className="btn-primary hover:shadow-accent/20">
                   + New User
                 </Link>
               </div>

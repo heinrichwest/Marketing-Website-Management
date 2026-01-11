@@ -348,16 +348,16 @@ export default function EditProjectPage() {
 
                 {/* Action Buttons */}
                 <div className="flex items-center gap-4 pt-6 border-t border-border">
-                  <button
+                   <button
                     type="submit"
-                    className="px-6 py-3 bg-gradient-to-r from-[#1e2875] to-[#2a3488] text-white rounded-lg font-semibold hover:from-[#2a3488] hover:to-[#1e2875] transition"
+                    className="px-6 py-3 bg-accent text-accent-foreground rounded-lg font-semibold hover:bg-accent/80 hover:shadow-accent/20 transition"
                   >
                     Save Changes
                   </button>
-                  <button
+                   <button
                     type="button"
                     onClick={() => navigate(-1)}
-                    className="px-6 py-3 border border-border rounded-lg font-semibold hover:bg-muted transition"
+                    className="px-6 py-3 border border-border rounded-lg font-semibold hover:bg-accent/10 hover:border-accent hover:text-accent transition"
                   >
                     Cancel
                   </button>

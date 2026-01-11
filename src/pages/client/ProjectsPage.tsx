@@ -44,7 +44,7 @@ export default function ClientProjectsPage() {
                 <h1 className="text-4xl font-bold text-foreground mb-2">My Projects</h1>
                 <p className="text-muted-foreground">View all your projects and their progress</p>
               </div>
-              <Link to="/client/dashboard" className="btn-outline">
+              <Link to="/client/dashboard" className="btn-outline hover:border-accent hover:text-accent">
                 ← Back to Dashboard
               </Link>
             </div>

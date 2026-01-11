@@ -33,7 +33,7 @@ export default function NotificationsPage() {
                 <h1 className="text-4xl font-bold text-foreground mb-2">System Notifications</h1>
                 <p className="text-muted-foreground">Important system information and connection guides</p>
               </div>
-              <Link to="/admin/dashboard" className="btn-outline">
+              <Link to="/admin/dashboard" className="btn-outline hover:border-accent hover:text-accent">
                 ← Back to Dashboard
               </Link>
             </div>
@@ -55,7 +55,7 @@ export default function NotificationsPage() {
                 <div className="flex items-center gap-4">
                   <button
                     onClick={handleAuthToggle}
-                    className="btn-primary"
+                    className="btn-primary hover:shadow-accent/20"
                   >
                     Switch to {useMockAuth ? 'Firebase' : 'Mock'} Auth
                   </button>

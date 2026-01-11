@@ -97,7 +97,7 @@ export default function SearchPage() {
                   user.role === 'social_media_coordinator' ? '/coordinator/dashboard' :
                   '/client-portal/dashboard'
                 }
-                className="btn-outline text-sm"
+                className="btn-outline text-sm hover:border-accent hover:text-accent"
               >
                 ← Back to Dashboard
               </Link>

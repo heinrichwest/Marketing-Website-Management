@@ -86,10 +86,10 @@ export default function ProjectAnalyticsPage() {
                 <p className="text-muted-foreground">Google Analytics data and insights</p>
               </div>
               <div className="flex gap-4">
-                <Link to={`/admin/projects/${projectId}`} className="btn-outline">
+                <Link to={`/admin/projects/${projectId}`} className="btn-outline hover:border-accent hover:text-accent">
                   View Project
                 </Link>
-                <Link to={`/admin/projects/${projectId}/edit`} className="btn-primary">
+                <Link to={`/admin/projects/${projectId}/edit`} className="btn-primary hover:shadow-accent/20">
                   Edit Project
                 </Link>
               </div>

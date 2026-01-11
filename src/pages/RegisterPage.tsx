@@ -95,10 +95,10 @@ export default function RegisterPage() {
                 Select Your Role
               </label>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <button
+                 <button
                   onClick={() => setUserRole("client")}
                   className={`p-6 rounded-lg border-2 transition text-center ${
-                    userRole === "client" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+                    userRole === "client" ? "border-accent bg-accent/10" : "border-border hover:border-accent hover:bg-accent/5"
                   }`}
                 >
                   <div className="text-4xl mb-2">👤</div>
@@ -106,10 +106,10 @@ export default function RegisterPage() {
                   <p className="text-sm text-muted-foreground">View project progress, create tickets, communicate with team</p>
                 </button>
 
-                <button
+                 <button
                   onClick={() => setUserRole("web_developer")}
                   className={`p-6 rounded-lg border-2 transition text-center ${
-                    userRole === "web_developer" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+                    userRole === "web_developer" ? "border-accent bg-accent/10" : "border-border hover:border-accent hover:bg-accent/5"
                   }`}
                 >
                   <div className="text-4xl mb-2">💻</div>
@@ -117,10 +117,10 @@ export default function RegisterPage() {
                   <p className="text-sm text-muted-foreground">Work on assigned projects, manage tickets, track development stages</p>
                 </button>
 
-                <button
+                 <button
                   onClick={() => setUserRole("social_media_coordinator")}
                   className={`p-6 rounded-lg border-2 transition text-center ${
-                    userRole === "social_media_coordinator" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+                    userRole === "social_media_coordinator" ? "border-accent bg-accent/10" : "border-border hover:border-accent hover:bg-accent/5"
                   }`}
                 >
                   <div className="text-4xl mb-2">📱</div>
@@ -216,10 +216,10 @@ export default function RegisterPage() {
                 </label>
               </div>
 
-              <button
+               <button
                 type="submit"
                 disabled={isSubmitting || loading}
-                className="w-full btn-primary py-3 font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full btn-primary py-3 font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-accent/20"
               >
                 {isSubmitting ? "Creating Account..." : "Create Account"}
               </button>

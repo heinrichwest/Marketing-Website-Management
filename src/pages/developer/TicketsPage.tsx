@@ -99,9 +99,9 @@ export default function DeveloperTicketsPage() {
                  <h1 className="text-4xl font-bold text-foreground mb-2">My Tickets</h1>
                  <p className="text-muted-foreground">Manage and track your assigned tickets</p>
                </div>
-               <Link to="/developer/dashboard" className="btn-outline">
-                 ← Back to Dashboard
-               </Link>
+                <Link to="/developer/dashboard" className="btn-outline hover:border-accent hover:text-accent">
+                  ← Back to Dashboard
+                </Link>
              </div>
            </div>
 
