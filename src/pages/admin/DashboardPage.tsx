@@ -20,6 +20,8 @@ export default function AdminDashboard() {
   const [searchTerm, setSearchTerm] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const [isLoading, setIsLoading] = useState(true)
+  const [selectedProjects, setSelectedProjects] = useState<string[]>([])
+  const [showBulkDelete, setShowBulkDelete] = useState(false)
 
 
   useEffect(() => {
@@ -111,6 +113,42 @@ export default function AdminDashboard() {
       window.location.reload()
     }
   }
+
+  const handleSelectProject = (projectId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedProjects(prev => [...prev, projectId])
+    } else {
+      setSelectedProjects(prev => prev.filter(id => id !== projectId))
+    }
+  }
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedProjects(paginatedProjects.map(p => p.id))
+    } else {
+      setSelectedProjects([])
+    }
+  }
+
+  const handleBulkDelete = () => {
+    if (selectedProjects.length === 0) return
+
+    if (window.confirm(`Are you sure you want to delete ${selectedProjects.length} selected project(s)? This action cannot be undone.`)) {
+      // Remove from localStorage
+      const projects = JSON.parse(localStorage.getItem("marketing_management_website_projects") || "[]")
+      const updatedProjects = projects.filter((p: any) => !selectedProjects.includes(p.id))
+      localStorage.setItem("marketing_management_website_projects", JSON.stringify(updatedProjects))
+
+      // Clear selection and refresh
+      setSelectedProjects([])
+      window.location.reload()
+    }
+  }
+
+  // Update showBulkDelete when selection changes
+  useEffect(() => {
+    setShowBulkDelete(selectedProjects.length > 0)
+  }, [selectedProjects])
 
   // Chart data calculations
   const ticketStatusData = [
@@ -370,6 +408,14 @@ export default function AdminDashboard() {
               <table key={`${pageSize}-${currentPage}`} className="w-full border-collapse">
                 <thead>
                    <tr className="bg-gradient-to-r from-primary to-accent text-primary-foreground">
+                     <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">
+                       <input
+                         type="checkbox"
+                         checked={selectedProjects.length === paginatedProjects.length && paginatedProjects.length > 0}
+                         onChange={(e) => handleSelectAll(e.target.checked)}
+                         className="rounded border-accent/30 bg-primary-foreground/20 text-primary focus:ring-accent"
+                       />
+                     </th>
                      <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">#</th>
                      <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">Project Name</th>
                      <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">Status</th>
@@ -379,7 +425,7 @@ export default function AdminDashboard() {
                      <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">Tickets</th>
                      <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">Analytics</th>
                      <th className="px-4 py-3 text-left font-semibold">Actions</th>
-                  </tr>
+                   </tr>
                 </thead>
                  <tbody key={`${pageSize}-${currentPage}`}>
                    {paginatedProjects.map((project, index) => {
@@ -389,13 +435,21 @@ export default function AdminDashboard() {
                      const ticketCount = getProjectTicketCount(project.id)
 
                      return (
-                       <tr
-                         key={project.id}
-                          className={`${
-                            index % 2 === 0 ? "bg-background" : "bg-muted/30"
-                          } hover:bg-secondary/10 transition border-b border-border`}
-                       >
-                         <td className="px-4 py-3 text-sm">{startIndex + index + 1}</td>
+                        <tr
+                          key={project.id}
+                           className={`${
+                             index % 2 === 0 ? "bg-background" : "bg-muted/30"
+                           } hover:bg-secondary/10 transition border-b border-border`}
+                        >
+                          <td className="px-4 py-3">
+                            <input
+                              type="checkbox"
+                              checked={selectedProjects.includes(project.id)}
+                              onChange={(e) => handleSelectProject(project.id, e.target.checked)}
+                              className="rounded border-border focus:ring-primary"
+                            />
+                          </td>
+                          <td className="px-4 py-3 text-sm">{startIndex + index + 1}</td>
                         <td className="px-4 py-3">
                           <div>
                             <div className="font-semibold text-foreground">{project.name}</div>
@@ -490,9 +544,39 @@ export default function AdminDashboard() {
                   })}
                  </tbody>
                </table>
-             </div>
+              </div>
 
-             {/* Pagination */}
+              {/* Bulk Delete Section */}
+              {showBulkDelete && (
+                <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                      </svg>
+                      <span className="text-sm font-medium text-red-800">
+                        {selectedProjects.length} project{selectedProjects.length > 1 ? 's' : ''} selected
+                      </span>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setSelectedProjects([])}
+                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleBulkDelete}
+                        className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                      >
+                        Delete Selected
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Pagination */}
              {totalPages > 1 && (
                <div className="flex items-center justify-between mt-6">
                  <div className="text-sm text-muted-foreground">
