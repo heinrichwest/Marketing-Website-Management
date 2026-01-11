@@ -321,21 +321,17 @@ export default function AdminDashboard() {
           {/* Quick Actions */}
           <div className="card mb-8">
             <h2 className="text-xl font-bold text-foreground mb-4">Quick Actions</h2>
-            <div className="flex gap-4 flex-wrap">
-              <Link to="/admin/projects/new" className="btn-primary">
-                + New Project
-              </Link>
-               <Link to="/admin/projects" className="btn-outline">
-                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
-                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v0M8 5a2 2 0 012-2h4a2 2 0 012 2v0" />
-                 </svg>
+             <div className="flex gap-4 flex-wrap">
+               <Link to="/admin/projects/new" className="btn-primary">
+                 + New Project
+               </Link>
+                <Link to="/admin/projects" className="btn-outline hover:border-accent hover:text-accent">
                  Manage Projects
                </Link>
-              <Link to="/admin/users" className="btn-outline">
-                Manage Users
-              </Link>
-            </div>
+               <Link to="/admin/users" className="btn-outline hover:border-accent hover:text-accent">
+                 Manage Users
+               </Link>
+             </div>
           </div>
 
            {/* All Projects Table */}
@@ -373,15 +369,15 @@ export default function AdminDashboard() {
             <div className="overflow-x-auto">
               <table key={`${pageSize}-${currentPage}`} className="w-full border-collapse">
                 <thead>
-                   <tr className="bg-primary text-primary-foreground">
-                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">#</th>
-                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Project Name</th>
-                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Status</th>
-                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Current Stage</th>
-                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Client</th>
-                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Developer</th>
-                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Tickets</th>
-                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Analytics</th>
+                   <tr className="bg-gradient-to-r from-primary to-accent text-primary-foreground">
+                     <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">#</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">Project Name</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">Status</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">Current Stage</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">Client</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">Developer</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">Tickets</th>
+                     <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">Analytics</th>
                      <th className="px-4 py-3 text-left font-semibold">Actions</th>
                   </tr>
                 </thead>
@@ -410,7 +406,7 @@ export default function AdminDashboard() {
                           <StatusBadge status={project.status} />
                         </td>
                         <td className="px-4 py-3">
-                           <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary">
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-accent/10 text-accent border border-accent/20">
                             {getStageDisplayName(project.currentStage)}
                           </span>
                         </td>
@@ -454,7 +450,7 @@ export default function AdminDashboard() {
                         <td className="px-4 py-3">
                            <Link
                              to={`/admin/analytics/${project.id}`}
-                             className="inline-flex items-center gap-1 px-3 py-1.5 bg-primary text-primary-foreground rounded text-xs font-medium hover:bg-primary/80 transition"
+                              className="inline-flex items-center gap-1 px-3 py-1.5 bg-accent text-accent-foreground rounded text-xs font-medium hover:bg-accent/80 transition"
                            >
                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                <path

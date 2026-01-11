@@ -119,17 +119,17 @@ export default function ClientDashboard() {
           {/* Quick Actions */}
           <div className="card mb-8">
             <h2 className="text-xl font-bold text-foreground mb-4">Quick Actions</h2>
-            <div className="flex gap-4 flex-wrap">
-              <Link to="/client/tickets/new" className="btn-primary">
-                + Create New Ticket
-              </Link>
-              <Link to="/client/projects" className="btn-outline">
-                View All Projects
-              </Link>
-              <Link to="/client/tickets" className="btn-outline">
-                View All Tickets
-              </Link>
-            </div>
+             <div className="flex gap-4 flex-wrap">
+               <Link to="/client/tickets/new" className="btn-primary hover:shadow-accent/20">
+                 + Create New Ticket
+               </Link>
+               <Link to="/client/projects" className="btn-outline hover:border-accent hover:text-accent">
+                 View All Projects
+               </Link>
+               <Link to="/client/tickets" className="btn-outline hover:border-accent hover:text-accent">
+                 View All Tickets
+               </Link>
+             </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

@@ -117,11 +117,11 @@ export default function DeveloperDashboard() {
           {/* Quick Actions */}
           <div className="card mb-8">
             <h2 className="text-xl font-bold text-foreground mb-4">Quick Actions</h2>
-             <div className="flex gap-4 flex-wrap">
-               <Link to="/developer/tickets" className="btn-primary">
-                 View Tickets
-               </Link>
-             </div>
+              <div className="flex gap-4 flex-wrap">
+                <Link to="/developer/tickets" className="btn-primary hover:shadow-accent/20">
+                  View Tickets
+                </Link>
+              </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

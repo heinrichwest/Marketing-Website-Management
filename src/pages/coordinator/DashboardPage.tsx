@@ -130,11 +130,11 @@ export default function CoordinatorDashboard() {
           {/* Quick Actions */}
           <div className="card mb-8">
             <h2 className="text-xl font-bold text-foreground mb-4">Quick Actions</h2>
-             <div className="flex gap-4 flex-wrap">
-               <Link to="/coordinator/analytics/new" className="btn-outline">
-                 + Add Analytics Entry
-               </Link>
-             </div>
+              <div className="flex gap-4 flex-wrap">
+                <Link to="/coordinator/analytics/new" className="btn-outline hover:border-accent hover:text-accent">
+                  + Add Analytics Entry
+                </Link>
+              </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
