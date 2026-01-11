@@ -76,7 +76,19 @@ export default function Navbar() {
         <nav className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
         <div className="container flex items-center justify-between py-4">
           <button
-            onClick={() => navigate("/")}
+            onClick={() => {
+              if (isInDashboardContext(pathname)) {
+                // In dashboard context - redirect to appropriate dashboard
+                if (user) {
+                  navigate(getDashboardRoute(user.role))
+                } else {
+                  navigate("/")
+                }
+              } else {
+                // Outside dashboard context - redirect to home
+                navigate("/")
+              }
+            }}
             className="flex items-center gap-2 text-2xl font-bold text-primary hover:opacity-80 transition-opacity cursor-pointer"
           >
             <img src="/Logo.png" alt="Marketing Website Logo" className="h-10 w-auto" />
