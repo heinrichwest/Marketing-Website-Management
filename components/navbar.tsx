@@ -62,20 +62,7 @@ export default function Navbar() {
     }
   }
 
-  // Handle logo click based on context
-  const handleLogoClick = () => {
-    if (isInDashboardContext(pathname)) {
-      // In dashboard context - redirect to appropriate dashboard
-      if (user) {
-        navigate(getDashboardRoute(user.role))
-      } else {
-        navigate("/")
-      }
-    } else {
-      // Outside dashboard context - redirect to home
-      navigate("/")
-    }
-  }
+
 
 
 
@@ -88,13 +75,12 @@ export default function Navbar() {
 
         <nav className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
         <div className="container flex items-center justify-between py-4">
-          <button
-            onClick={handleLogoClick}
-            className="flex items-center gap-2 text-2xl font-bold text-primary hover:opacity-80 transition-opacity cursor-pointer"
+          <div
+            className="flex items-center gap-2 text-2xl font-bold text-primary"
           >
             <img src="/Logo.png" alt="Marketing Website Logo" className="h-10 w-auto" />
             <span>Marketing Website</span>
-          </button>
+          </div>
 
         {/* Navigation Links */}
         <div className="hidden md:flex items-center gap-6">
