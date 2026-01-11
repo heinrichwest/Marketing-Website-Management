@@ -89,20 +89,7 @@ export default function LoginPage() {
           </div>
 
           <div className="card">
-            {/* Test Credentials Info */}
-            {!isClientPortal && (
-              <div className="mb-6 p-4 bg-secondary/10 border border-secondary/20 rounded-lg">
-                <p className="text-sm font-semibold text-primary mb-2">Test Accounts:</p>
-                <ul className="text-xs text-primary/80 space-y-1">
-                  <li><strong>Administrator:</strong> admin@system.com / admin123</li>
-                  <li><strong>Web Developer:</strong> dev@system.com / dev123</li>
-                  <li><strong>Web Developer:</strong> jane.dev@system.com / dev123</li>
-                  <li><strong>Social Media Coordinator:</strong> social@system.com / social123</li>
-                  <li><strong>Client:</strong> client@system.com / client123</li>
-                  <li><strong>Client:</strong> client2@company.com / client123</li>
-                </ul>
-              </div>
-            )}
+
 
             {/* Client Portal Credentials */}
             {isClientPortal && (
