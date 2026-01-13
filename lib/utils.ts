@@ -97,6 +97,7 @@ export function getStageDisplayName(stage: ProjectStage): string {
     design: "Design",
     development: "Development",
     testing: "Testing",
+    seo_optimization: "SEO Optimization",
     launch: "Launch",
     maintenance: "Maintenance",
   }
@@ -109,14 +110,15 @@ export function getStageOrder(stage: ProjectStage): number {
     design: 1,
     development: 2,
     testing: 3,
-    launch: 4,
-    maintenance: 5,
+    seo_optimization: 4,
+    launch: 5,
+    maintenance: 6,
   }
   return stageOrder[stage]
 }
 
 export function getNextStage(currentStage: ProjectStage): ProjectStage | null {
-  const stages: ProjectStage[] = ["planning", "design", "development", "testing", "launch", "maintenance"]
+  const stages: ProjectStage[] = ["planning", "design", "development", "testing", "seo_optimization", "launch", "maintenance"]
   const currentIndex = stages.indexOf(currentStage)
   if (currentIndex === -1 || currentIndex === stages.length - 1) return null
   return stages[currentIndex + 1]
@@ -124,11 +126,12 @@ export function getNextStage(currentStage: ProjectStage): ProjectStage | null {
 
 export function getStageProgress(stage: ProjectStage): number {
   const stageProgress: Record<ProjectStage, number> = {
-    planning: 16.67,
-    design: 33.33,
-    development: 50,
-    testing: 66.67,
-    launch: 83.33,
+    planning: 14.29,
+    design: 28.57,
+    development: 42.86,
+    testing: 57.14,
+    seo_optimization: 71.43,
+    launch: 85.71,
     maintenance: 100,
   }
   return stageProgress[stage]

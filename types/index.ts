@@ -20,7 +20,7 @@ export interface User {
 
 // Project Management Types
 export type ProjectType = "website" | "social_media"
-export type ProjectStage = "planning" | "design" | "development" | "testing" | "launch" | "maintenance"
+export type ProjectStage = "planning" | "design" | "development" | "testing" | "seo_optimization" | "launch" | "maintenance"
 export type ProjectStatus = "active" | "paused" | "completed"
 
 export interface Project {
