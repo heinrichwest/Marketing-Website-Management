@@ -4,7 +4,7 @@ import { useNavigate, Link } from "react-router-dom"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
-import { getUsers } from "@/lib/mock-data"
+import { getUsers, getProjects, STORAGE_KEYS } from "@/lib/mock-data"
 import type { ProjectType, ProjectStage, ProjectStatus, SocialMediaPlatform } from "@/types"
 
 export default function NewProjectPage() {
@@ -76,6 +76,13 @@ export default function NewProjectPage() {
       updatedAt: new Date(),
     }
 
+    // Save the new project
+    const currentProjects = getProjects()
+    const updatedProjects = [...currentProjects, newProject]
+    localStorage.setItem(STORAGE_KEYS.PROJECTS, JSON.stringify(updatedProjects))
+
+    // Notify dashboard to refresh
+    window.dispatchEvent(new Event('projectsUpdated'))
 
     alert(`${projectType === "website" ? "Website" : "Social Media"} project "${formData.name}" created successfully!`)
     navigate("/admin/dashboard")
@@ -222,12 +229,13 @@ export default function NewProjectPage() {
                     onChange={(e) => setFormData({ ...formData, currentStage: e.target.value as ProjectStage })}
                     className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   >
-                    <option value="planning">Planning</option>
-                    <option value="design">Design</option>
-                    <option value="development">Development</option>
-                    <option value="testing">Testing</option>
-                    <option value="launch">Launch</option>
-                    <option value="maintenance">Maintenance</option>
+                     <option value="planning">Planning</option>
+                     <option value="design">Design</option>
+                     <option value="development">Development</option>
+                     <option value="testing">Testing</option>
+                     <option value="seo_optimization">SEO Optimisation</option>
+                     <option value="launch">Launch</option>
+                     <option value="maintenance">Maintenance</option>
                   </select>
                 </div>
               </div>

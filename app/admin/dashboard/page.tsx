@@ -6,13 +6,13 @@ import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
 import { getProjects, getTickets, getUsers, deleteProject, mockProjects } from "@/lib/mock-data"
-import type { Project } from "@/types"
+import type { Project, ProjectStage } from "@/types"
 import StatCard from "@/components/stat-card"
 import StatusBadge from "@/components/status-badge"
 import PriorityBadge from "@/components/priority-badge"
 import { StatCardSkeleton, ProjectCardSkeleton } from "@/components/skeleton"
 import { getStageDisplayName, formatRelativeTime } from "@/lib/utils"
-import { Edit, Trash2, Calendar, Palette, Code, CheckCircle, Rocket, Wrench } from "lucide-react"
+import { Edit, Trash2, Calendar, Palette, Code, CheckCircle, Rocket, Wrench, Search } from "lucide-react"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 
 export default function AdminDashboard() {
@@ -54,11 +54,9 @@ export default function AdminDashboard() {
   const [currentPage, setCurrentPage] = useState(1)
   const [isLoading, setIsLoading] = useState(true)
   const [refreshKey, setRefreshKey] = useState(0)
-
-  // Initialize data - hooks must be called before any conditional returns
-  const projects = getProjects()
-  const tickets = getTickets()
-  const users = getUsers()
+  const [projects, setProjects] = useState(getProjects())
+  const [tickets, setTickets] = useState(getTickets())
+  const [users, setUsers] = useState(getUsers())
 
   // Filter projects based on search term
   const filteredProjects = useMemo(() => {
@@ -75,6 +73,22 @@ export default function AdminDashboard() {
   const endIndex = startIndex + pageSize
   const paginatedProjects = filteredProjects.slice(startIndex, endIndex)
 
+  const projectStageData = useMemo(() => {
+    const allStages: ProjectStage[] = ["planning", "design", "development", "testing", "seo_optimization", "launch", "maintenance"]
+    const stageCounts: Record<string, number> = {}
+    allStages.forEach(stage => {
+      stageCounts[getStageDisplayName(stage)] = 0
+    })
+    projects.forEach(project => {
+      const displayName = getStageDisplayName(project.currentStage)
+      stageCounts[displayName] = (stageCounts[displayName] || 0) + 1
+    })
+    return allStages.map(stage => ({
+      name: getStageDisplayName(stage),
+      value: stageCounts[getStageDisplayName(stage)]
+    }))
+  }, [projects])
+
   // Simulate loading delay
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -87,6 +101,27 @@ export default function AdminDashboard() {
   useEffect(() => {
     setCurrentPage(1)
   }, [searchTerm])
+
+  // Refresh data when refreshKey changes
+  useEffect(() => {
+    setProjects(getProjects())
+    setTickets(getTickets())
+    setUsers(getUsers())
+  }, [refreshKey])
+
+  // Refresh on window focus
+  useEffect(() => {
+    const handleFocus = () => setRefreshKey(prev => prev + 1)
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
+  }, [])
+
+  // Refresh when projects are updated
+  useEffect(() => {
+    const handleProjectsUpdated = () => setRefreshKey(prev => prev + 1)
+    window.addEventListener('projectsUpdated', handleProjectsUpdated)
+    return () => window.removeEventListener('projectsUpdated', handleProjectsUpdated)
+  }, [])
 
   if (!user || user.role !== "admin") {
     return (
@@ -136,22 +171,14 @@ export default function AdminDashboard() {
       case 'design': return Palette
       case 'development': return Code
       case 'testing': return CheckCircle
+      case 'seo_optimization': return Search
       case 'launch': return Rocket
       case 'maintenance': return Wrench
       default: return Calendar
     }
   }
 
-  const projectStageData = [
-    { name: 'Planning', value: 4 },
-    { name: 'Design', value: 3 },
-    { name: 'Development', value: 5 },
-    { name: 'Testing', value: 5 },
-    { name: 'Launch', value: 5 },
-    { name: 'Maintenance', value: 1 }
-  ]
-
-  const stageColors = ['#fbbf24', '#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444']
+  const stageColors = ['#fbbf24', '#8b5cf6', '#3b82f6', '#10b981', '#06b6d4', '#f59e0b', '#ef4444']
 
 
 
@@ -302,16 +329,16 @@ export default function AdminDashboard() {
             {/* Project Stages Summary */}
             <div className="card mb-8">
               <h3 className="text-lg font-semibold text-foreground mb-4">Project Stages Summary</h3>
-              <ResponsiveContainer width="100%" height={350}>
-                <BarChart data={projectStageData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis
-                    dataKey="name"
-                    angle={-45}
-                    textAnchor="end"
-                    height={80}
-                    interval={0}
-                  />
+               <ResponsiveContainer width="100%" height={400}>
+                 <BarChart data={projectStageData} margin={{ top: 20, right: 30, left: 20, bottom: 100 }}>
+                   <CartesianGrid strokeDasharray="3 3" />
+                   <XAxis
+                     dataKey="name"
+                     angle={-45}
+                     textAnchor="end"
+                     height={120}
+                     interval={0}
+                   />
                   <YAxis />
                   <Tooltip />
                   <Bar dataKey="value" radius={[4, 4, 0, 0]}>

@@ -97,7 +97,7 @@ export function getStageDisplayName(stage: ProjectStage): string {
     design: "Design",
     development: "Development",
     testing: "Testing",
-    seo_optimization: "SEO Optimization",
+     seo_optimization: "SEO Optimisation",
     launch: "Launch",
     maintenance: "Maintenance",
   }

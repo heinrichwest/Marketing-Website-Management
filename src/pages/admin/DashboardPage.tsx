@@ -4,6 +4,7 @@ import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
 import { getProjects, getTickets, getUsers } from "@/lib/mock-data"
+import type { ProjectStage } from "@/types"
 import StatCard from "@/components/stat-card"
 import StatusBadge from "@/components/status-badge"
 import PriorityBadge from "@/components/priority-badge"
@@ -22,6 +23,10 @@ export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(true)
   const [selectedProjects, setSelectedProjects] = useState<string[]>([])
   const [showBulkDelete, setShowBulkDelete] = useState(false)
+  const [refreshKey, setRefreshKey] = useState(0)
+  const [projects, setProjects] = useState(getProjects())
+  const [tickets, setTickets] = useState(getTickets())
+  const [users, setUsers] = useState(getUsers())
 
 
   useEffect(() => {
@@ -47,6 +52,27 @@ export default function AdminDashboard() {
     return () => clearTimeout(timer)
   }, [])
 
+  // Refresh data when refreshKey changes
+  useEffect(() => {
+    setProjects(getProjects())
+    setTickets(getTickets())
+    setUsers(getUsers())
+  }, [refreshKey])
+
+  // Refresh on window focus
+  useEffect(() => {
+    const handleFocus = () => setRefreshKey(prev => prev + 1)
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
+  }, [])
+
+  // Refresh when projects are updated
+  useEffect(() => {
+    const handleProjectsUpdated = () => setRefreshKey(prev => prev + 1)
+    window.addEventListener('projectsUpdated', handleProjectsUpdated)
+    return () => window.removeEventListener('projectsUpdated', handleProjectsUpdated)
+  }, [])
+
   // Show loading if not authenticated
   if (!isSignedIn || !user || user.role !== "admin") {
     return (
@@ -55,10 +81,6 @@ export default function AdminDashboard() {
       </div>
     )
   }
-
-  const projects = getProjects()
-  const tickets = getTickets()
-  const users = getUsers()
 
   const stats = {
     totalProjects: projects.length,
@@ -158,16 +180,23 @@ export default function AdminDashboard() {
     { name: 'Closed', value: tickets.filter(t => t.status === 'closed').length, color: '#6b7280' }
   ].filter(item => item.value > 0)
 
-  const projectStageData = [
-    { name: 'Planning', value: 4 },
-    { name: 'Design', value: 3 },
-    { name: 'Development', value: 5 },
-    { name: 'Testing', value: 5 },
-    { name: 'Launch', value: 5 },
-    { name: 'Maintenance', value: 1 }
-  ]
+  const projectStageData = useMemo(() => {
+    const allStages: ProjectStage[] = ["planning", "design", "development", "testing", "seo_optimization", "launch", "maintenance"]
+    const stageCounts: Record<string, number> = {}
+    allStages.forEach(stage => {
+      stageCounts[getStageDisplayName(stage)] = 0
+    })
+    projects.forEach(project => {
+      const displayName = getStageDisplayName(project.currentStage)
+      stageCounts[displayName] = (stageCounts[displayName] || 0) + 1
+    })
+    return allStages.map(stage => ({
+      name: getStageDisplayName(stage),
+      value: stageCounts[getStageDisplayName(stage)]
+    }))
+  }, [projects])
 
-  const stageColors = ['#fbbf24', '#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444']
+  const stageColors = ['#fbbf24', '#8b5cf6', '#3b82f6', '#10b981', '#06b6d4', '#f59e0b', '#ef4444']
 
 
 
@@ -245,15 +274,16 @@ export default function AdminDashboard() {
                 {/* Project Stages Summary */}
                 <div className="card">
                   <h3 className="text-lg font-semibold text-foreground mb-4">Project Stages Summary</h3>
-                  <ResponsiveContainer width="100%" height={350}>
-                    <BarChart data={projectStageData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+                  <ResponsiveContainer width="100%" height={400}>
+                    <BarChart data={projectStageData} margin={{ top: 20, right: 30, left: 20, bottom: 30 }}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis
                         dataKey="name"
-                        angle={-45}
+                        angle={-50}
                         textAnchor="end"
-                        height={80}
+                        height={120}
                         interval={0}
+                        tick={{ fontSize: 16 }}
                       />
                       <YAxis />
                       <Tooltip />

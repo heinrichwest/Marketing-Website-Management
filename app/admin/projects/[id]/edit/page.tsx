@@ -267,6 +267,7 @@ export default function EditProjectPage() {
                         <option value="design">Design</option>
                         <option value="development">Development</option>
                         <option value="testing">Testing</option>
+                        <option value="seo_optimization">SEO Optimisation</option>
                         <option value="launch">Launch</option>
                         <option value="maintenance">Maintenance</option>
                       </select>

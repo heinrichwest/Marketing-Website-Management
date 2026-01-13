@@ -12,7 +12,7 @@ import type {
 } from "@/types"
 
 // LocalStorage keys
-const STORAGE_KEYS = {
+export const STORAGE_KEYS = {
   USERS: "marketing_management_website_users",
   PROJECTS: "marketing_management_website_projects",
   TICKETS: "marketing_management_website_tickets",
