@@ -66,12 +66,26 @@ export default function AdminDashboard() {
     return () => window.removeEventListener('focus', handleFocus)
   }, [])
 
-  // Refresh when projects are updated
-  useEffect(() => {
-    const handleProjectsUpdated = () => setRefreshKey(prev => prev + 1)
-    window.addEventListener('projectsUpdated', handleProjectsUpdated)
-    return () => window.removeEventListener('projectsUpdated', handleProjectsUpdated)
-  }, [])
+   // Refresh when projects are updated
+   useEffect(() => {
+     const handleProjectsUpdated = () => setRefreshKey(prev => prev + 1)
+     window.addEventListener('projectsUpdated', handleProjectsUpdated)
+     return () => window.removeEventListener('projectsUpdated', handleProjectsUpdated)
+   }, [])
+
+   // Refresh when tickets are updated
+   useEffect(() => {
+     const handleTicketsUpdated = () => setRefreshKey(prev => prev + 1)
+     window.addEventListener('ticketsUpdated', handleTicketsUpdated)
+     return () => window.removeEventListener('ticketsUpdated', handleTicketsUpdated)
+   }, [])
+
+   // Refresh when messages are updated (for resolution notifications)
+   useEffect(() => {
+     const handleMessagesUpdated = () => setRefreshKey(prev => prev + 1)
+     window.addEventListener('messagesUpdated', handleMessagesUpdated)
+     return () => window.removeEventListener('messagesUpdated', handleMessagesUpdated)
+   }, [])
 
   // Show loading if not authenticated
   if (!isSignedIn || !user || user.role !== "admin") {

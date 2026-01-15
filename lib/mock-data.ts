@@ -446,11 +446,25 @@ export const mockProjects: Project[] = [
     socialMediaPlatforms: ["facebook", "instagram", "twitter"],
     campaignGoals: "Engage 5k parents, increase app downloads by 200%, position as education leader",
     targetAudience: "Parents of school-aged children, teachers, education administrators",
-    createdAt: new Date("2024-12-01"),
-    launchDate: new Date("2025-01-15"),
-    updatedAt: new Date("2025-02-07"),
-  },
-]
+     createdAt: new Date("2024-12-01"),
+     launchDate: new Date("2025-01-15"),
+     updatedAt: new Date("2025-02-07"),
+   },
+   {
+     id: "proj-26",
+     name: "Learnership Application System",
+     description: "Online learnership application and management platform for skills development programs",
+     projectType: "website",
+     clientId: "user-5",
+     webDeveloperId: "user-2",
+     socialMediaCoordinatorId: "user-4",
+     currentStage: "development",
+     status: "active",
+     websiteUrl: "https://speccon.co.za/learnership-application.html",
+     createdAt: new Date("2025-01-10"),
+     updatedAt: new Date("2025-01-15"),
+   },
+ ]
 
 // Mock Tickets
 export const mockTickets: Ticket[] = [
@@ -967,6 +981,11 @@ export function addTicket(ticket: Ticket): void {
   const currentTickets = getTickets()
   const updatedTickets = [...currentTickets, ticket]
   saveToStorage(STORAGE_KEYS.TICKETS, updatedTickets)
+
+  // Dispatch event to notify dashboard of ticket updates
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent('ticketsUpdated'))
+  }
 }
 
 export function updateTicket(ticketId: string, updates: Partial<Ticket>): void {
@@ -1004,47 +1023,52 @@ export function updateTicket(ticketId: string, updates: Partial<Ticket>): void {
   }
 
   // Set resolvedAt when status changes to resolved
-  if (updates.status === "resolved" && ticket.status !== "resolved") {
-    updates.resolvedAt = new Date()
+   if (updates.status === "resolved" && ticket.status !== "resolved") {
+     updates.resolvedAt = new Date()
 
-    // Notify the ticket creator (client)
-    const creator = getUserById(ticket.createdBy)
-    if (creator && creator.role === "client") {
-      const notification: Message = {
-        id: `message-${Date.now()}`,
-        senderId: "system",
-        recipientId: ticket.createdBy,
-        subject: "Ticket Resolved",
-        content: `Your ticket "${ticket.title}" has been resolved. Please review the changes.`,
-        isRead: false,
-        isBroadcast: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }
-      const currentMessages = JSON.parse(localStorage.getItem(STORAGE_KEYS.MESSAGES) || "[]")
-      currentMessages.push(notification)
-      localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(currentMessages))
-    }
+     // Notify the ticket creator (client)
+     const creator = getUserById(ticket.createdBy)
+     if (creator && creator.role === "client") {
+       const notification: Message = {
+         id: `message-${Date.now()}`,
+         senderId: "system",
+         recipientId: ticket.createdBy,
+         subject: "Ticket Resolved",
+         content: `Your ticket "${ticket.title}" has been resolved. Please review the changes.`,
+         isRead: false,
+         isBroadcast: false,
+         createdAt: new Date(),
+         updatedAt: new Date(),
+       }
+       const currentMessages = JSON.parse(localStorage.getItem(STORAGE_KEYS.MESSAGES) || "[]")
+       currentMessages.push(notification)
+       localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(currentMessages))
+     }
 
-    // Notify all admins
-    const admins = getUsers().filter(u => u.role === "admin")
-    admins.forEach(admin => {
-      const adminNotification: Message = {
-        id: `message-${Date.now()}-admin-${admin.id}`,
-        senderId: "system",
-        recipientId: admin.id,
-        subject: "Ticket Resolved",
-        content: `Ticket "${ticket.title}" has been marked as resolved.`,
-        isRead: false,
-        isBroadcast: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }
-      const currentMessages = JSON.parse(localStorage.getItem(STORAGE_KEYS.MESSAGES) || "[]")
-      currentMessages.push(adminNotification)
-      localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(currentMessages))
-    })
-  }
+     // Notify all admins
+     const admins = getUsers().filter(u => u.role === "admin")
+     admins.forEach(admin => {
+       const adminNotification: Message = {
+         id: `message-${Date.now()}-admin-${admin.id}`,
+         senderId: "system",
+         recipientId: admin.id,
+         subject: "Ticket Resolved",
+         content: `Ticket "${ticket.title}" has been marked as resolved.`,
+         isRead: false,
+         isBroadcast: false,
+         createdAt: new Date(),
+         updatedAt: new Date(),
+       }
+       const currentMessages = JSON.parse(localStorage.getItem(STORAGE_KEYS.MESSAGES) || "[]")
+       currentMessages.push(adminNotification)
+       localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(currentMessages))
+     })
+   }
+
+   // Dispatch event to notify dashboard of ticket updates
+   if (typeof window !== "undefined") {
+     window.dispatchEvent(new CustomEvent('ticketsUpdated'))
+   }
 }
 
 export function addUser(user: User): void {
@@ -1162,6 +1186,36 @@ export function addMessage(message: Message): void {
   const currentMessages = getMessages()
   const updatedMessages = [...currentMessages, message]
   saveToStorage(STORAGE_KEYS.MESSAGES, updatedMessages)
+}
+
+export function notifyAdminsOfResolution(ticketId: string, developerId: string): void {
+  const ticket = getTicketById(ticketId)
+  const developer = getUserById(developerId)
+
+  if (!ticket || !developer) return
+
+  // Notify all admins
+  const admins = getUsers().filter(u => u.role === "admin")
+  admins.forEach(admin => {
+    const notification: Message = {
+      id: `message-${Date.now()}-resolution-${admin.id}`,
+      senderId: developer.id,
+      recipientId: admin.id,
+      subject: "Ticket Resolution Notification",
+      content: `Developer ${developer.fullName} has resolved ticket "${ticket.title}". Please review and close the ticket if appropriate.`,
+      isRead: false,
+      isBroadcast: false,
+      projectId: ticket.projectId,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+    addMessage(notification)
+  })
+
+  // Dispatch event to notify dashboards of message updates
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent('messagesUpdated'))
+  }
 }
 
 export function getAnalyticsByProjectId(projectId: string): {

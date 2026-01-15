@@ -12,25 +12,56 @@ export default function AnalyticsPage() {
   const params = useParams()
   const projectId = params.id as string
 
-  const [project, setProject] = useState<Project | null>(null)
-  const [analytics, setAnalytics] = useState<any>(null)
+   const [project, setProject] = useState<Project | null>(null)
+   const [analytics, setAnalytics] = useState<any>(null)
+   const [isLoadingAnalytics, setIsLoadingAnalytics] = useState(false)
+   const [analyticsError, setAnalyticsError] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (!isSignedIn) {
-      navigate("/login")
-      return
-    }
+   useEffect(() => {
+     if (!isSignedIn) {
+       navigate("/login")
+       return
+     }
 
-    const projectData = getProjectById(projectId)
-    if (!projectData) {
-      navigate("/dashboard")
-      return
-    }
+     const projectData = getProjectById(projectId)
+     if (!projectData) {
+       navigate("/dashboard")
+       return
+     }
 
-    setProject(projectData)
-    const analyticsData = getAnalyticsByProjectId(projectId)
-    setAnalytics(analyticsData)
-  }, [isSignedIn, projectId, navigate])
+     setProject(projectData)
+
+     // Try to fetch real analytics if GA property ID is valid
+     if (projectData.googleAnalyticsPropertyId && /^G-\d+$/.test(projectData.googleAnalyticsPropertyId)) {
+       fetchRealAnalytics(projectData.googleAnalyticsPropertyId)
+     } else {
+       // Fall back to mock data
+       const analyticsData = getAnalyticsByProjectId(projectId)
+       setAnalytics(analyticsData)
+     }
+   }, [isSignedIn, projectId, navigate])
+
+   const fetchRealAnalytics = async (propertyId: string) => {
+     setIsLoadingAnalytics(true)
+     setAnalyticsError(null)
+
+     try {
+       const response = await fetch(`http://localhost:3001/api/analytics/${propertyId}`)
+       if (!response.ok) {
+         throw new Error(`API Error: ${response.status} ${response.statusText}`)
+       }
+       const data = await response.json()
+       setAnalytics(data)
+     } catch (error) {
+       console.error('Failed to fetch real analytics:', error)
+       setAnalyticsError(error instanceof Error ? error.message : 'Failed to fetch analytics')
+       // Fall back to mock data
+       const analyticsData = getAnalyticsByProjectId(projectId)
+       setAnalytics(analyticsData)
+     } finally {
+       setIsLoadingAnalytics(false)
+     }
+   }
 
   if (!project) {
     return (
@@ -40,12 +71,16 @@ export default function AnalyticsPage() {
     )
   }
 
-  // Function to generate Google Analytics URL
+  // Function to generate Google Analytics URL and validate IDs
   const getGoogleAnalyticsUrl = () => {
-    if (project.googleAnalyticsPropertyId) {
+    // Validate GA4 Property ID format (G- followed by digits)
+    if (project.googleAnalyticsPropertyId && /^G-\d+$/.test(project.googleAnalyticsPropertyId)) {
       // Google Analytics 4 (GA4) URL format
-      return `https://analytics.google.com/analytics/web/#/p${project.googleAnalyticsPropertyId}/reports/intelligenthome`
-    } else if (project.googleAnalyticsViewId) {
+      const propertyId = project.googleAnalyticsPropertyId.substring(2); // Remove G-
+      return `https://analytics.google.com/analytics/web/#/p${propertyId}/reports/intelligenthome`
+    }
+    // Validate legacy View ID format (digits only)
+    else if (project.googleAnalyticsViewId && /^\d+$/.test(project.googleAnalyticsViewId)) {
       // Universal Analytics URL format (legacy)
       return `https://analytics.google.com/analytics/web/#/report-home/a${project.googleAnalyticsViewId}`
     }
@@ -201,11 +236,48 @@ export default function AnalyticsPage() {
             </div>
           )}
 
-          {/* Website Analytics Summary */}
-          <div className="card mb-8">
-            <h2 className="text-2xl font-bold text-foreground mb-6">Website Analytics Summary</h2>
+           {/* Website Analytics Summary */}
+           <div className="card mb-8">
+             <div className="flex items-center justify-between mb-6">
+               <h2 className="text-2xl font-bold text-foreground">Website Analytics Summary</h2>
+               <div className="flex items-center gap-4">
+                 {project?.googleAnalyticsPropertyId && /^G-\d+$/.test(project.googleAnalyticsPropertyId) && (
+                   <button
+                     onClick={() => fetchRealAnalytics(project.googleAnalyticsPropertyId!)}
+                     disabled={isLoadingAnalytics}
+                     className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/80 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                   >
+                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                     </svg>
+                     Refresh Data
+                   </button>
+                 )}
+                 {isLoadingAnalytics && (
+                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                     Fetching real data...
+                   </div>
+                 )}
+               </div>
+             </div>
 
-            {analytics.website && analytics.website.length > 0 ? (
+             {analyticsError && (
+               <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-6">
+                 <div className="flex items-start gap-3">
+                   <svg className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                   </svg>
+                   <div>
+                     <h3 className="font-semibold text-yellow-900 mb-1">Analytics Fetch Error</h3>
+                     <p className="text-sm text-yellow-800">{analyticsError}</p>
+                     <p className="text-sm text-yellow-800 mt-2">Showing cached/manual data instead.</p>
+                   </div>
+                 </div>
+               </div>
+             )}
+
+             {analytics.website && analytics.website.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {analytics.website.slice(0, 3).map((data: WebsiteAnalytics) => (
                   <div key={data.id} className="p-6 bg-gradient-to-br from-secondary/10 to-primary/5 rounded-lg border border-secondary/20">

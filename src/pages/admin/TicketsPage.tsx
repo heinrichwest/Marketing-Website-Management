@@ -17,15 +17,22 @@ export default function AdminTicketsPage() {
   const [statusFilter, setStatusFilter] = useState<"all" | "open" | "in_progress" | "resolved" | "closed">("all")
   const [priorityFilter, setPriorityFilter] = useState<"all" | "low" | "medium" | "high" | "critical">("all")
   const [currentPage, setCurrentPage] = useState(1)
-  const [refreshTrigger, setRefreshTrigger] = useState(0)
+   const [refreshTrigger, setRefreshTrigger] = useState(0)
 
-  useEffect(() => {
-    if (!isSignedIn) {
-      navigate("/login")
-    } else if (user?.role !== "admin") {
-      navigate("/dashboard")
-    }
-  }, [isSignedIn, user, navigate])
+   useEffect(() => {
+     if (!isSignedIn) {
+       navigate("/login")
+     } else if (user?.role !== "admin") {
+       navigate("/dashboard")
+     }
+   }, [isSignedIn, user, navigate])
+
+   // Refresh when messages are updated (for resolution notifications)
+   useEffect(() => {
+     const handleMessagesUpdated = () => setRefreshTrigger(prev => prev + 1)
+     window.addEventListener('messagesUpdated', handleMessagesUpdated)
+     return () => window.removeEventListener('messagesUpdated', handleMessagesUpdated)
+   }, [])
 
   if (!user || user.role !== "admin") {
     return (
@@ -79,6 +86,11 @@ export default function AdminTicketsPage() {
 
   const handleAssignmentChange = (ticketId: string, assignedTo: string) => {
     updateTicket(ticketId, { assignedTo: assignedTo || undefined })
+    setRefreshTrigger(prev => prev + 1)
+  }
+
+  const handleStatusChange = (ticketId: string, newStatus: string) => {
+    updateTicket(ticketId, { status: newStatus as any })
     setRefreshTrigger(prev => prev + 1)
   }
 
@@ -232,16 +244,17 @@ export default function AdminTicketsPage() {
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead>
-                    <tr className="bg-primary text-primary-foreground">
-                      <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">#</th>
-                      <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Title</th>
-                      <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Project</th>
-                      <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Priority</th>
-                      <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Status</th>
-                      <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Type</th>
-                      <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Assigned To</th>
-                      <th className="px-4 py-3 text-left font-semibold">Created</th>
-                   </tr>
+                     <tr className="bg-primary text-primary-foreground">
+                       <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">#</th>
+                       <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Title</th>
+                       <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Project</th>
+                       <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Priority</th>
+                       <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Status</th>
+                       <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Type</th>
+                       <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Assigned To</th>
+                       <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Created</th>
+                       <th className="px-4 py-3 text-left font-semibold">Actions</th>
+                    </tr>
                 </thead>
                 <tbody>
                   {paginatedTickets.map((ticket, index) => {
@@ -297,21 +310,33 @@ export default function AdminTicketsPage() {
                              }
                            </select>
                          </td>
-                         <td className="px-4 py-3">
-                           <span className="text-sm text-muted-foreground">
-                             {formatRelativeTime(ticket.createdAt)}
-                           </span>
-                         </td>
-                       </tr>
+                          <td className="px-4 py-3">
+                            <span className="text-sm text-muted-foreground">
+                              {formatRelativeTime(ticket.createdAt)}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">
+                            <select
+                              value={ticket.status}
+                              onChange={(e) => handleStatusChange(ticket.id, e.target.value)}
+                              className="text-sm border border-border rounded px-2 py-1 bg-background text-foreground"
+                            >
+                              <option value="open">Open</option>
+                              <option value="in_progress">In Progress</option>
+                              <option value="resolved">Resolved</option>
+                              <option value="closed">Closed</option>
+                            </select>
+                          </td>
+                        </tr>
                      )
                    })}
-                   {!paginatedTickets.length && (
-                     <tr>
-                       <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
-                         No tickets found matching the selected filter.
-                       </td>
-                     </tr>
-                   )}
+                    {!paginatedTickets.length && (
+                      <tr>
+                        <td colSpan={9} className="px-6 py-12 text-center text-gray-500">
+                          No tickets found matching the selected filter.
+                        </td>
+                      </tr>
+                    )}
                  </tbody>
               </table>
             </div>

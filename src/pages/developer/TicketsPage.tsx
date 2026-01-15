@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
-import { getTicketsByUserId, getProjectById, updateTicket } from "@/lib/mock-data"
+import { getTicketsByUserId, getProjectById, updateTicket, notifyAdminsOfResolution } from "@/lib/mock-data"
 import StatusBadge from "@/components/status-badge"
 import PriorityBadge from "@/components/priority-badge"
 import { formatRelativeTime } from "@/lib/utils"
@@ -56,7 +56,13 @@ export default function DeveloperTicketsPage() {
     )
 
   const handleStatusChange = (ticketId: string, newStatus: string) => {
-    updateTicket(ticketId, { status: newStatus as any })
+    if (newStatus === "resolved") {
+      // Update to resolved and notify admins
+      updateTicket(ticketId, { status: "resolved" as any })
+      notifyAdminsOfResolution(ticketId, user!.id)
+    } else {
+      updateTicket(ticketId, { status: newStatus as any })
+    }
     setRefreshTrigger(prev => prev + 1) // Trigger re-fetch
   }
 
