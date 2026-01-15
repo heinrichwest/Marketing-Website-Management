@@ -228,6 +228,15 @@ export default function DeveloperDashboard() {
                                          {updatingTicket === ticket.id ? "..." : "Update"}
                                        </button>
                                      )}
+                                     {ticket.status === "resolved" && (
+                                       <button
+                                         onClick={() => handleStatusUpdate(ticket.id, "resolved")}
+                                         disabled={updatingTicket === ticket.id}
+                                         className="px-2 py-1 text-xs bg-orange-500 text-white rounded hover:bg-orange-600 disabled:opacity-50"
+                                       >
+                                         {updatingTicket === ticket.id ? "..." : "Update"}
+                                       </button>
+                                     )}
                                    </div>
                                  </div>
                                ))}
@@ -276,29 +285,38 @@ export default function DeveloperDashboard() {
                            {formatRelativeTime(ticket.createdAt)}
                          </span>
                        </div>
-                       <div className="flex items-center gap-2 mt-3">
-                         {ticket.status !== "resolved" && ticket.status !== "closed" && (
-                           <>
-                             {ticket.status === "open" && (
-                               <button
-                                 onClick={() => handleStatusUpdate(ticket.id, "in_progress")}
-                                 disabled={updatingTicket === ticket.id}
-                                 className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
-                               >
-                                 {updatingTicket === ticket.id ? "Updating..." : "Start Working"}
-                               </button>
-                             )}
-                             {ticket.status === "in_progress" && (
-                               <button
-                                 onClick={() => handleResolutionNotification(ticket.id)}
-                                 disabled={updatingTicket === ticket.id}
-                                 className="px-3 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50"
-                               >
-                                 {updatingTicket === ticket.id ? "Notifying..." : "Update - I have resolved this ticket"}
-                               </button>
-                             )}
-                           </>
-                         )}
+                        <div className="flex items-center gap-2 mt-3">
+                          {ticket.status !== "closed" && (
+                            <>
+                              {ticket.status === "open" && (
+                                <button
+                                  onClick={() => handleStatusUpdate(ticket.id, "in_progress")}
+                                  disabled={updatingTicket === ticket.id}
+                                  className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+                                >
+                                  {updatingTicket === ticket.id ? "Updating..." : "Start Working"}
+                                </button>
+                              )}
+                              {ticket.status === "in_progress" && (
+                                <button
+                                  onClick={() => handleResolutionNotification(ticket.id)}
+                                  disabled={updatingTicket === ticket.id}
+                                  className="px-3 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50"
+                                >
+                                  {updatingTicket === ticket.id ? "Notifying..." : "Update - I have resolved this ticket"}
+                                </button>
+                              )}
+                              {ticket.status === "resolved" && (
+                                <button
+                                  onClick={() => handleStatusUpdate(ticket.id, "resolved")}
+                                  disabled={updatingTicket === ticket.id}
+                                  className="px-3 py-1 text-xs bg-orange-500 text-white rounded hover:bg-orange-600 disabled:opacity-50"
+                                >
+                                  {updatingTicket === ticket.id ? "Updating..." : "Update"}
+                                </button>
+                              )}
+                            </>
+                          )}
                          <Link
                            to={`/developer/tickets`}
                            className="px-3 py-1 text-xs bg-gray-500 text-white rounded hover:bg-gray-600"
