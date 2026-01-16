@@ -560,7 +560,7 @@ export default function AdminDashboard() {
                             ) : (
                               <button
                                 onClick={() => setAssigningDeveloper(project.id)}
-                                className="text-xs text-primary hover:underline italic"
+                                className="text-xs text-primary hover:underline italic cursor-pointer"
                               >
                                 Not assigned
                               </button>
@@ -592,7 +592,7 @@ export default function AdminDashboard() {
                             ) : (
                               <button
                                 onClick={() => setAssigningCoordinator(project.id)}
-                                className="text-xs text-primary hover:underline italic"
+                                className="text-xs text-primary hover:underline italic cursor-pointer"
                               >
                                 Not assigned
                               </button>
