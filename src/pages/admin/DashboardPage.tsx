@@ -479,9 +479,9 @@ export default function AdminDashboard() {
                      <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">Status</th>
                      <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">Current Stage</th>
                      <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">Client</th>
-                      <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">Developer</th>
-                      <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">Coordinator</th>
-                      <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">Tickets</th>
+                      <th className="px-4 py-3 text-left font-semibold border-r border-accent/30" title="Web Developer - handles website development and technical tickets">Developer</th>
+                      <th className="px-4 py-3 text-left font-semibold border-r border-accent/30" title="Social Media Coordinator - handles social media and content tickets">Coordinator</th>
+                      <th className="px-4 py-3 text-left font-semibold border-r border-accent/30" title="Total tickets in this project">Tickets</th>
                      <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">Analytics</th>
                      <th className="px-4 py-3 text-left font-semibold">Actions</th>
                    </tr>
@@ -545,10 +545,10 @@ export default function AdminDashboard() {
                                 className="w-full px-2 py-1 border border-border rounded bg-background text-foreground text-xs"
                                 autoFocus
                               >
-                                <option value="">Select Developer...</option>
+                                <option value="">Select Web Developer...</option>
                                 {users.filter(u => u.role === "web_developer").map((dev) => (
                                   <option key={dev.id} value={dev.id}>
-                                    {dev.fullName}
+                                    {dev.fullName} (Developer)
                                   </option>
                                 ))}
                               </select>
@@ -561,6 +561,7 @@ export default function AdminDashboard() {
                               <button
                                 onClick={() => setAssigningDeveloper(project.id)}
                                 className="text-xs text-primary hover:underline italic cursor-pointer"
+                                title="Assign a web developer to handle technical tickets"
                               >
                                 Not assigned
                               </button>
@@ -577,10 +578,10 @@ export default function AdminDashboard() {
                                 className="w-full px-2 py-1 border border-border rounded bg-background text-foreground text-xs"
                                 autoFocus
                               >
-                                <option value="">Select Coordinator...</option>
+                                <option value="">Select Social Media Coordinator...</option>
                                 {users.filter(u => u.role === "social_media_coordinator").map((coord) => (
                                   <option key={coord.id} value={coord.id}>
-                                    {coord.fullName}
+                                    {coord.fullName} (Coordinator)
                                   </option>
                                 ))}
                               </select>
@@ -593,6 +594,7 @@ export default function AdminDashboard() {
                               <button
                                 onClick={() => setAssigningCoordinator(project.id)}
                                 className="text-xs text-primary hover:underline italic cursor-pointer"
+                                title="Assign a social media coordinator to handle content tickets"
                               >
                                 Not assigned
                               </button>
@@ -601,12 +603,16 @@ export default function AdminDashboard() {
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
-                             <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-semibold text-sm">
+                             <span
+                               className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-semibold text-sm"
+                               title={`${ticketCount} total tickets in this project`}
+                             >
                               {ticketCount}
                             </span>
                              <Link
                                to={`/admin/tickets?project=${project.id}`}
-                               className="text-xs text-primary hover:underline"
+                               className="text-xs text-primary hover:underline cursor-pointer"
+                               title="View all tickets for this project"
                              >
                                View
                              </Link>
