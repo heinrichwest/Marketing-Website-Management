@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
-import { getTicketsByUserId, getProjectById, updateTicket } from "@/lib/mock-data"
+import { getTicketsByUserId, getProjectById, updateTicket, notifyAdminsOfResolution, notifyAdmins } from "@/lib/mock-data"
 import StatusBadge from "@/components/status-badge"
 import PriorityBadge from "@/components/priority-badge"
 import { formatRelativeTime } from "@/lib/utils"
@@ -12,10 +12,6 @@ import type { Ticket } from "@/types"
 export default function DeveloperTicketsPage() {
   const { isSignedIn, user } = useAuth()
   const navigate = useNavigate()
-  const [filter, setFilter] = useState<"all" | "open" | "in_progress" | "resolved">("all")
-  const [searchTerm, setSearchTerm] = useState("")
-  const [tickets, setTickets] = useState<any[]>([])
-  const [refreshTrigger, setRefreshTrigger] = useState(0)
 
   useEffect(() => {
     if (!isSignedIn) {
@@ -24,6 +20,19 @@ export default function DeveloperTicketsPage() {
       navigate("/dashboard")
     }
   }, [isSignedIn, user, navigate])
+
+  if (!user || user.role !== "web_developer") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-muted">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    )
+  }
+
+  const [filter, setFilter] = useState<"all" | "open" | "in_progress" | "resolved">("all")
+  const [searchTerm, setSearchTerm] = useState("")
+  const [tickets, setTickets] = useState<any[]>([])
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
 
   const fetchTickets = () => {
     if (user) {
@@ -35,14 +44,6 @@ export default function DeveloperTicketsPage() {
   useEffect(() => {
     fetchTickets()
   }, [user, refreshTrigger])
-
-  if (!user || user.role !== "web_developer") {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-muted">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    )
-  }
 
   const allTickets = tickets
 
@@ -57,6 +58,9 @@ export default function DeveloperTicketsPage() {
 
   const handleStatusChange = (ticketId: string, newStatus: string) => {
     updateTicket(ticketId, { status: newStatus as any })
+    if (newStatus === "resolved") {
+      notifyAdminsOfResolution(ticketId, user!.id)
+    }
     setRefreshTrigger(prev => prev + 1) // Trigger re-fetch
   }
 
@@ -205,6 +209,9 @@ export default function DeveloperTicketsPage() {
                       <th className="px-6 py-4 text-left text-sm font-bold text-primary-foreground uppercase tracking-wider bg-primary">
                         DAYS OPEN
                       </th>
+                      <th className="px-6 py-4 text-left text-sm font-bold text-primary-foreground uppercase tracking-wider bg-primary">
+                        ACTIONS
+                      </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -226,34 +233,49 @@ export default function DeveloperTicketsPage() {
                           <td className="px-6 py-4">
                             <div className="text-sm font-medium text-gray-900">{ticket.title}</div>
                           </td>
-                           <td className="px-6 py-4 whitespace-nowrap">
-                             <div className="flex flex-col gap-2">
-                               <select
-                                 value={ticket.status}
-                                 onChange={(e) => handleStatusChange(ticket.id, e.target.value)}
-                                 className="text-sm border border-border rounded px-2 py-1 bg-background text-foreground"
-                               >
-                                 <option value="open">Open</option>
-                                 <option value="in_progress">In Progress</option>
-                                 <option value="resolved">Resolved</option>
-                                 <option value="closed">Closed</option>
-                               </select>
-                               {ticket.status === "resolved" && (
-                                 <textarea
-                                   placeholder={ticket.resolutionNotes || "Add resolution notes..."}
-                                   defaultValue={ticket.resolutionNotes || ""}
-                                   className="text-xs border border-border rounded px-2 py-1 bg-background text-foreground w-32 h-16 resize-none"
-                                   onBlur={(e) => {
-                                     const value = e.target.value.trim()
-                                     if (value && value !== ticket.resolutionNotes) {
-                                       updateTicket(ticket.id, { resolutionNotes: value })
-                                       setRefreshTrigger(prev => prev + 1)
-                                     }
-                                   }}
-                                 />
-                               )}
-                             </div>
-                           </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex flex-col gap-2">
+                                <select
+                                  value={ticket.status}
+                                  onChange={(e) => handleStatusChange(ticket.id, e.target.value)}
+                                  className="text-sm border border-border rounded px-2 py-1 bg-background text-foreground"
+                                >
+                                  <option value="open">Open</option>
+                                  <option value="in_progress">In Progress</option>
+                                  <option value="resolved">Resolved</option>
+                                  <option value="closed">Closed</option>
+                                </select>
+                                <button
+                                  onClick={() => notifyAdmins(ticket.id, user!.id, "Ticket Update", `Please review ticket "${ticket.title}".`)}
+                                  className="text-sm bg-red-500 text-white px-3 py-2 rounded font-semibold hover:bg-red-600 shadow-md"
+                                >
+                                  Message Admin
+                                </button>
+                                {ticket.status === "resolved" && (
+                                  <div className="flex gap-1 items-center">
+                                    <textarea
+                                      placeholder={ticket.resolutionNotes || "Add resolution notes..."}
+                                      defaultValue={ticket.resolutionNotes || ""}
+                                      className="text-xs border border-border rounded px-2 py-1 bg-background text-foreground w-24 h-12 resize-none"
+                                      onBlur={(e) => {
+                                        const value = e.target.value.trim()
+                                        if (value && value !== ticket.resolutionNotes) {
+                                          updateTicket(ticket.id, { resolutionNotes: value })
+                                          setRefreshTrigger(prev => prev + 1)
+                                        }
+                                      }}
+                                    />
+                                    <button
+                                      onClick={() => notifyAdminsOfResolution(ticket.id, user!.id)}
+                                      className="text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 whitespace-nowrap"
+                                      title="Send resolution notification to admin"
+                                    >
+                                      Send
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             {ticket.priority === "critical" && (
                               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-red-500 text-white uppercase">
@@ -276,18 +298,26 @@ export default function DeveloperTicketsPage() {
                               </span>
                             )}
                           </td>
-                           <td className="px-6 py-4 whitespace-nowrap">
-                             <span className="text-sm text-gray-900 font-medium">{daysOpen}</span>
-                           </td>
-                        </tr>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className="text-sm text-gray-900 font-medium">{daysOpen}</span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <button
+                                onClick={() => notifyAdmins(ticket.id, user!.id, "Ticket Update", `Please review ticket "${ticket.title}".`)}
+                                className="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
+                              >
+                                Message Admin
+                              </button>
+                            </td>
+                         </tr>
                       )
                     })
                   ) : (
-                     <tr>
-                       <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
-                         No tickets found matching the selected filter.
-                       </td>
-                     </tr>
+                      <tr>
+                        <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                          No tickets found matching the selected filter.
+                        </td>
+                      </tr>
                   )}
                 </tbody>
               </table>

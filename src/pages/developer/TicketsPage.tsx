@@ -12,10 +12,6 @@ import type { Ticket } from "@/types"
 export default function DeveloperTicketsPage() {
   const { isSignedIn, user } = useAuth()
   const navigate = useNavigate()
-  const [filter, setFilter] = useState<"all" | "open" | "in_progress" | "resolved" | "closed">("all")
-  const [searchTerm, setSearchTerm] = useState("")
-  const [tickets, setTickets] = useState<any[]>([])
-  const [refreshTrigger, setRefreshTrigger] = useState(0)
 
   useEffect(() => {
     if (!isSignedIn) {
@@ -24,6 +20,19 @@ export default function DeveloperTicketsPage() {
       navigate("/dashboard")
     }
   }, [isSignedIn, user, navigate])
+
+  if (!user || user.role !== "web_developer") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-muted">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    )
+  }
+
+  const [filter, setFilter] = useState<"all" | "open" | "in_progress" | "resolved" | "closed">("all")
+  const [searchTerm, setSearchTerm] = useState("")
+  const [tickets, setTickets] = useState<any[]>([])
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
 
   const fetchTickets = () => {
     if (user) {
@@ -35,14 +44,6 @@ export default function DeveloperTicketsPage() {
   useEffect(() => {
     fetchTickets()
   }, [user, refreshTrigger])
-
-  if (!user || user.role !== "web_developer") {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-muted">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    )
-  }
 
   const allTickets = tickets
 
