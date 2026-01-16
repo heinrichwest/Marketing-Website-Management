@@ -1213,9 +1213,10 @@ export function notifyAdminsOfResolution(ticketId: string, developerId: string):
   })
 
   // Dispatch event to notify dashboards of message updates
-  if (typeof window !== "undefined") {
-    window.dispatchEvent(new CustomEvent('messagesUpdated'))
-  }
+  // Temporarily disabled to prevent potential re-render loops
+  // if (typeof window !== "undefined") {
+  //   window.dispatchEvent(new CustomEvent('messagesUpdated'))
+  // }
 }
 
 export function notifyAdmins(ticketId: string, developerId: string, subject: string, content: string): void {
@@ -1243,9 +1244,10 @@ export function notifyAdmins(ticketId: string, developerId: string, subject: str
   })
 
   // Dispatch event to notify dashboards of message updates
-  if (typeof window !== "undefined") {
-    window.dispatchEvent(new CustomEvent('messagesUpdated'))
-  }
+  // Temporarily disabled to prevent potential re-render loops
+  // if (typeof window !== "undefined") {
+  //   window.dispatchEvent(new CustomEvent('messagesUpdated'))
+  // }
 }
 
 export function getAnalyticsByProjectId(projectId: string): {
