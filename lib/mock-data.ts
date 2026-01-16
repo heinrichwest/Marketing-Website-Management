@@ -1218,6 +1218,36 @@ export function notifyAdminsOfResolution(ticketId: string, developerId: string):
   }
 }
 
+export function notifyAdmins(ticketId: string, developerId: string, subject: string, content: string): void {
+  const ticket = getTicketById(ticketId)
+  const developer = getUserById(developerId)
+
+  if (!ticket || !developer) return
+
+  // Notify all admins
+  const admins = getUsers().filter(u => u.role === "admin")
+  admins.forEach(admin => {
+    const notification: Message = {
+      id: `message-${Date.now()}-notification-${admin.id}`,
+      senderId: developer.id,
+      recipientId: admin.id,
+      subject,
+      content,
+      isRead: false,
+      isBroadcast: false,
+      projectId: ticket.projectId,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+    addMessage(notification)
+  })
+
+  // Dispatch event to notify dashboards of message updates
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent('messagesUpdated'))
+  }
+}
+
 export function getAnalyticsByProjectId(projectId: string): {
   website: WebsiteAnalytics[]
   social: SocialMediaAnalytics[]

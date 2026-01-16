@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
-import { getTicketsByUserId, getProjectById, updateTicket, notifyAdminsOfResolution } from "@/lib/mock-data"
+import { getTicketsByUserId, getProjectById, updateTicket, notifyAdminsOfResolution, notifyAdmins } from "@/lib/mock-data"
 import StatusBadge from "@/components/status-badge"
 import PriorityBadge from "@/components/priority-badge"
 import { formatRelativeTime } from "@/lib/utils"
@@ -12,7 +12,7 @@ import type { Ticket } from "@/types"
 export default function DeveloperTicketsPage() {
   const { isSignedIn, user } = useAuth()
   const navigate = useNavigate()
-  const [filter, setFilter] = useState<"all" | "open" | "in_progress" | "resolved">("all")
+  const [filter, setFilter] = useState<"all" | "open" | "in_progress" | "resolved" | "closed">("all")
   const [searchTerm, setSearchTerm] = useState("")
   const [tickets, setTickets] = useState<any[]>([])
   const [refreshTrigger, setRefreshTrigger] = useState(0)
@@ -166,16 +166,26 @@ export default function DeveloperTicketsPage() {
               >
                 In Progress
               </button>
-               <button
-                 onClick={() => setFilter("resolved")}
-                 className={`px-4 py-2 rounded-md font-medium transition ${
-                   filter === "resolved"
-                     ? "bg-primary text-primary-foreground"
-                     : "bg-muted text-muted-foreground hover:bg-muted/70"
-                 }`}
-               >
-                 Resolved
-               </button>
+                <button
+                  onClick={() => setFilter("resolved")}
+                  className={`px-4 py-2 rounded-md font-medium transition ${
+                    filter === "resolved"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground hover:bg-muted/70"
+                  }`}
+                >
+                  Resolved
+                </button>
+                <button
+                  onClick={() => setFilter("closed")}
+                  className={`px-4 py-2 rounded-md font-medium transition ${
+                    filter === "closed"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground hover:bg-muted/70"
+                  }`}
+                >
+                  Closed
+                </button>
                </div>
 
                {/* Search */}
@@ -234,20 +244,24 @@ export default function DeveloperTicketsPage() {
                           <td className="px-6 py-4">
                             <div className="text-sm font-medium text-gray-900">{ticket.title}</div>
                           </td>
-                           <td className="px-6 py-4 whitespace-nowrap">
-                             <div className="flex flex-col gap-2">
-                               <select
-                                 value={ticket.status}
-                                 onChange={(e) => handleStatusChange(ticket.id, e.target.value)}
-                                 className="text-sm border border-border rounded px-2 py-1 bg-background text-foreground"
-                               >
-                                 <option value="open">Open</option>
-                                 <option value="in_progress">In Progress</option>
-                                 <option value="resolved">Resolved</option>
-                                 <option value="closed">Closed</option>
-                               </select>
-                               {ticket.status === "resolved" && (
-                                 <textarea
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex flex-col gap-2">
+                                {ticket.status === "closed" ? (
+                                  <span className="text-sm font-medium text-gray-900">Closed</span>
+                                ) : (
+                                  <select
+                                    value={ticket.status}
+                                    onChange={(e) => handleStatusChange(ticket.id, e.target.value)}
+                                    className="text-sm border border-border rounded px-2 py-1 bg-background text-foreground"
+                                  >
+                                    <option value="open">Open</option>
+                                    <option value="in_progress">In Progress</option>
+                                    <option value="resolved">Resolved</option>
+                                  </select>
+                                )}
+                                {ticket.status === "resolved" && (
+                                  <div className="flex gap-1 items-center">
+                                    <textarea
                                    placeholder={ticket.resolutionNotes || "Add resolution notes..."}
                                    defaultValue={ticket.resolutionNotes || ""}
                                    className="text-xs border border-border rounded px-2 py-1 bg-background text-foreground w-32 h-16 resize-none"
@@ -257,9 +271,20 @@ export default function DeveloperTicketsPage() {
                                        updateTicket(ticket.id, { resolutionNotes: value })
                                        setRefreshTrigger(prev => prev + 1)
                                      }
-                                   }}
-                                 />
-                               )}
+                                    }}
+                                  />
+                                    <button
+                                      onClick={() => {
+                                        console.log('Send button clicked for ticket', ticket.id);
+                                        notifyAdminsOfResolution(ticket.id, user!.id);
+                                      }}
+                                      className="text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 whitespace-nowrap cursor-pointer"
+                                      title="Send resolution notification to admin"
+                                    >
+                                      Send
+                                    </button>
+                                  </div>
+                                )}
                              </div>
                            </td>
                           <td className="px-6 py-4 whitespace-nowrap">
