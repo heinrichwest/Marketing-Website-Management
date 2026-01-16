@@ -50,37 +50,55 @@ export default function HomePage() {
                 coordination with team collaboration, real-time analytics, and intelligent ticketing.
               </p>
 
-               {/* CTA Buttons */}
-               <div className="flex gap-8 justify-center items-center flex-wrap mb-16">
-                 <Link
-                   to="/register"
-                   className="group relative bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-xl font-bold text-lg hover:shadow-2xl hover:shadow-primary/25 transition-all duration-300 transform hover:-translate-y-1 overflow-hidden min-w-[200px] text-center"
-                 >
-                   <span className="relative z-10 flex items-center justify-center gap-3">
-                     <span className="w-5 h-5 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
-                       <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                       </svg>
-                     </span>
-                     <span>Get Started</span>
-                   </span>
-                   <div className="absolute inset-0 bg-gradient-to-r from-accent/20 to-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                 </Link>
+                {/* CTA Buttons */}
+                <div className="flex gap-8 justify-center items-center flex-wrap mb-16">
+                  {isSignedIn ? (
+                    <Link
+                      to="/dashboard"
+                      className="group relative bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-xl font-bold text-lg hover:shadow-2xl hover:shadow-primary/25 transition-all duration-300 transform hover:-translate-y-1 overflow-hidden min-w-[200px] text-center"
+                    >
+                      <span className="relative z-10 flex items-center justify-center gap-3">
+                        <span className="w-5 h-5 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
+                          <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v0M8 5a2 2 0 012-2h4a2 2 0 012 2v0" />
+                          </svg>
+                        </span>
+                        <span>Go to Dashboard</span>
+                      </span>
+                      <div className="absolute inset-0 bg-gradient-to-r from-accent/20 to-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    </Link>
+                  ) : (
+                    <>
+                      <Link
+                        to="/register"
+                        className="group relative bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-xl font-bold text-lg hover:shadow-2xl hover:shadow-primary/25 transition-all duration-300 transform hover:-translate-y-1 overflow-hidden min-w-[200px] text-center"
+                      >
+                        <span className="relative z-10 flex items-center justify-center gap-3">
+                          <span className="w-5 h-5 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
+                            <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                            </svg>
+                          </span>
+                          <span>Get Started</span>
+                        </span>
+                        <div className="absolute inset-0 bg-gradient-to-r from-accent/20 to-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      </Link>
 
-                 <Link
-                   to="/login"
-                   className="group border-2 border-primary/30 text-primary px-8 py-4 rounded-xl font-bold text-lg hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 transform hover:-translate-y-1 min-w-[200px] text-center"
-                 >
-                   <span className="flex items-center justify-center gap-3">
-                     <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
-                     </svg>
-                     <span>Sign In</span>
-                   </span>
-                 </Link>
-
-
-               </div>
+                      <Link
+                        to="/login"
+                        className="group border-2 border-primary/30 text-primary px-8 py-4 rounded-xl font-bold text-lg hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 transform hover:-translate-y-1 min-w-[200px] text-center"
+                      >
+                        <span className="flex items-center justify-center gap-3">
+                          <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                          </svg>
+                          <span>Sign In</span>
+                        </span>
+                      </Link>
+                    </>
+                  )}
+                </div>
 
 
             </div>

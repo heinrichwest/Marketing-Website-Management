@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
-import { getProjects, getTickets, getUsers } from "@/lib/mock-data"
+import { getProjects, getTickets, getUsers, updateProject } from "@/lib/mock-data"
 import type { ProjectStage } from "@/types"
 import StatCard from "@/components/stat-card"
 import StatusBadge from "@/components/status-badge"
@@ -27,6 +27,8 @@ export default function AdminDashboard() {
   const [projects, setProjects] = useState(getProjects())
   const [tickets, setTickets] = useState(getTickets())
   const [users, setUsers] = useState(getUsers())
+  const [assigningDeveloper, setAssigningDeveloper] = useState<string | null>(null)
+  const [assigningCoordinator, setAssigningCoordinator] = useState<string | null>(null)
 
 
   useEffect(() => {
@@ -185,6 +187,18 @@ export default function AdminDashboard() {
   useEffect(() => {
     setShowBulkDelete(selectedProjects.length > 0)
   }, [selectedProjects])
+
+  const handleAssignDeveloper = (projectId: string, developerId: string) => {
+    updateProject(projectId, { webDeveloperId: developerId || undefined })
+    setAssigningDeveloper(null)
+    setRefreshKey(prev => prev + 1)
+  }
+
+  const handleAssignCoordinator = (projectId: string, coordinatorId: string) => {
+    updateProject(projectId, { socialMediaCoordinatorId: coordinatorId || undefined })
+    setAssigningCoordinator(null)
+    setRefreshKey(prev => prev + 1)
+  }
 
   // Chart data calculations
   const ticketStatusData = [
@@ -465,8 +479,9 @@ export default function AdminDashboard() {
                      <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">Status</th>
                      <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">Current Stage</th>
                      <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">Client</th>
-                     <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">Developer</th>
-                     <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">Tickets</th>
+                      <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">Developer</th>
+                      <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">Coordinator</th>
+                      <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">Tickets</th>
                      <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">Analytics</th>
                      <th className="px-4 py-3 text-left font-semibold">Actions</th>
                    </tr>
@@ -522,13 +537,65 @@ export default function AdminDashboard() {
                         </td>
                         <td className="px-4 py-3">
                           <div className="text-sm">
-                            {developer ? (
+                            {assigningDeveloper === project.id ? (
+                              <select
+                                value=""
+                                onChange={(e) => handleAssignDeveloper(project.id, e.target.value)}
+                                onBlur={() => setAssigningDeveloper(null)}
+                                className="w-full px-2 py-1 border border-border rounded bg-background text-foreground text-xs"
+                                autoFocus
+                              >
+                                <option value="">Select Developer...</option>
+                                {users.filter(u => u.role === "web_developer").map((dev) => (
+                                  <option key={dev.id} value={dev.id}>
+                                    {dev.fullName}
+                                  </option>
+                                ))}
+                              </select>
+                            ) : developer ? (
                               <>
                                 <div className="font-medium text-foreground">{developer.fullName}</div>
                                 <div className="text-xs text-muted-foreground">{developer.email}</div>
                               </>
                             ) : (
-                              <span className="text-xs text-muted-foreground italic">Not assigned</span>
+                              <button
+                                onClick={() => setAssigningDeveloper(project.id)}
+                                className="text-xs text-primary hover:underline italic"
+                              >
+                                Not assigned
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="text-sm">
+                            {assigningCoordinator === project.id ? (
+                              <select
+                                value=""
+                                onChange={(e) => handleAssignCoordinator(project.id, e.target.value)}
+                                onBlur={() => setAssigningCoordinator(null)}
+                                className="w-full px-2 py-1 border border-border rounded bg-background text-foreground text-xs"
+                                autoFocus
+                              >
+                                <option value="">Select Coordinator...</option>
+                                {users.filter(u => u.role === "social_media_coordinator").map((coord) => (
+                                  <option key={coord.id} value={coord.id}>
+                                    {coord.fullName}
+                                  </option>
+                                ))}
+                              </select>
+                            ) : coordinator ? (
+                              <>
+                                <div className="font-medium text-foreground">{coordinator.fullName}</div>
+                                <div className="text-xs text-muted-foreground">{coordinator.email}</div>
+                              </>
+                            ) : (
+                              <button
+                                onClick={() => setAssigningCoordinator(project.id)}
+                                className="text-xs text-primary hover:underline italic"
+                              >
+                                Not assigned
+                              </button>
                             )}
                           </div>
                         </td>
