@@ -43,15 +43,15 @@ export default function ProjectAnalyticsPage() {
 
   // Mock analytics data
   const analytics = {
-    pageViews: 12543,
-    uniqueVisitors: 8921,
+    pageViews: 88645,
+    uniqueVisitors: 37892,
     bounceRate: 42.3,
     avgSessionDuration: "3:24",
     topPages: [
-      { page: "/", views: 4521 },
-      { page: "/about", views: 3214 },
-      { page: "/services", views: 2890 },
-      { page: "/contact", views: 1988 },
+      { page: "index/", views: 88645 },
+      { page: "/learnershipApplication", views: 3214 },
+      { page: "/services SETA Qualication", views: 2890 },
+      { page: "/Skills programme", views: 405 },
     ],
     trafficSources: [
       { source: "Organic Search", sessions: 5234, percentage: 45.2 },
