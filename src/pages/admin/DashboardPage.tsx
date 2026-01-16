@@ -21,8 +21,7 @@ export default function AdminDashboard() {
   const [searchTerm, setSearchTerm] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const [isLoading, setIsLoading] = useState(true)
-  const [selectedProjects, setSelectedProjects] = useState<string[]>([])
-  const [showBulkDelete, setShowBulkDelete] = useState(false)
+
   const [refreshKey, setRefreshKey] = useState(0)
   const [projects, setProjects] = useState(getProjects())
   const [tickets, setTickets] = useState(getTickets())
@@ -152,41 +151,7 @@ export default function AdminDashboard() {
     }
   }
 
-  const handleSelectProject = (projectId: string, checked: boolean) => {
-    if (checked) {
-      setSelectedProjects(prev => [...prev, projectId])
-    } else {
-      setSelectedProjects(prev => prev.filter(id => id !== projectId))
-    }
-  }
 
-  const handleSelectAll = (checked: boolean) => {
-    if (checked) {
-      setSelectedProjects(paginatedProjects.map(p => p.id))
-    } else {
-      setSelectedProjects([])
-    }
-  }
-
-  const handleBulkDelete = () => {
-    if (selectedProjects.length === 0) return
-
-    if (window.confirm(`Are you sure you want to delete ${selectedProjects.length} selected project(s)? This action cannot be undone.`)) {
-      // Remove from localStorage
-      const projects = JSON.parse(localStorage.getItem("marketing_management_website_projects") || "[]")
-      const updatedProjects = projects.filter((p: any) => !selectedProjects.includes(p.id))
-      localStorage.setItem("marketing_management_website_projects", JSON.stringify(updatedProjects))
-
-      // Clear selection and refresh
-      setSelectedProjects([])
-      window.location.reload()
-    }
-  }
-
-  // Update showBulkDelete when selection changes
-  useEffect(() => {
-    setShowBulkDelete(selectedProjects.length > 0)
-  }, [selectedProjects])
 
   const handleAssignDeveloper = (projectId: string, developerId: string) => {
     updateProject(projectId, { webDeveloperId: developerId || undefined })
@@ -431,8 +396,8 @@ export default function AdminDashboard() {
           </div>
 
            {/* All Projects Table */}
-           <div className="card mb-8">
-             <div className="flex items-center justify-between mb-6">
+            <div className="card mb-8 w-full">
+              <div className="flex items-center justify-between mb-6">
                <h2 className="text-2xl font-bold text-foreground">All Projects ({filteredProjects.length})</h2>
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
@@ -462,28 +427,34 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            <div className="overflow-x-auto">
-              <table key={`${pageSize}-${currentPage}`} className="w-full border-collapse">
+             <div className="overflow-x-auto w-full">
+               <table key={`${pageSize}-${currentPage}`} className="w-full border-collapse min-w-full">
                 <thead>
                    <tr className="bg-gradient-to-r from-primary to-accent text-primary-foreground">
-                     <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">
-                       <input
-                         type="checkbox"
-                         checked={selectedProjects.length === paginatedProjects.length && paginatedProjects.length > 0}
-                         onChange={(e) => handleSelectAll(e.target.checked)}
-                         className="rounded border-accent/30 bg-primary-foreground/20 text-primary focus:ring-accent"
-                       />
-                     </th>
-                     <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">#</th>
-                     <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">Project Name</th>
-                     <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">Status</th>
-                     <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">Current Stage</th>
-                     <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">Client</th>
-                      <th className="px-4 py-3 text-left font-semibold border-r border-accent/30" title="Web Developer - handles website development and technical tickets">Developer</th>
-                      <th className="px-4 py-3 text-left font-semibold border-r border-accent/30" title="Social Media Coordinator - handles social media and content tickets">Coordinator</th>
-                      <th className="px-4 py-3 text-left font-semibold border-r border-accent/30" title="Total tickets in this project">Tickets</th>
-                     <th className="px-4 py-3 text-left font-semibold border-r border-accent/30">Analytics</th>
-                     <th className="px-4 py-3 text-left font-semibold">Actions</th>
+                      <th className="px-3 py-3 text-left font-semibold border-r border-accent/30 w-12">#</th>
+                      <th className="px-4 py-3 text-left font-semibold border-r border-accent/30 min-w-48">Project Name</th>
+                      <th className="px-3 py-3 text-left font-semibold border-r border-accent/30 w-20">Status</th>
+                      <th className="px-3 py-3 text-left font-semibold border-r border-accent/30 w-24">Current Stage</th>
+                      <th className="px-4 py-3 text-left font-semibold border-r border-accent/30 min-w-40">Client</th>
+                       <th className="px-4 py-3 text-left font-semibold border-r border-accent/30 min-w-40" title="Web Developer - handles website development and technical tickets">
+                        <div className="flex items-center gap-2">
+                          <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                          </svg>
+                          <span>Developer</span>
+                        </div>
+                      </th>
+                      <th className="px-4 py-3 text-left font-semibold border-r border-accent/30 min-w-40" title="Social Media Coordinator - handles social media and content tickets">
+                        <div className="flex items-center gap-2">
+                          <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2M7 4H5a2 2 0 00-2 2v10a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2h-2M7 4h10M9 9h6m-6 4h6m2 5H7m8 0h2" />
+                          </svg>
+                          <span>Coordinator</span>
+                        </div>
+                      </th>
+                      <th className="px-3 py-3 text-left font-semibold border-r border-accent/30 w-20" title="Total tickets in this project">Tickets</th>
+                      <th className="px-3 py-3 text-left font-semibold border-r border-accent/30 w-20">Analytics</th>
+                      <th className="px-3 py-3 text-left font-semibold w-24">Actions</th>
                    </tr>
                 </thead>
                  <tbody key={`${pageSize}-${currentPage}`}>
@@ -500,31 +471,23 @@ export default function AdminDashboard() {
                              index % 2 === 0 ? "bg-background" : "bg-muted/30"
                            } hover:bg-secondary/10 transition border-b border-border`}
                         >
-                          <td className="px-4 py-3">
-                            <input
-                              type="checkbox"
-                              checked={selectedProjects.includes(project.id)}
-                              onChange={(e) => handleSelectProject(project.id, e.target.checked)}
-                              className="rounded border-border focus:ring-primary"
-                            />
-                          </td>
-                          <td className="px-4 py-3 text-sm">{startIndex + index + 1}</td>
-                        <td className="px-4 py-3">
-                          <div>
-                            <div className="font-semibold text-foreground">{project.name}</div>
-                            <div className="text-xs text-muted-foreground">{project.description}</div>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <StatusBadge status={project.status} />
-                        </td>
-                        <td className="px-4 py-3">
+                           <td className="px-3 py-3 text-sm w-12">{startIndex + index + 1}</td>
+                         <td className="px-4 py-3 min-w-48">
+                           <div>
+                             <div className="font-semibold text-foreground">{project.name}</div>
+                             <div className="text-xs text-muted-foreground">{project.description}</div>
+                           </div>
+                         </td>
+                         <td className="px-3 py-3 w-20">
+                           <StatusBadge status={project.status} />
+                         </td>
+                         <td className="px-3 py-3 w-24">
                               <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-accent/10 text-accent border border-accent/20">
                             {getStageDisplayName(project.currentStage)}
                           </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="text-sm">
+                         </td>
+                         <td className="px-4 py-3 min-w-40">
+                           <div className="text-sm">
                             {client ? (
                               <>
                                 <div className="font-medium text-foreground">{client.fullName}</div>
@@ -534,9 +497,9 @@ export default function AdminDashboard() {
                               <span className="text-xs text-muted-foreground italic">Not assigned</span>
                             )}
                           </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="text-sm">
+                         </td>
+                         <td className="px-4 py-3 min-w-40">
+                           <div className="text-sm">
                             {assigningDeveloper === project.id ? (
                               <select
                                 value=""
@@ -545,7 +508,7 @@ export default function AdminDashboard() {
                                 className="w-full px-2 py-1 border border-border rounded bg-background text-foreground text-xs"
                                 autoFocus
                               >
-                                <option value="">Select Web Developer...</option>
+                                <option value="">👨‍💻 Select Web Developer...</option>
                                 {users.filter(u => u.role === "web_developer").map((dev) => (
                                   <option key={dev.id} value={dev.id}>
                                     {dev.fullName} (Developer)
@@ -554,7 +517,12 @@ export default function AdminDashboard() {
                               </select>
                             ) : developer ? (
                               <>
-                                <div className="font-medium text-foreground">{developer.fullName}</div>
+                                <div className="font-medium text-foreground flex items-center gap-2">
+                                  <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                  </svg>
+                                  {developer.fullName}
+                                </div>
                                 <div className="text-xs text-muted-foreground">{developer.email}</div>
                               </>
                             ) : (
@@ -567,9 +535,9 @@ export default function AdminDashboard() {
                               </button>
                             )}
                           </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="text-sm">
+                         </td>
+                         <td className="px-4 py-3 min-w-40">
+                           <div className="text-sm">
                             {assigningCoordinator === project.id ? (
                               <select
                                 value=""
@@ -587,7 +555,12 @@ export default function AdminDashboard() {
                               </select>
                             ) : coordinator ? (
                               <>
-                                <div className="font-medium text-foreground">{coordinator.fullName}</div>
+                                <div className="font-medium text-foreground flex items-center gap-2">
+                                  <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2M7 4H5a2 2 0 00-2 2v10a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2h-2M7 4h10M9 9h6m-6 4h6m2 5H7m8 0h2" />
+                                  </svg>
+                                  {coordinator.fullName}
+                                </div>
                                 <div className="text-xs text-muted-foreground">{coordinator.email}</div>
                               </>
                             ) : (
@@ -601,7 +574,7 @@ export default function AdminDashboard() {
                             )}
                           </div>
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-3 py-3 w-20">
                           <div className="flex items-center gap-2">
                              <span
                                className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-semibold text-sm"
@@ -618,8 +591,8 @@ export default function AdminDashboard() {
                              </Link>
                           </div>
                         </td>
-                        <td className="px-4 py-3">
-                           <Link
+                         <td className="px-3 py-3 w-20">
+                            <Link
                              to={`/admin/analytics/${project.id}`}
                               className="inline-flex items-center gap-1 px-3 py-1.5 bg-accent text-accent-foreground rounded text-xs font-medium hover:bg-accent/80 transition"
                            >
@@ -634,8 +607,8 @@ export default function AdminDashboard() {
                              Analytics
                            </Link>
                         </td>
-                         <td className="px-4 py-3">
-                           <div className="flex items-center gap-2">
+                          <td className="px-3 py-3 w-24">
+                            <div className="flex items-center gap-2">
                               <Link
                                 to={`/admin/projects/${project.id}/edit`}
                                 className="p-2 text-primary hover:bg-primary/10 rounded transition-colors"
@@ -663,35 +636,7 @@ export default function AdminDashboard() {
                </table>
               </div>
 
-              {/* Bulk Delete Section */}
-              {showBulkDelete && (
-                <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                      </svg>
-                      <span className="text-sm font-medium text-red-800">
-                        {selectedProjects.length} project{selectedProjects.length > 1 ? 's' : ''} selected
-                      </span>
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => setSelectedProjects([])}
-                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        onClick={handleBulkDelete}
-                        className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                      >
-                        Delete Selected
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
+
 
               {/* Pagination */}
              {totalPages > 1 && (
