@@ -16,6 +16,7 @@ export default function DeveloperTicketsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [tickets, setTickets] = useState<any[]>([])
   const [refreshTrigger, setRefreshTrigger] = useState(0)
+  const [sentMessages, setSentMessages] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     if (!isSignedIn) {
@@ -270,11 +271,13 @@ export default function DeveloperTicketsPage() {
                                       onClick={() => {
                                         console.log('Send button clicked for ticket', ticket.id);
                                         notifyAdminsOfResolution(ticket.id, user!.id);
+                                        setSentMessages(prev => new Set([...prev, ticket.id]));
                                       }}
                                       className="text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 whitespace-nowrap cursor-pointer"
                                       title="Send resolution notification to admin"
+                                      disabled={sentMessages.has(ticket.id)}
                                     >
-                                      Send
+                                      {sentMessages.has(ticket.id) ? "Sent!" : "Send"}
                                     </button>
                                   </div>
                                 )}

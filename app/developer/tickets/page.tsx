@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
-import { getTicketsByUserId, getProjectById, updateTicket, notifyAdminsOfResolution, notifyAdmins } from "@/lib/mock-data"
+import { getTicketsByUserId, getProjectById, updateTicket, notifyAdminsOfResolution } from "@/lib/mock-data"
 import StatusBadge from "@/components/status-badge"
 import PriorityBadge from "@/components/priority-badge"
 import { formatRelativeTime } from "@/lib/utils"
@@ -33,6 +33,7 @@ export default function DeveloperTicketsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [tickets, setTickets] = useState<any[]>([])
   const [refreshTrigger, setRefreshTrigger] = useState(0)
+  const [sentMessages, setSentMessages] = useState<Set<string>>(new Set())
 
   const fetchTickets = () => {
     if (user) {
@@ -246,7 +247,7 @@ export default function DeveloperTicketsPage() {
                                   <option value="closed">Closed</option>
                                 </select>
                                 <button
-                                  onClick={() => notifyAdmins(ticket.id, user!.id, "Ticket Update", `Please review ticket "${ticket.title}".`)}
+                                  onClick={() => notifyAdminsOfResolution(ticket.id, user!.id)}
                                   className="text-sm bg-red-500 text-white px-3 py-2 rounded font-semibold hover:bg-red-600 shadow-md"
                                 >
                                   Message Admin
@@ -266,11 +267,15 @@ export default function DeveloperTicketsPage() {
                                       }}
                                     />
                                     <button
-                                      onClick={() => notifyAdminsOfResolution(ticket.id, user!.id)}
+                                      onClick={() => {
+                                        notifyAdminsOfResolution(ticket.id, user!.id);
+                                        setSentMessages(prev => new Set([...prev, ticket.id]));
+                                      }}
                                       className="text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 whitespace-nowrap"
                                       title="Send resolution notification to admin"
+                                      disabled={sentMessages.has(ticket.id)}
                                     >
-                                      Send
+                                      {sentMessages.has(ticket.id) ? "Sent!" : "Send"}
                                     </button>
                                   </div>
                                 )}
@@ -303,7 +308,7 @@ export default function DeveloperTicketsPage() {
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <button
-                                onClick={() => notifyAdmins(ticket.id, user!.id, "Ticket Update", `Please review ticket "${ticket.title}".`)}
+                                onClick={() => notifyAdminsOfResolution(ticket.id, user!.id)}
                                 className="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
                               >
                                 Message Admin
