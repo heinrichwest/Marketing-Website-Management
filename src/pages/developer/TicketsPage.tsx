@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
-import { getTicketsByUserId, getProjectById, updateTicket, notifyAdminsOfResolution, notifyAdmins } from "@/lib/mock-data"
+import { getTicketsByUserId, getProjectById, updateTicket, notifyAdminsOfResolution } from "@/lib/mock-data"
 import StatusBadge from "@/components/status-badge"
 import PriorityBadge from "@/components/priority-badge"
 import { formatRelativeTime } from "@/lib/utils"
@@ -12,6 +12,10 @@ import type { Ticket } from "@/types"
 export default function DeveloperTicketsPage() {
   const { isSignedIn, user } = useAuth()
   const navigate = useNavigate()
+  const [filter, setFilter] = useState<"all" | "open" | "in_progress" | "resolved" | "closed">("all")
+  const [searchTerm, setSearchTerm] = useState("")
+  const [tickets, setTickets] = useState<any[]>([])
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
 
   useEffect(() => {
     if (!isSignedIn) {
@@ -28,11 +32,6 @@ export default function DeveloperTicketsPage() {
       </div>
     )
   }
-
-  const [filter, setFilter] = useState<"all" | "open" | "in_progress" | "resolved" | "closed">("all")
-  const [searchTerm, setSearchTerm] = useState("")
-  const [tickets, setTickets] = useState<any[]>([])
-  const [refreshTrigger, setRefreshTrigger] = useState(0)
 
   const fetchTickets = () => {
     if (user) {

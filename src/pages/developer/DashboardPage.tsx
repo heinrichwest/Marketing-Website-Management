@@ -15,33 +15,33 @@ export default function DeveloperDashboard() {
    const [refreshKey, setRefreshKey] = useState(0)
    const [updatingTicket, setUpdatingTicket] = useState<string | null>(null)
 
-   useEffect(() => {
-     if (!isSignedIn) {
-       navigate("/login")
-     } else if (user?.role !== "web_developer") {
-       navigate("/dashboard")
-     }
-   }, [isSignedIn, user, navigate])
+    useEffect(() => {
+      if (!isSignedIn) {
+        navigate("/login")
+      } else if (user?.role !== "web_developer") {
+        navigate("/dashboard")
+      }
+    }, [isSignedIn, user, navigate])
 
-   // Refresh when tickets are updated
-   useEffect(() => {
-     const handleTicketsUpdated = () => setRefreshKey(prev => prev + 1)
-     window.addEventListener('ticketsUpdated', handleTicketsUpdated)
-     return () => window.removeEventListener('ticketsUpdated', handleTicketsUpdated)
-   }, [])
+    // Refresh when tickets are updated
+    useEffect(() => {
+      const handleTicketsUpdated = () => setRefreshKey(prev => prev + 1)
+      window.addEventListener('ticketsUpdated', handleTicketsUpdated)
+      return () => window.removeEventListener('ticketsUpdated', handleTicketsUpdated)
+    }, [])
 
-  if (!user || user.role !== "web_developer") {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-muted">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    )
-  }
+    // Refresh data when refreshKey changes
+    useEffect(() => {
+      // Force re-evaluation of data
+    }, [refreshKey])
 
-   // Refresh data when refreshKey changes
-   useEffect(() => {
-     // Force re-evaluation of data
-   }, [refreshKey])
+   if (!user || user.role !== "web_developer") {
+     return (
+       <div className="min-h-screen flex items-center justify-center bg-muted">
+         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+       </div>
+     )
+   }
 
    const myProjects = getProjectsByUserId(user.id, user.role)
    const myTickets = getTicketsByUserId(user.id, user.role)
