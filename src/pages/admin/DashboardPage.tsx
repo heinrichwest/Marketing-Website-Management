@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
-import { getProjects, getTickets, getUsers, updateProject } from "@/lib/mock-data"
+import { getProjects, getTickets, getUsers } from "@/lib/mock-data"
 import type { ProjectStage } from "@/types"
 import StatCard from "@/components/stat-card"
 import StatusBadge from "@/components/status-badge"
@@ -26,8 +26,7 @@ export default function AdminDashboard() {
   const [projects, setProjects] = useState(getProjects())
   const [tickets, setTickets] = useState(getTickets())
   const [users, setUsers] = useState(getUsers())
-  const [assigningDeveloper, setAssigningDeveloper] = useState<string | null>(null)
-  const [assigningCoordinator, setAssigningCoordinator] = useState<string | null>(null)
+
 
 
   useEffect(() => {
@@ -153,17 +152,7 @@ export default function AdminDashboard() {
 
 
 
-  const handleAssignDeveloper = (projectId: string, developerId: string) => {
-    updateProject(projectId, { webDeveloperId: developerId || undefined })
-    setAssigningDeveloper(null)
-    setRefreshKey(prev => prev + 1)
-  }
 
-  const handleAssignCoordinator = (projectId: string, coordinatorId: string) => {
-    updateProject(projectId, { socialMediaCoordinatorId: coordinatorId || undefined })
-    setAssigningCoordinator(null)
-    setRefreshKey(prev => prev + 1)
-  }
 
   // Chart data calculations
   const ticketStatusData = [
@@ -432,26 +421,11 @@ export default function AdminDashboard() {
                 <thead>
                    <tr className="bg-gradient-to-r from-primary to-accent text-primary-foreground">
                       <th className="px-3 py-3 text-left font-semibold border-r border-accent/30 w-12">#</th>
-                      <th className="px-4 py-3 text-left font-semibold border-r border-accent/30 min-w-48">Project Name</th>
-                      <th className="px-3 py-3 text-left font-semibold border-r border-accent/30 w-20">Status</th>
-                      <th className="px-3 py-3 text-left font-semibold border-r border-accent/30 w-24">Current Stage</th>
+                       <th className="px-4 py-3 text-left font-semibold border-r border-accent/30 min-w-64">Project Name</th>
+                       <th className="px-3 py-3 text-left font-semibold border-r border-accent/30 w-28">Status</th>
+                       <th className="px-3 py-3 text-left font-semibold border-r border-accent/30 w-36">Current Stage</th>
                       <th className="px-4 py-3 text-left font-semibold border-r border-accent/30 min-w-40">Client</th>
-                       <th className="px-4 py-3 text-left font-semibold border-r border-accent/30 min-w-40" title="Web Developer - handles website development and technical tickets">
-                        <div className="flex items-center gap-2">
-                          <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                          </svg>
-                          <span>Developer</span>
-                        </div>
-                      </th>
-                      <th className="px-4 py-3 text-left font-semibold border-r border-accent/30 min-w-40" title="Social Media Coordinator - handles social media and content tickets">
-                        <div className="flex items-center gap-2">
-                          <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2M7 4H5a2 2 0 00-2 2v10a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2h-2M7 4h10M9 9h6m-6 4h6m2 5H7m8 0h2" />
-                          </svg>
-                          <span>Coordinator</span>
-                        </div>
-                      </th>
+
                       <th className="px-3 py-3 text-left font-semibold border-r border-accent/30 w-20" title="Total tickets in this project">Tickets</th>
                       <th className="px-3 py-3 text-left font-semibold border-r border-accent/30 w-20">Analytics</th>
                       <th className="px-3 py-3 text-left font-semibold w-24">Actions</th>
@@ -460,8 +434,7 @@ export default function AdminDashboard() {
                  <tbody key={`${pageSize}-${currentPage}`}>
                    {paginatedProjects.map((project, index) => {
                      const client = users.find((u) => u.id === project.clientId)
-                     const developer = users.find((u) => u.id === project.webDeveloperId)
-                     const coordinator = users.find((u) => u.id === project.socialMediaCoordinatorId)
+
                      const ticketCount = getProjectTicketCount(project.id)
 
                      return (
@@ -472,20 +445,20 @@ export default function AdminDashboard() {
                            } hover:bg-secondary/10 transition border-b border-border`}
                         >
                            <td className="px-3 py-3 text-sm w-12">{startIndex + index + 1}</td>
-                         <td className="px-4 py-3 min-w-48">
-                           <div>
-                             <div className="font-semibold text-foreground">{project.name}</div>
-                             <div className="text-xs text-muted-foreground">{project.description}</div>
-                           </div>
-                         </td>
-                         <td className="px-3 py-3 w-20">
-                           <StatusBadge status={project.status} />
-                         </td>
-                         <td className="px-3 py-3 w-24">
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-accent/10 text-accent border border-accent/20">
-                            {getStageDisplayName(project.currentStage)}
-                          </span>
-                         </td>
+                          <td className="px-4 py-3 min-w-64">
+                            <div>
+                              <div className="font-semibold text-foreground">{project.name}</div>
+                              <div className="text-xs text-muted-foreground">{project.description}</div>
+                            </div>
+                          </td>
+                          <td className="px-3 py-3 w-28">
+                            <StatusBadge status={project.status} />
+                          </td>
+                          <td className="px-3 py-3 w-36">
+                               <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-accent/10 text-accent border border-accent/20">
+                             {getStageDisplayName(project.currentStage)}
+                           </span>
+                          </td>
                          <td className="px-4 py-3 min-w-40">
                            <div className="text-sm">
                             {client ? (
@@ -498,82 +471,7 @@ export default function AdminDashboard() {
                             )}
                           </div>
                          </td>
-                         <td className="px-4 py-3 min-w-40">
-                           <div className="text-sm">
-                            {assigningDeveloper === project.id ? (
-                              <select
-                                value=""
-                                onChange={(e) => handleAssignDeveloper(project.id, e.target.value)}
-                                onBlur={() => setAssigningDeveloper(null)}
-                                className="w-full px-2 py-1 border border-border rounded bg-background text-foreground text-xs"
-                                autoFocus
-                              >
-                                <option value="">👨‍💻 Select Web Developer...</option>
-                                {users.filter(u => u.role === "web_developer").map((dev) => (
-                                  <option key={dev.id} value={dev.id}>
-                                    {dev.fullName} (Developer)
-                                  </option>
-                                ))}
-                              </select>
-                            ) : developer ? (
-                              <>
-                                <div className="font-medium text-foreground flex items-center gap-2">
-                                  <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                                  </svg>
-                                  {developer.fullName}
-                                </div>
-                                <div className="text-xs text-muted-foreground">{developer.email}</div>
-                              </>
-                            ) : (
-                              <button
-                                onClick={() => setAssigningDeveloper(project.id)}
-                                className="text-xs text-primary hover:underline italic cursor-pointer"
-                                title="Assign a web developer to handle technical tickets"
-                              >
-                                Not assigned
-                              </button>
-                            )}
-                          </div>
-                         </td>
-                         <td className="px-4 py-3 min-w-40">
-                           <div className="text-sm">
-                            {assigningCoordinator === project.id ? (
-                              <select
-                                value=""
-                                onChange={(e) => handleAssignCoordinator(project.id, e.target.value)}
-                                onBlur={() => setAssigningCoordinator(null)}
-                                className="w-full px-2 py-1 border border-border rounded bg-background text-foreground text-xs"
-                                autoFocus
-                              >
-                                <option value="">Select Social Media Coordinator...</option>
-                                {users.filter(u => u.role === "social_media_coordinator").map((coord) => (
-                                  <option key={coord.id} value={coord.id}>
-                                    {coord.fullName} (Coordinator)
-                                  </option>
-                                ))}
-                              </select>
-                            ) : coordinator ? (
-                              <>
-                                <div className="font-medium text-foreground flex items-center gap-2">
-                                  <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2M7 4H5a2 2 0 00-2 2v10a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2h-2M7 4h10M9 9h6m-6 4h6m2 5H7m8 0h2" />
-                                  </svg>
-                                  {coordinator.fullName}
-                                </div>
-                                <div className="text-xs text-muted-foreground">{coordinator.email}</div>
-                              </>
-                            ) : (
-                              <button
-                                onClick={() => setAssigningCoordinator(project.id)}
-                                className="text-xs text-primary hover:underline italic cursor-pointer"
-                                title="Assign a social media coordinator to handle content tickets"
-                              >
-                                Not assigned
-                              </button>
-                            )}
-                          </div>
-                        </td>
+
                         <td className="px-3 py-3 w-20">
                           <div className="flex items-center gap-2">
                              <span

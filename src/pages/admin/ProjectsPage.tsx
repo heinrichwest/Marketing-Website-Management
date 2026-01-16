@@ -135,11 +135,11 @@ export default function AdminProjectsPage() {
                 <thead>
                    <tr className="bg-primary text-primary-foreground">
                      <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">#</th>
-                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Project Name</th>
-                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Status</th>
-                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Current Stage</th>
+                       <th className="px-4 py-3 text-left font-semibold border-r border-primary/50 min-w-80">Project Name</th>
+                       <th className="px-4 py-3 text-left font-semibold border-r border-primary/50 w-32">Status</th>
+                       <th className="px-4 py-3 text-left font-semibold border-r border-primary/50 w-40">Current Stage</th>
                      <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Client</th>
-                     <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Developer</th>
+
                      <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Tickets</th>
                      <th className="px-4 py-3 text-left font-semibold border-r border-primary/50">Analytics</th>
                      <th className="px-4 py-3 text-left font-semibold">Actions</th>
@@ -148,8 +148,7 @@ export default function AdminProjectsPage() {
                 <tbody>
                   {paginatedProjects.map((project: Project, index: number) => {
                     const client = users.find((u) => u.id === project.clientId)
-                    const developer = users.find((u) => u.id === project.webDeveloperId)
-                    const coordinator = users.find((u) => u.id === project.socialMediaCoordinatorId)
+
                     const ticketCount = getProjectTicketCount(project.id)
 
                     return (
@@ -160,20 +159,20 @@ export default function AdminProjectsPage() {
                         } hover:bg-secondary/10 transition border-b border-border`}
                       >
                         <td className="px-4 py-3 text-sm">{startIndex + index + 1}</td>
-                        <td className="px-4 py-3">
-                          <div>
-                            <div className="font-semibold text-foreground">{project.name}</div>
-                            <div className="text-xs text-muted-foreground">{project.description}</div>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <StatusBadge status={project.status} />
-                        </td>
-                        <td className="px-4 py-3">
-                           <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary">
-                            {getStageDisplayName(project.currentStage)}
-                          </span>
-                        </td>
+                         <td className="px-4 py-3 min-w-80">
+                           <div>
+                             <div className="font-semibold text-foreground">{project.name}</div>
+                             <div className="text-xs text-muted-foreground">{project.description}</div>
+                           </div>
+                         </td>
+                         <td className="px-4 py-3 w-32">
+                           <StatusBadge status={project.status} />
+                         </td>
+                         <td className="px-4 py-3 w-40">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary">
+                             {getStageDisplayName(project.currentStage)}
+                           </span>
+                         </td>
                         <td className="px-4 py-3">
                           <div className="text-sm">
                             {client ? (
@@ -186,18 +185,7 @@ export default function AdminProjectsPage() {
                             )}
                           </div>
                         </td>
-                        <td className="px-4 py-3">
-                          <div className="text-sm">
-                            {developer ? (
-                              <>
-                                <div className="font-medium text-foreground">{developer.fullName}</div>
-                                <div className="text-xs text-muted-foreground">{developer.email}</div>
-                              </>
-                            ) : (
-                              <span className="text-xs text-muted-foreground italic">Not assigned</span>
-                            )}
-                          </div>
-                        </td>
+
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
                              <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-semibold text-sm">
