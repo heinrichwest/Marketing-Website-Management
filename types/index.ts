@@ -22,7 +22,7 @@ export interface User {
 export type ProjectType = "website" | "social_media"
 export type ProjectStage = "planning" | "design" | "development" | "testing" | "seo_optimization" | "launch" | "maintenance"
 export type ProjectStatus = "active" | "paused" | "completed"
-export type ProductType = "Learnerships" | "Academy" | "Trouidees" | "Venueideas"
+export type ProductType = "Learnerships" | "Academy" | "Trouidees" | "Venueideas" | "Employment Equity Act"
 
 export interface Project {
   id: string
