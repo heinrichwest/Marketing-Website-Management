@@ -24,28 +24,40 @@ export default function EditProjectPage() {
         name: projectData.name,
         description: projectData.description,
         websiteUrl: projectData.websiteUrl || "",
-        googleAnalyticsPropertyId: projectData.googleAnalyticsPropertyId || "",
-        googleAnalyticsViewId: projectData.googleAnalyticsViewId || "",
         clientId: projectData.clientId,
         webDeveloperId: projectData.webDeveloperId || "",
         socialMediaCoordinatorId: projectData.socialMediaCoordinatorId || "",
         currentStage: projectData.currentStage,
         status: projectData.status,
         notes: projectData.notes || "",
+        projectDate: projectData.projectDate ? new Date(projectData.projectDate).toISOString().split('T')[0] : "",
+        product: projectData.product || "",
+        socialMediaPlatforms: projectData.socialMediaPlatforms || [],
+        posts: projectData.posts || 0,
+        likes: projectData.likes || 0,
+        impressions: projectData.impressions || 0,
+        reach: projectData.reach || 0,
+        engagement: projectData.engagement || 0,
       }
     }
     return {
       name: "",
       description: "",
       websiteUrl: "",
-      googleAnalyticsPropertyId: "",
-      googleAnalyticsViewId: "",
       clientId: "",
       webDeveloperId: "",
       socialMediaCoordinatorId: "",
       currentStage: "planning" as ProjectStage,
       status: "active" as ProjectStatus,
       notes: "",
+      projectDate: "",
+      product: "",
+      socialMediaPlatforms: [],
+      posts: 0,
+      likes: 0,
+      impressions: 0,
+      reach: 0,
+      engagement: 0,
     }
   })
 
@@ -80,19 +92,68 @@ export default function EditProjectPage() {
         ...formData,
         webDeveloperId: formData.webDeveloperId || undefined,
         socialMediaCoordinatorId: formData.socialMediaCoordinatorId || undefined,
+        projectDate: formData.projectDate ? new Date(formData.projectDate) : undefined,
+        product: formData.product || undefined,
+        socialMediaPlatforms: formData.socialMediaPlatforms,
+        posts: Number(formData.posts),
+        likes: Number(formData.likes),
+        impressions: Number(formData.impressions),
+        reach: Number(formData.reach),
+        engagement: Number(formData.engagement),
         updatedAt: new Date(),
       }
 
       localStorage.setItem("marketing_management_website_projects", JSON.stringify(projects))
 
       alert("Project updated successfully!")
-      navigate("/admin/dashboard")
+
+      // Navigate back to the appropriate page based on project type
+      if (projects[projectIndex].projectType === "social_media") {
+        navigate("/admin/projects/social-media")
+      } else if (projects[projectIndex].projectType === "website") {
+        navigate("/admin/projects/website")
+      } else {
+        navigate("/admin/dashboard")
+      }
     }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handlePlatformChange = (platform: string) => {
+    setFormData((prev) => {
+      const platforms = prev.socialMediaPlatforms as string[]
+      if (platforms.includes(platform)) {
+        return { ...prev, socialMediaPlatforms: platforms.filter(p => p !== platform) }
+      } else {
+        return { ...prev, socialMediaPlatforms: [...platforms, platform] }
+      }
+    })
+  }
+
+  const [customPlatform, setCustomPlatform] = useState("")
+
+  const handleAddCustomPlatform = () => {
+    if (customPlatform.trim()) {
+      const platforms = formData.socialMediaPlatforms as string[]
+      if (!platforms.includes(customPlatform.trim())) {
+        setFormData((prev) => ({
+          ...prev,
+          socialMediaPlatforms: [...platforms, customPlatform.trim()]
+        }))
+      }
+      setCustomPlatform("")
+    }
+  }
+
+  const handleRemovePlatform = (platform: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      socialMediaPlatforms: (prev.socialMediaPlatforms as string[]).filter(p => p !== platform)
+    }))
   }
 
   if (!project) {
@@ -166,16 +227,55 @@ export default function EditProjectPage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">Website URL</label>
+                      <label className="block text-sm font-medium text-foreground mb-2">
+                        Project Date
+                      </label>
                       <input
-                        type="url"
-                        name="websiteUrl"
-                        value={formData.websiteUrl}
+                        type="date"
+                        name="projectDate"
+                        value={formData.projectDate}
                         onChange={handleChange}
-                        placeholder="https://example.com"
                         className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground"
                       />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        The date of the project (defaults to creation date if not set)
+                      </p>
                     </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-2">
+                        Product
+                      </label>
+                      <select
+                        name="product"
+                        value={formData.product}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground"
+                      >
+                        <option value="">Select a product</option>
+                        <option value="Learnerships">Learnerships</option>
+                        <option value="Academy">Academy</option>
+                        <option value="Trouidees">Trouidees</option>
+                        <option value="Venueideas">Venueideas</option>
+                      </select>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Select the product type for this project
+                      </p>
+                    </div>
+
+                    {project.projectType === "website" && (
+                      <div>
+                        <label className="block text-sm font-medium text-foreground mb-2">Website URL</label>
+                        <input
+                          type="url"
+                          name="websiteUrl"
+                          value={formData.websiteUrl}
+                          onChange={handleChange}
+                          placeholder="https://example.com"
+                          className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground"
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -247,6 +347,161 @@ export default function EditProjectPage() {
                   </div>
                 </div>
 
+                {/* Social Media Platforms & Metrics - Only for social_media projects */}
+                {project.projectType === "social_media" && (
+                  <div className="pt-6 border-t border-border">
+                    <h2 className="text-xl font-bold text-foreground mb-4">Social Media Platforms</h2>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-foreground mb-3">
+                          Select Platforms
+                        </label>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+                          {["Facebook", "Instagram", "Twitter", "LinkedIn", "TikTok", "YouTube", "Pinterest", "Snapchat"].map((platform) => (
+                            <label key={platform} className="flex items-center gap-2 p-3 border border-border rounded-lg hover:bg-muted cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={(formData.socialMediaPlatforms as string[]).includes(platform)}
+                                onChange={() => handlePlatformChange(platform)}
+                                className="w-4 h-4 text-primary"
+                              />
+                              <span className="text-sm font-medium text-foreground">{platform}</span>
+                            </label>
+                          ))}
+                        </div>
+
+                        {/* Add Custom Platform */}
+                        <div className="mb-4">
+                          <label className="block text-sm font-medium text-foreground mb-2">
+                            Add Custom Platform
+                          </label>
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              value={customPlatform}
+                              onChange={(e) => setCustomPlatform(e.target.value)}
+                              onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddCustomPlatform())}
+                              placeholder="Enter platform name (e.g., Threads, WhatsApp)"
+                              className="flex-1 px-4 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                            />
+                            <button
+                              type="button"
+                              onClick={handleAddCustomPlatform}
+                              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium"
+                            >
+                              Add
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Selected Platforms */}
+                        {(formData.socialMediaPlatforms as string[]).length > 0 && (
+                          <div>
+                            <label className="block text-sm font-medium text-foreground mb-2">
+                              Selected Platforms
+                            </label>
+                            <div className="flex flex-wrap gap-2">
+                              {(formData.socialMediaPlatforms as string[]).map((platform) => (
+                                <span
+                                  key={platform}
+                                  className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-sm font-medium"
+                                >
+                                  {platform}
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRemovePlatform(platform)}
+                                    className="hover:text-red-600 transition-colors"
+                                    aria-label={`Remove ${platform}`}
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                  </button>
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="pt-4">
+                        <h3 className="text-lg font-semibold text-foreground mb-4">Social Media Metrics</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-foreground mb-2">
+                              Posts
+                            </label>
+                            <input
+                              type="number"
+                              name="posts"
+                              value={formData.posts}
+                              onChange={handleChange}
+                              min="0"
+                              className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-foreground mb-2">
+                              Likes
+                            </label>
+                            <input
+                              type="number"
+                              name="likes"
+                              value={formData.likes}
+                              onChange={handleChange}
+                              min="0"
+                              className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-foreground mb-2">
+                              Impressions
+                            </label>
+                            <input
+                              type="number"
+                              name="impressions"
+                              value={formData.impressions}
+                              onChange={handleChange}
+                              min="0"
+                              className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-foreground mb-2">
+                              Reach
+                            </label>
+                            <input
+                              type="number"
+                              name="reach"
+                              value={formData.reach}
+                              onChange={handleChange}
+                              min="0"
+                              className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-foreground mb-2">
+                              Engagement
+                            </label>
+                            <input
+                              type="number"
+                              name="engagement"
+                              value={formData.engagement}
+                              onChange={handleChange}
+                              min="0"
+                              className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Project Status */}
                 <div className="pt-6 border-t border-border">
                   <h2 className="text-xl font-bold text-foreground mb-4">Project Status</h2>
@@ -288,41 +543,6 @@ export default function EditProjectPage() {
                         <option value="paused">Paused</option>
                         <option value="completed">Completed</option>
                       </select>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Google Analytics */}
-                <div className="pt-6 border-t border-border">
-                  <h2 className="text-xl font-bold text-foreground mb-4">Google Analytics</h2>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">
-                        GA4 Property ID
-                      </label>
-                      <input
-                        type="text"
-                        name="googleAnalyticsPropertyId"
-                        value={formData.googleAnalyticsPropertyId}
-                        onChange={handleChange}
-                        placeholder="G-XXXXXXXXXX"
-                        className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">
-                        View ID (Legacy)
-                      </label>
-                      <input
-                        type="text"
-                        name="googleAnalyticsViewId"
-                        value={formData.googleAnalyticsViewId}
-                        onChange={handleChange}
-                        placeholder="123456789"
-                        className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground"
-                      />
                     </div>
                   </div>
                 </div>

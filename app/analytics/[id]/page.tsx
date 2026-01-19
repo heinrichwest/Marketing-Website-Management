@@ -31,14 +31,14 @@ export default function AnalyticsPage() {
 
      setProject(projectData)
 
-     // Try to fetch real analytics if GA property ID is valid
-     if (projectData.googleAnalyticsPropertyId && /^G-\d+$/.test(projectData.googleAnalyticsPropertyId)) {
-       fetchRealAnalytics(projectData.googleAnalyticsPropertyId)
-     } else {
-       // Fall back to mock data
-       const analyticsData = getAnalyticsByProjectId(projectId)
-       setAnalytics(analyticsData)
-     }
+      // Try to fetch real analytics if GA property ID is valid
+      if (projectData.googleAnalyticsPropertyId && (/^G-\d+$/.test(projectData.googleAnalyticsPropertyId) || /^\d+$/.test(projectData.googleAnalyticsPropertyId))) {
+        fetchRealAnalytics(projectData.googleAnalyticsPropertyId)
+      } else {
+        // Fall back to mock data
+        const analyticsData = getAnalyticsByProjectId(projectId)
+        setAnalytics(analyticsData)
+      }
    }, [isSignedIn, projectId, navigate])
 
    const fetchRealAnalytics = async (propertyId: string) => {
@@ -73,10 +73,12 @@ export default function AnalyticsPage() {
 
   // Function to generate Google Analytics URL and validate IDs
   const getGoogleAnalyticsUrl = () => {
-    // Validate GA4 Property ID format (G- followed by digits)
-    if (project.googleAnalyticsPropertyId && /^G-\d+$/.test(project.googleAnalyticsPropertyId)) {
+    // Validate GA4 Property ID format (G- followed by digits or just digits)
+    if (project.googleAnalyticsPropertyId && (/^G-\d+$/.test(project.googleAnalyticsPropertyId) || /^\d+$/.test(project.googleAnalyticsPropertyId))) {
       // Google Analytics 4 (GA4) URL format
-      const propertyId = project.googleAnalyticsPropertyId.substring(2); // Remove G-
+      const propertyId = project.googleAnalyticsPropertyId.startsWith('G-')
+        ? project.googleAnalyticsPropertyId.substring(2) // Remove G-
+        : project.googleAnalyticsPropertyId; // Already numeric
       return `https://analytics.google.com/analytics/web/#/p${propertyId}/reports/intelligenthome`
     }
     // Validate legacy View ID format (digits only)
@@ -241,7 +243,7 @@ export default function AnalyticsPage() {
              <div className="flex items-center justify-between mb-6">
                <h2 className="text-2xl font-bold text-foreground">Website Analytics Summary</h2>
                <div className="flex items-center gap-4">
-                 {project?.googleAnalyticsPropertyId && /^G-\d+$/.test(project.googleAnalyticsPropertyId) && (
+                  {project?.googleAnalyticsPropertyId && (/^G-\d+$/.test(project.googleAnalyticsPropertyId) || /^\d+$/.test(project.googleAnalyticsPropertyId)) && (
                    <button
                      onClick={() => fetchRealAnalytics(project.googleAnalyticsPropertyId!)}
                      disabled={isLoadingAnalytics}

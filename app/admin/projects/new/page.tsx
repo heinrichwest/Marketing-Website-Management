@@ -22,15 +22,21 @@ export default function NewProjectPage() {
     currentStage: "planning" as ProjectStage,
     status: "active" as ProjectStatus,
     websiteUrl: "",
-    googleAnalyticsPropertyId: "",
-    googleAnalyticsViewId: "",
     notes: "",
+    projectDate: "",
+    product: "",
     // Social media specific fields
     campaignGoals: "",
     targetAudience: "",
+    posts: 0,
+    likes: 0,
+    impressions: 0,
+    reach: 0,
+    engagement: 0,
   })
 
   const [selectedPlatforms, setSelectedPlatforms] = useState<SocialMediaPlatform[]>([])
+  const [customPlatform, setCustomPlatform] = useState("")
 
   useEffect(() => {
     if (!isSignedIn) {
@@ -53,7 +59,7 @@ export default function NewProjectPage() {
   const developers = users.filter((u) => u.role === "web_developer")
   const coordinators = users.filter((u) => u.role === "social_media_coordinator")
 
-  const platforms: SocialMediaPlatform[] = ["facebook", "instagram", "twitter", "linkedin", "tiktok", "youtube"]
+  const platforms: SocialMediaPlatform[] = ["Facebook", "Instagram", "Twitter", "LinkedIn", "TikTok", "YouTube", "Pinterest", "Snapchat"]
 
   const handlePlatformToggle = (platform: SocialMediaPlatform) => {
     setSelectedPlatforms(prev =>
@@ -61,6 +67,19 @@ export default function NewProjectPage() {
         ? prev.filter(p => p !== platform)
         : [...prev, platform]
     )
+  }
+
+  const handleAddCustomPlatform = () => {
+    if (customPlatform.trim()) {
+      if (!selectedPlatforms.includes(customPlatform.trim() as SocialMediaPlatform)) {
+        setSelectedPlatforms(prev => [...prev, customPlatform.trim() as SocialMediaPlatform])
+      }
+      setCustomPlatform("")
+    }
+  }
+
+  const handleRemovePlatform = (platform: SocialMediaPlatform) => {
+    setSelectedPlatforms(prev => prev.filter(p => p !== platform))
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -71,7 +90,14 @@ export default function NewProjectPage() {
       id: `proj-${Date.now()}`,
       ...formData,
       projectType,
+      projectDate: formData.projectDate ? new Date(formData.projectDate) : undefined,
+      product: formData.product || undefined,
       socialMediaPlatforms: projectType === "social_media" ? selectedPlatforms : undefined,
+      posts: projectType === "social_media" ? Number(formData.posts) : undefined,
+      likes: projectType === "social_media" ? Number(formData.likes) : undefined,
+      impressions: projectType === "social_media" ? Number(formData.impressions) : undefined,
+      reach: projectType === "social_media" ? Number(formData.reach) : undefined,
+      engagement: projectType === "social_media" ? Number(formData.engagement) : undefined,
       createdAt: new Date(),
       updatedAt: new Date(),
     }
@@ -85,7 +111,15 @@ export default function NewProjectPage() {
     window.dispatchEvent(new Event('projectsUpdated'))
 
     alert(`${projectType === "website" ? "Website" : "Social Media"} project "${formData.name}" created successfully!`)
-    navigate("/admin/dashboard")
+
+    // Navigate to the appropriate page based on project type
+    if (projectType === "social_media") {
+      navigate("/admin/projects/social-media")
+    } else if (projectType === "website") {
+      navigate("/admin/projects/website")
+    } else {
+      navigate("/admin/dashboard")
+    }
   }
 
   return (
@@ -197,6 +231,43 @@ export default function NewProjectPage() {
                 />
               </div>
 
+              <div>
+                <label htmlFor="projectDate" className="block text-sm font-medium text-foreground mb-2">
+                  Project Date
+                </label>
+                <input
+                  type="date"
+                  id="projectDate"
+                  value={formData.projectDate}
+                  onChange={(e) => setFormData({ ...formData, projectDate: e.target.value })}
+                  className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  The date of the project (defaults to creation date if not set)
+                </p>
+              </div>
+
+              <div>
+                <label htmlFor="product" className="block text-sm font-medium text-foreground mb-2">
+                  Product
+                </label>
+                <select
+                  id="product"
+                  value={formData.product}
+                  onChange={(e) => setFormData({ ...formData, product: e.target.value })}
+                  className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  <option value="">Select a product</option>
+                  <option value="Learnerships">Learnerships</option>
+                  <option value="Academy">Academy</option>
+                  <option value="Trouidees">Trouidees</option>
+                  <option value="Venueideas">Venueideas</option>
+                </select>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Select the product type for this project
+                </p>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="clientId" className="block text-sm font-medium text-foreground mb-2">
@@ -305,36 +376,6 @@ export default function NewProjectPage() {
                     placeholder="https://example.com"
                   />
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="googleAnalyticsPropertyId" className="block text-sm font-medium text-foreground mb-2">
-                      Google Analytics Property ID
-                    </label>
-                    <input
-                      type="text"
-                      id="googleAnalyticsPropertyId"
-                      value={formData.googleAnalyticsPropertyId}
-                      onChange={(e) => setFormData({ ...formData, googleAnalyticsPropertyId: e.target.value })}
-                      className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                      placeholder="G-XXXXXXXXXX"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="googleAnalyticsViewId" className="block text-sm font-medium text-foreground mb-2">
-                      Google Analytics View ID
-                    </label>
-                    <input
-                      type="text"
-                      id="googleAnalyticsViewId"
-                      value={formData.googleAnalyticsViewId}
-                      onChange={(e) => setFormData({ ...formData, googleAnalyticsViewId: e.target.value })}
-                      className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                      placeholder="123456789"
-                    />
-                  </div>
-                </div>
               </div>
             )}
 
@@ -365,6 +406,59 @@ export default function NewProjectPage() {
                   </div>
                 </div>
 
+                {/* Add Custom Platform */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Add Custom Platform
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={customPlatform}
+                      onChange={(e) => setCustomPlatform(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddCustomPlatform())}
+                      placeholder="Enter platform name (e.g., Threads, WhatsApp)"
+                      className="flex-1 px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddCustomPlatform}
+                      className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium"
+                    >
+                      Add
+                    </button>
+                  </div>
+                </div>
+
+                {/* Selected Platforms */}
+                {selectedPlatforms.length > 0 && (
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      Selected Platforms
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedPlatforms.map((platform) => (
+                        <span
+                          key={platform}
+                          className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-sm font-medium"
+                        >
+                          {platform}
+                          <button
+                            type="button"
+                            onClick={() => handleRemovePlatform(platform)}
+                            className="hover:text-red-600 transition-colors"
+                            aria-label={`Remove ${platform}`}
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div>
                   <label htmlFor="campaignGoals" className="block text-sm font-medium text-foreground mb-2">
                     Campaign Goals *
@@ -391,6 +485,86 @@ export default function NewProjectPage() {
                     className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary h-24"
                     placeholder="e.g., Business owners, HR managers, training coordinators aged 30-55"
                   />
+                </div>
+
+                <div className="pt-4">
+                  <h4 className="text-md font-semibold text-foreground mb-4">Social Media Metrics</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div>
+                      <label htmlFor="posts" className="block text-sm font-medium text-foreground mb-2">
+                        Posts
+                      </label>
+                      <input
+                        type="number"
+                        id="posts"
+                        min="0"
+                        value={formData.posts}
+                        onChange={(e) => setFormData({ ...formData, posts: Number(e.target.value) })}
+                        className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                        placeholder="0"
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor="likes" className="block text-sm font-medium text-foreground mb-2">
+                        Likes
+                      </label>
+                      <input
+                        type="number"
+                        id="likes"
+                        min="0"
+                        value={formData.likes}
+                        onChange={(e) => setFormData({ ...formData, likes: Number(e.target.value) })}
+                        className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                        placeholder="0"
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor="impressions" className="block text-sm font-medium text-foreground mb-2">
+                        Impressions
+                      </label>
+                      <input
+                        type="number"
+                        id="impressions"
+                        min="0"
+                        value={formData.impressions}
+                        onChange={(e) => setFormData({ ...formData, impressions: Number(e.target.value) })}
+                        className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                        placeholder="0"
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor="reach" className="block text-sm font-medium text-foreground mb-2">
+                        Reach
+                      </label>
+                      <input
+                        type="number"
+                        id="reach"
+                        min="0"
+                        value={formData.reach}
+                        onChange={(e) => setFormData({ ...formData, reach: Number(e.target.value) })}
+                        className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                        placeholder="0"
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor="engagement" className="block text-sm font-medium text-foreground mb-2">
+                        Engagement
+                      </label>
+                      <input
+                        type="number"
+                        id="engagement"
+                        min="0"
+                        value={formData.engagement}
+                        onChange={(e) => setFormData({ ...formData, engagement: Number(e.target.value) })}
+                        className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                        placeholder="0"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             )}

@@ -369,19 +369,91 @@ export default function AdminDashboard() {
          </div>
 
           {/* Quick Actions */}
-          <div className="card mb-8">
-            <h2 className="text-xl font-bold text-foreground mb-4">Quick Actions</h2>
-             <div className="flex gap-4 flex-wrap">
-               <Link to="/admin/projects/new" className="btn-primary">
-                 + New Project
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-border/50 p-8 mb-12 shadow-sm">
+            <h2 className="text-2xl font-bold text-foreground mb-6">Quick Actions</h2>
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+               <div className="space-y-3">
+                 <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                   <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                   </svg>
+                   Website Projects
+                 </h3>
+                 <Link to="/admin/projects/website" className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors">
+                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v0M8 5a2 2 0 012-2h4a2 2 0 012 2v0" />
+                   </svg>
+                   Manage Website Projects
+                  </Link>
+                </div>
+
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                    <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+                    </svg>
+                    Social Media Projects
+                  </h3>
+                  <Link to="/admin/projects/social-media" className="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v0M8 5a2 2 0 012-2h4a2 2 0 012 2v0" />
+                    </svg>
+                    Manage Social Media Projects
+                  </Link>
+                </div>
+
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold text-foreground">General</h3>
+                  <Link to="/admin/projects/new" className="w-full btn-primary flex items-center justify-center gap-2">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Add New Project
+                  </Link>
+                </div>
+            </div>
+
+             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+               <Link to="/admin/projects/website" className="btn-outline flex items-center justify-center gap-2">
+                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                 </svg>
+                 Website Projects
                </Link>
-                <Link to="/admin/projects" className="btn-outline hover:border-accent hover:text-accent">
-                 Manage Projects
+               <Link to="/admin/projects/social-media" className="btn-outline flex items-center justify-center gap-2">
+                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+                 </svg>
+                 Social Media Projects
                </Link>
-               <Link to="/admin/users" className="btn-outline hover:border-accent hover:text-accent">
-                 Manage Users
-               </Link>
-             </div>
+               <Link to="/admin/projects" className="btn-outline flex items-center justify-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v0M8 5a2 2 0 012-2h4a2 2 0 012 2v0" />
+                </svg>
+                All Projects
+              </Link>
+              <Link to="/admin/analytics/monthly" className="btn-outline flex items-center justify-center gap-2 bg-primary/5 hover:bg-primary/10 border-primary/30">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                Monthly Analytics
+              </Link>
+              <Link to="/admin/users" className="btn-outline flex items-center justify-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                Manage Users
+              </Link>
+              <Link to="/admin/tickets" className="btn-outline flex items-center justify-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                </svg>
+                View Tickets
+              </Link>
+            </div>
           </div>
 
            {/* All Projects Table */}
@@ -490,8 +562,9 @@ export default function AdminDashboard() {
                           </div>
                         </td>
                          <td className="px-3 py-3 w-20">
+                          {project.projectType === "website" ? (
                             <Link
-                             to={`/admin/analytics/${project.id}`}
+                             to={`/admin/projects/${project.id}/analytics`}
                               className="inline-flex items-center gap-1 px-3 py-1.5 bg-accent text-accent-foreground rounded text-xs font-medium hover:bg-accent/80 transition"
                            >
                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -504,6 +577,9 @@ export default function AdminDashboard() {
                              </svg>
                              Analytics
                            </Link>
+                          ) : (
+                            <span className="text-xs text-muted-foreground italic">N/A</span>
+                          )}
                         </td>
                           <td className="px-3 py-3 w-24">
                             <div className="flex items-center gap-2">

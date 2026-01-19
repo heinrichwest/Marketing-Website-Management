@@ -141,6 +141,54 @@ export default function AdminDashboard() {
   const recentProjects = projects.slice(0, 5)
   const recentTickets = tickets.slice(0, 5)
 
+  // Group projects by type and month starting from November
+  const groupProjectsByMonth = useMemo(() => {
+    const grouped: Record<string, Record<string, Project[]>> = {
+      website: {},
+      social_media: {}
+    }
+
+    // Start from November (month 10, 0-indexed)
+    const startMonth = 10 // November
+    const currentYear = new Date().getFullYear()
+    const previousYear = currentYear - 1
+
+    // Initialize months from November of previous year to current month
+    const months = [
+      'November', 'December', 'January', 'February', 'March', 'April',
+      'May', 'June', 'July', 'August', 'September', 'October'
+    ]
+
+    // Initialize all months for both types
+    months.forEach((month, index) => {
+      const monthIndex = (startMonth + index) % 12
+      const year = monthIndex < 2 ? currentYear : previousYear
+      grouped.website[`${month} ${year}`] = []
+      grouped.social_media[`${month} ${year}`] = []
+    })
+
+    // Group projects by type and month
+    projects.forEach(project => {
+      const projectDate = new Date(project.createdAt)
+      const projectMonth = projectDate.getMonth()
+      const projectYear = projectDate.getFullYear()
+
+      // Only include projects from November onwards
+      if (projectMonth >= 10 || projectYear >= currentYear) {
+        const monthIndex = (projectMonth - startMonth + 12) % 12
+        const displayMonth = months[monthIndex]
+        const displayYear = projectYear
+        const key = `${displayMonth} ${displayYear}`
+
+        if (grouped[project.projectType] && grouped[project.projectType][key]) {
+          grouped[project.projectType][key].push(project)
+        }
+      }
+    })
+
+    return grouped
+  }, [projects])
+
   const handleDeleteProject = (projectId: string) => {
     if (window.confirm("Are you sure you want to delete this project? This action cannot be undone.")) {
       // Remove from localStorage
@@ -294,35 +342,121 @@ export default function AdminDashboard() {
             )}
           </div>
 
-          {/* Quick Actions */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-border/50 p-8 mb-12 shadow-sm">
-            <h2 className="text-2xl font-bold text-foreground mb-6">Quick Actions</h2>
-            <div className="flex gap-4 flex-wrap">
-              <Link to="/admin/projects/new" className="btn-primary">
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                New Project
-              </Link>
-               <Link to="/admin/projects" className="btn-outline">
-                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+           {/* Quick Actions */}
+           <div className="bg-white dark:bg-gray-800 rounded-xl border border-border/50 p-8 mb-12 shadow-sm">
+             <h2 className="text-2xl font-bold text-foreground mb-6">Quick Actions</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                    </svg>
+                    Website Projects
+                  </h3>
+                  <Link to="/admin/projects/website" className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v0M8 5a2 2 0 012-2h4a2 2 0 012 2v0" />
+                    </svg>
+                    Manage Website Projects
+                   </Link>
+                 </div>
+
+                 <div className="space-y-3">
+                   <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                     <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+                     </svg>
+                     Social Media Projects
+                   </h3>
+                   <Link to="/admin/projects/social-media" className="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors">
+                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v0M8 5a2 2 0 012-2h4a2 2 0 012 2v0" />
+                     </svg>
+                     Manage Social Media Projects
+                   </Link>
+                 </div>
+
+                 <div className="space-y-3">
+                   <h3 className="text-lg font-semibold text-foreground">General</h3>
+                   <Link to="/admin/projects/new" className="w-full btn-primary flex items-center justify-center gap-2">
+                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                     </svg>
+                     Add New Project
+                   </Link>
+                 </div>
+             </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <Link to="/admin/projects/website" className="btn-outline flex items-center justify-center gap-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                  </svg>
+                  Website Projects
+                </Link>
+                <Link to="/admin/projects/social-media" className="btn-outline flex items-center justify-center gap-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+                  </svg>
+                  Social Media Projects
+                </Link>
+                <Link to="/admin/projects" className="btn-outline flex items-center justify-center gap-2">
+                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v0M8 5a2 2 0 012-2h4a2 2 0 012 2v0" />
                  </svg>
-                 Manage Projects
+                 All Projects
                </Link>
-              <Link to="/admin/users" className="btn-outline">
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                </svg>
-                Manage Users
-              </Link>
-              <Link to="/analytics" className="btn-outline">
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-                View Analytics
-              </Link>
+               <Link to="/admin/users" className="btn-outline flex items-center justify-center gap-2">
+                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                 </svg>
+                 Manage Users
+               </Link>
+               <Link to="/admin/tickets" className="btn-outline flex items-center justify-center gap-2">
+                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                 </svg>
+                 View Tickets
+               </Link>
+               <Link to="/analytics" className="btn-outline flex items-center justify-center gap-2">
+                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                 </svg>
+                 View Analytics
+               </Link>
+             </div>
+            </div>
+
+             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+               <Link to="/admin/projects" className="btn-outline flex items-center justify-center gap-2">
+                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v0M8 5a2 2 0 012-2h4a2 2 0 012 2v0" />
+                 </svg>
+                 All Projects
+               </Link>
+               <Link to="/admin/users" className="btn-outline flex items-center justify-center gap-2">
+                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                 </svg>
+                 Manage Users
+               </Link>
+               <Link to="/admin/tickets" className="btn-outline flex items-center justify-center gap-2">
+                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                 </svg>
+                 View Tickets
+               </Link>
+               <Link to="/analytics" className="btn-outline flex items-center justify-center gap-2">
+                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                 </svg>
+                 View Analytics
+               </Link>
+             </div>
             </div>
            </div>
 
@@ -351,9 +485,379 @@ export default function AdminDashboard() {
               <div className="mt-4 text-center text-sm text-muted-foreground">
                 Total projects across all stages: {projectStageData.reduce((sum, stage) => sum + stage.value, 0)}
               </div>
+             </div>
+
+            {/* Monthly Project Overview */}
+            <div className="card mb-8">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-foreground">Monthly Project Overview (From November)</h2>
+                <Link to="/admin/projects/new" className="btn-primary">
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  Add New Project
+                </Link>
+              </div>
+
+              <div className="space-y-8">
+                {/* Website Projects */}
+                <div>
+                  <h3 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
+                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                    </svg>
+                    Website Projects
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {Object.entries(groupProjectsByMonth.website).map(([monthYear, projects]) => (
+                      <div key={monthYear} className="border border-border rounded-lg p-4 bg-gradient-to-br from-blue-50/50 to-indigo-50/50">
+                        <h4 className="font-semibold text-foreground mb-2">{monthYear}</h4>
+                        <div className="space-y-2">
+                          {projects.length > 0 ? (
+                            projects.map(project => (
+                              <div key={project.id} className="text-sm bg-white/70 rounded p-2 border">
+                                <div className="font-medium text-foreground truncate">{project.name}</div>
+                                <div className="text-xs text-muted-foreground">
+                                  {users.find(u => u.id === project.clientId)?.fullName || 'Unknown Client'}
+                                </div>
+                                <div className="flex items-center gap-2 mt-1">
+                                  <StatusBadge status={project.status} />
+                                  <span className="text-xs text-muted-foreground">
+                                    {getStageDisplayName(project.currentStage)}
+                                  </span>
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="text-sm text-muted-foreground italic text-center py-4">
+                              No projects this month
+                            </div>
+                          )}
+                        </div>
+                        {projects.length > 0 && (
+                          <div className="mt-3 pt-2 border-t border-border">
+                            <div className="text-xs text-muted-foreground">
+                              Total: {projects.length} project{projects.length !== 1 ? 's' : ''}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Social Media Projects */}
+                <div>
+                  <h3 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
+                    <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+                    </svg>
+                    Social Media Projects
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {Object.entries(groupProjectsByMonth.social_media).map(([monthYear, projects]) => (
+                      <div key={monthYear} className="border border-border rounded-lg p-4 bg-gradient-to-br from-purple-50/50 to-pink-50/50">
+                        <h4 className="font-semibold text-foreground mb-2">{monthYear}</h4>
+                        <div className="space-y-2">
+                          {projects.length > 0 ? (
+                            projects.map(project => (
+                              <div key={project.id} className="text-sm bg-white/70 rounded p-2 border">
+                                <div className="font-medium text-foreground truncate">{project.name}</div>
+                                <div className="text-xs text-muted-foreground">
+                                  {users.find(u => u.id === project.clientId)?.fullName || 'Unknown Client'}
+                                </div>
+                                <div className="flex items-center gap-2 mt-1">
+                                  <StatusBadge status={project.status} />
+                                  <span className="text-xs text-muted-foreground">
+                                    {getStageDisplayName(project.currentStage)}
+                                  </span>
+                                </div>
+                                {project.socialMediaPlatforms && (
+                                  <div className="flex flex-wrap gap-1 mt-1">
+                                    {project.socialMediaPlatforms.slice(0, 3).map(platform => (
+                                      <span key={platform} className="inline-block px-1.5 py-0.5 text-xs bg-purple-100 text-purple-700 rounded">
+                                        {platform}
+                                      </span>
+                                    ))}
+                                    {project.socialMediaPlatforms.length > 3 && (
+                                      <span className="text-xs text-muted-foreground">
+                                        +{project.socialMediaPlatforms.length - 3} more
+                                      </span>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            ))
+                          ) : (
+                            <div className="text-sm text-muted-foreground italic text-center py-4">
+                              No projects this month
+                            </div>
+                          )}
+                        </div>
+                        {projects.length > 0 && (
+                          <div className="mt-3 pt-2 border-t border-border">
+                            <div className="text-xs text-muted-foreground">
+                              Total: {projects.length} project{projects.length !== 1 ? 's' : ''}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
 
-           {/* All Projects Table */}
+            {/* Website Projects Section */}
+            <div className="mb-12">
+              <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-8 mb-8 border border-blue-200">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-3xl font-bold text-blue-900 flex items-center gap-3">
+                      <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                      </svg>
+                      🌐 Website Projects
+                    </h2>
+                    <p className="text-blue-700 mt-2 text-lg">Manage all website development projects by month</p>
+                  </div>
+                  <Link to="/admin/projects/new" className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2 transition-colors">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Add Website Project
+                  </Link>
+                </div>
+
+                <div className="card border-blue-200">
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse border border-blue-200">
+                      <thead>
+                        <tr className="bg-blue-100">
+                          <th className="px-4 py-3 text-left font-semibold border-r border-blue-200 text-blue-900">Month</th>
+                          <th className="px-4 py-3 text-left font-semibold border-r border-blue-200 text-blue-900">Project Name</th>
+                          <th className="px-4 py-3 text-left font-semibold border-r border-blue-200 text-blue-900">Client</th>
+                          <th className="px-4 py-3 text-left font-semibold border-r border-blue-200 text-blue-900">Status</th>
+                          <th className="px-4 py-3 text-left font-semibold border-r border-blue-200 text-blue-900">Stage</th>
+                          <th className="px-4 py-3 text-left font-semibold border-r border-blue-200 text-blue-900">Developer</th>
+                          <th className="px-4 py-3 text-left font-semibold text-blue-900">Website URL</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {Object.entries(groupProjectsByMonth.website).map(([monthYear, monthProjects]) =>
+                          monthProjects.length > 0 ? (
+                            monthProjects.map((project, index) => {
+                              const client = users.find(u => u.id === project.clientId)
+                              const developer = users.find(u => u.id === project.webDeveloperId)
+                              return (
+                                <tr key={project.id} className={index % 2 === 0 ? "bg-white" : "bg-blue-50/50"}>
+                                  {index === 0 && (
+                                    <td className="px-4 py-3 font-semibold text-blue-700 border-r border-blue-200" rowSpan={monthProjects.length}>
+                                      {monthYear}
+                                      <div className="text-xs text-blue-600 mt-1 font-medium">
+                                        ({monthProjects.length} project{monthProjects.length !== 1 ? 's' : ''})
+                                      </div>
+                                    </td>
+                                  )}
+                                  <td className="px-4 py-3 border-r border-blue-200">
+                                    <div className="font-medium text-blue-900">{project.name}</div>
+                                    <div className="text-xs text-blue-700">{project.description}</div>
+                                  </td>
+                                  <td className="px-4 py-3 border-r border-blue-200">
+                                    <div className="text-sm">
+                                      {client ? (
+                                        <>
+                                          <div className="font-medium text-blue-900">{client.fullName}</div>
+                                          <div className="text-xs text-blue-600">{client.email}</div>
+                                        </>
+                                      ) : (
+                                        <span className="text-xs text-blue-500 italic">Not assigned</span>
+                                      )}
+                                    </div>
+                                  </td>
+                                  <td className="px-4 py-3 border-r border-blue-200">
+                                    <StatusBadge status={project.status} />
+                                  </td>
+                                  <td className="px-4 py-3 border-r border-blue-200">
+                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                      {getStageDisplayName(project.currentStage)}
+                                    </span>
+                                  </td>
+                                  <td className="px-4 py-3 border-r border-blue-200">
+                                    <div className="text-sm">
+                                      {developer ? (
+                                        <>
+                                          <div className="font-medium text-blue-900">{developer.fullName}</div>
+                                          <div className="text-xs text-blue-600">{developer.email}</div>
+                                        </>
+                                      ) : (
+                                        <span className="text-xs text-blue-500 italic">Not assigned</span>
+                                      )}
+                                    </div>
+                                  </td>
+                                  <td className="px-4 py-3">
+                                    {project.websiteUrl ? (
+                                      <a
+                                        href={project.websiteUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-600 hover:text-blue-800 underline text-sm font-medium"
+                                      >
+                                        {project.websiteUrl}
+                                      </a>
+                                    ) : (
+                                      <span className="text-xs text-blue-500 italic">Not set</span>
+                                    )}
+                                  </td>
+                                </tr>
+                              )
+                            })
+                          ) : (
+                            <tr key={monthYear} className="bg-blue-25">
+                              <td className="px-4 py-3 font-semibold text-blue-700 border-r border-blue-200">{monthYear}</td>
+                              <td colSpan={6} className="px-4 py-8 text-center text-blue-500 italic border-r border-blue-200">
+                                No website projects this month
+                              </td>
+                            </tr>
+                          )
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Social Media Projects Section */}
+            <div className="mb-12">
+              <div className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl p-8 mb-8 border border-purple-200">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-3xl font-bold text-purple-900 flex items-center gap-3">
+                      <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+                      </svg>
+                      📱 Social Media Projects
+                    </h2>
+                    <p className="text-purple-700 mt-2 text-lg">Manage all social media campaign projects by month</p>
+                  </div>
+                  <Link to="/admin/projects/new" className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2 transition-colors">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Add Social Media Project
+                  </Link>
+                </div>
+
+                <div className="card border-purple-200">
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse border border-purple-200">
+                      <thead>
+                        <tr className="bg-purple-100">
+                          <th className="px-4 py-3 text-left font-semibold border-r border-purple-200 text-purple-900">Month</th>
+                          <th className="px-4 py-3 text-left font-semibold border-r border-purple-200 text-purple-900">Project Name</th>
+                          <th className="px-4 py-3 text-left font-semibold border-r border-purple-200 text-purple-900">Client</th>
+                          <th className="px-4 py-3 text-left font-semibold border-r border-purple-200 text-purple-900">Status</th>
+                          <th className="px-4 py-3 text-left font-semibold border-r border-purple-200 text-purple-900">Stage</th>
+                          <th className="px-4 py-3 text-left font-semibold border-r border-purple-200 text-purple-900">Coordinator</th>
+                          <th className="px-4 py-3 text-left font-semibold border-r border-purple-200 text-purple-900">Platforms</th>
+                          <th className="px-4 py-3 text-left font-semibold text-purple-900">Goals</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {Object.entries(groupProjectsByMonth.social_media).map(([monthYear, monthProjects]) =>
+                          monthProjects.length > 0 ? (
+                            monthProjects.map((project, index) => {
+                              const client = users.find(u => u.id === project.clientId)
+                              const coordinator = users.find(u => u.id === project.socialMediaCoordinatorId)
+                              return (
+                                <tr key={project.id} className={index % 2 === 0 ? "bg-white" : "bg-purple-50/50"}>
+                                  {index === 0 && (
+                                    <td className="px-4 py-3 font-semibold text-purple-700 border-r border-purple-200" rowSpan={monthProjects.length}>
+                                      {monthYear}
+                                      <div className="text-xs text-purple-600 mt-1 font-medium">
+                                        ({monthProjects.length} project{monthProjects.length !== 1 ? 's' : ''})
+                                      </div>
+                                    </td>
+                                  )}
+                                  <td className="px-4 py-3 border-r border-purple-200">
+                                    <div className="font-medium text-purple-900">{project.name}</div>
+                                    <div className="text-xs text-purple-700">{project.description}</div>
+                                  </td>
+                                  <td className="px-4 py-3 border-r border-purple-200">
+                                    <div className="text-sm">
+                                      {client ? (
+                                        <>
+                                          <div className="font-medium text-purple-900">{client.fullName}</div>
+                                          <div className="text-xs text-purple-600">{client.email}</div>
+                                        </>
+                                      ) : (
+                                        <span className="text-xs text-purple-500 italic">Not assigned</span>
+                                      )}
+                                    </div>
+                                  </td>
+                                  <td className="px-4 py-3 border-r border-purple-200">
+                                    <StatusBadge status={project.status} />
+                                  </td>
+                                  <td className="px-4 py-3 border-r border-purple-200">
+                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                                      {getStageDisplayName(project.currentStage)}
+                                    </span>
+                                  </td>
+                                  <td className="px-4 py-3 border-r border-purple-200">
+                                    <div className="text-sm">
+                                      {coordinator ? (
+                                        <>
+                                          <div className="font-medium text-purple-900">{coordinator.fullName}</div>
+                                          <div className="text-xs text-purple-600">{coordinator.email}</div>
+                                        </>
+                                      ) : (
+                                        <span className="text-xs text-purple-500 italic">Not assigned</span>
+                                      )}
+                                    </div>
+                                  </td>
+                                  <td className="px-4 py-3 border-r border-purple-200">
+                                    {project.socialMediaPlatforms ? (
+                                      <div className="flex flex-wrap gap-1">
+                                        {project.socialMediaPlatforms.map(platform => (
+                                          <span key={platform} className="inline-block px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded capitalize font-medium">
+                                            {platform}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    ) : (
+                                      <span className="text-xs text-purple-500 italic">Not set</span>
+                                    )}
+                                  </td>
+                                  <td className="px-4 py-3">
+                                    {project.campaignGoals ? (
+                                      <div className="text-sm text-purple-700 max-w-xs truncate font-medium" title={project.campaignGoals}>
+                                        {project.campaignGoals}
+                                      </div>
+                                    ) : (
+                                      <span className="text-xs text-purple-500 italic">Not set</span>
+                                    )}
+                                  </td>
+                                </tr>
+                              )
+                            })
+                          ) : (
+                            <tr key={monthYear} className="bg-purple-25">
+                              <td className="px-4 py-3 font-semibold text-purple-700 border-r border-purple-200">{monthYear}</td>
+                              <td colSpan={7} className="px-4 py-8 text-center text-purple-500 italic border-r border-purple-200">
+                                No social media projects this month
+                              </td>
+                            </tr>
+                          )
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* All Projects Table */}
           <div className="card mb-8">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-foreground">All Projects ({filteredProjects.length})</h2>

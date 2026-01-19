@@ -52,6 +52,10 @@ import APIIntegrationsPage from '../app/integrations/page'
 import WorkflowAutomationPage from '../app/automation/page'
 import EnhancedDashboardPage from '../app/dashboard/enhanced/page'
 import AdminProjectDetailPage from '../app/admin/projects/[id]/page'
+import WebsiteProjectsPage from '../app/admin/projects/website/page'
+import SocialMediaProjectsPage from '../app/admin/projects/social-media/page'
+import MonthlyAnalyticsPage from '../app/admin/analytics/monthly/page'
+import ProjectMonthlyAnalyticsPage from '../app/admin/projects/[id]/analytics/page'
 
 // Wrapper component to handle auth-based component keys
 function AdminDashboardWrapper() {
@@ -80,13 +84,17 @@ function App() {
            <Route path="/admin/users" element={<AdminUsersPage />} />
            <Route path="/admin/users/:id/edit" element={<AdminEditUserPage />} />
            <Route path="/admin/users/new" element={<NewUserPage />} />
-           <Route path="/admin/projects" element={<AdminProjectsPage />} />
-           <Route path="/admin/projects/new" element={<NewProjectPage />} />
-           <Route path="/admin/projects/:id" element={<AdminProjectDetailPage />} />
-           <Route path="/admin/projects/:id/edit" element={<AdminEditProjectPage />} />
+            <Route path="/admin/projects" element={<AdminProjectsPage />} />
+            <Route path="/admin/projects/new" element={<NewProjectPage />} />
+            <Route path="/admin/projects/:id" element={<AdminProjectDetailPage />} />
+            <Route path="/admin/projects/:id/edit" element={<AdminEditProjectPage />} />
+            <Route path="/admin/projects/:id/analytics" element={<ProjectMonthlyAnalyticsPage />} />
+            <Route path="/admin/projects/website" element={<WebsiteProjectsPage />} />
+            <Route path="/admin/projects/social-media" element={<SocialMediaProjectsPage />} />
            <Route path="/tickets" element={<TicketsPage />} />
            <Route path="/analytics" element={<AnalyticsPage />} />
            <Route path="/admin/analytics" element={<AnalyticsDashboardPage />} />
+           <Route path="/admin/analytics/monthly" element={<MonthlyAnalyticsPage />} />
            <Route path="/developer/analytics" element={<DeveloperAnalyticsPage />} />
            <Route path="/coordinator/analytics" element={<CoordinatorAnalyticsPage />} />
            <Route path="/client/analytics" element={<ClientAnalyticsPage />} />

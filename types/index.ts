@@ -22,6 +22,7 @@ export interface User {
 export type ProjectType = "website" | "social_media"
 export type ProjectStage = "planning" | "design" | "development" | "testing" | "seo_optimization" | "launch" | "maintenance"
 export type ProjectStatus = "active" | "paused" | "completed"
+export type ProductType = "Learnerships" | "Academy" | "Trouidees" | "Venueideas"
 
 export interface Project {
   id: string
@@ -40,10 +41,18 @@ export interface Project {
   launchDate?: Date
   updatedAt: Date
   notes?: string
+  projectDate?: Date // Date of the project
+  product?: ProductType // Product type
   // Social media specific fields
   socialMediaPlatforms?: SocialMediaPlatform[]
   campaignGoals?: string
   targetAudience?: string
+  // Social media metrics
+  posts?: number
+  likes?: number
+  impressions?: number
+  reach?: number
+  engagement?: number
 }
 
 export interface ProjectStageHistory {
@@ -103,7 +112,7 @@ export interface WebsiteAnalytics {
   createdAt: Date
 }
 
-export type SocialMediaPlatform = "facebook" | "instagram" | "twitter" | "linkedin" | "tiktok" | "youtube" | "other"
+export type SocialMediaPlatform = "Facebook" | "Instagram" | "Twitter" | "LinkedIn" | "TikTok" | "YouTube" | "Pinterest" | "Snapchat" | "other"
 
 export interface SocialMediaAnalytics {
   id: string
@@ -119,6 +128,22 @@ export interface SocialMediaAnalytics {
   shares?: number
   recordedBy: string
   createdAt: Date
+  notes?: string
+}
+
+// Monthly Analytics Types
+export interface MonthlyAnalytics {
+  id: string
+  projectId: string // Associated project
+  projectName?: string // Store project name for display
+  month: string // Format: "YYYY-MM" (e.g., "2024-11")
+  userEngagement: number
+  newUsers: number
+  clicks: number
+  referrals: number
+  recordedBy: string
+  createdAt: Date
+  updatedAt: Date
   notes?: string
 }
 
