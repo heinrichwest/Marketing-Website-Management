@@ -4,7 +4,7 @@ import { useAuth } from "@/context/auth-context"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { getProjectById, getUsers } from "@/lib/mock-data"
-import type { Project, User, ProjectStage, ProjectStatus } from "@/types"
+import type { Project, User, ProjectStage, ProjectStatus, SocialMediaPlatform } from "@/types"
 
 export default function EditProjectPage() {
   const { isSignedIn, user } = useAuth()
@@ -125,11 +125,11 @@ export default function EditProjectPage() {
 
   const handlePlatformChange = (platform: string) => {
     setFormData((prev) => {
-      const platforms = prev.socialMediaPlatforms as string[]
-      if (platforms.includes(platform)) {
-        return { ...prev, socialMediaPlatforms: platforms.filter(p => p !== platform) }
+      const platforms = prev.socialMediaPlatforms as SocialMediaPlatform[]
+      if (platforms.includes(platform as SocialMediaPlatform)) {
+        return { ...prev, socialMediaPlatforms: platforms.filter(p => p !== platform) as SocialMediaPlatform[] }
       } else {
-        return { ...prev, socialMediaPlatforms: [...platforms, platform] }
+        return { ...prev, socialMediaPlatforms: [...platforms, platform as SocialMediaPlatform] as SocialMediaPlatform[] }
       }
     })
   }
@@ -138,11 +138,11 @@ export default function EditProjectPage() {
 
   const handleAddCustomPlatform = () => {
     if (customPlatform.trim()) {
-      const platforms = formData.socialMediaPlatforms as string[]
-      if (!platforms.includes(customPlatform.trim())) {
+      const platforms = formData.socialMediaPlatforms as SocialMediaPlatform[]
+      if (!platforms.includes(customPlatform.trim() as SocialMediaPlatform)) {
         setFormData((prev) => ({
           ...prev,
-          socialMediaPlatforms: [...platforms, customPlatform.trim()]
+          socialMediaPlatforms: [...platforms, customPlatform.trim() as SocialMediaPlatform] as SocialMediaPlatform[]
         }))
       }
       setCustomPlatform("")
@@ -152,7 +152,7 @@ export default function EditProjectPage() {
   const handleRemovePlatform = (platform: string) => {
     setFormData((prev) => ({
       ...prev,
-      socialMediaPlatforms: (prev.socialMediaPlatforms as string[]).filter(p => p !== platform)
+      socialMediaPlatforms: (prev.socialMediaPlatforms as SocialMediaPlatform[]).filter(p => p !== platform) as SocialMediaPlatform[]
     }))
   }
 

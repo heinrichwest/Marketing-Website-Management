@@ -53,7 +53,7 @@ export default function NewProjectPage() {
   const developers = users.filter((u) => u.role === "web_developer")
   const coordinators = users.filter((u) => u.role === "social_media_coordinator")
 
-  const platforms: SocialMediaPlatform[] = ["facebook", "instagram", "twitter", "linkedin", "tiktok", "youtube"]
+  const platforms: SocialMediaPlatform[] = ["Facebook", "Instagram", "Twitter", "LinkedIn", "TikTok", "YouTube"]
 
   const handlePlatformToggle = (platform: SocialMediaPlatform) => {
     setSelectedPlatforms(prev =>
