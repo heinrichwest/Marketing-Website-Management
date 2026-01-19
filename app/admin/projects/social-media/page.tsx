@@ -4,7 +4,7 @@ import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
 import { getProjects, getUsers } from "@/lib/mock-data"
-import type { Project } from "@/types"
+import type { Project, SocialMediaPlatform } from "@/types"
 import StatusBadge from "@/components/status-badge"
 import { getStageDisplayName, formatRelativeTime } from "@/lib/utils"
 import { Edit, Trash2, Search } from "lucide-react"
@@ -30,17 +30,47 @@ export default function SocialMediaProjectsPage() {
   }, [isSignedIn, user, navigate])
 
   const [searchTerm, setSearchTerm] = useState("")
+  const [platformFilter, setPlatformFilter] = useState("")
+  const [productFilter, setProductFilter] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const [projects] = useState(getProjects().filter(p => p.projectType === "social_media"))
   const [users] = useState(getUsers())
 
-  // Filter projects based on search term
+  // Get unique platforms and products for filters
+  const availablePlatforms = useMemo(() => {
+    const platforms = new Set<string>()
+    projects.forEach(project => {
+      if (project.socialMediaPlatforms) {
+        project.socialMediaPlatforms.forEach(platform => platforms.add(platform))
+      }
+    })
+    return Array.from(platforms).sort()
+  }, [projects])
+
+  const availableProducts = useMemo(() => {
+    const products = new Set<string>()
+    projects.forEach(project => {
+      if (project.product) {
+        products.add(project.product)
+      }
+    })
+    return Array.from(products).sort()
+  }, [projects])
+
+  // Filter projects based on search term, platform, and product
   const filteredProjects = useMemo(() => {
-    return projects.filter(project =>
-      project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.description.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  }, [projects, searchTerm])
+    return projects.filter(project => {
+      const matchesSearch = project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        project.description.toLowerCase().includes(searchTerm.toLowerCase())
+
+      const matchesPlatform = !platformFilter ||
+        (project.socialMediaPlatforms && project.socialMediaPlatforms.includes(platformFilter as SocialMediaPlatform))
+
+      const matchesProduct = !productFilter || project.product === productFilter
+
+      return matchesSearch && matchesPlatform && matchesProduct
+    })
+  }, [projects, searchTerm, platformFilter, productFilter])
 
   // Group projects by month (show all months from November onwards)
   const projectsByMonth = useMemo(() => {
@@ -106,10 +136,10 @@ export default function SocialMediaProjectsPage() {
                   <svg className="w-10 h-10 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
                   </svg>
-                  📱 Social Media Projects Management
+                  📱 Social Media Brands Management
                 </h1>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Manage all social media campaign projects organized by month. Total: {filteredProjects.length} projects
+                  Manage all social media brands organized by month. Total: {filteredProjects.length} brands
                 </p>
               </div>
               <div className="flex gap-3 lg:flex-shrink-0">
@@ -117,7 +147,7 @@ export default function SocialMediaProjectsPage() {
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                   </svg>
-                  Add Social Media Project
+                  Add New Brand
                 </Link>
                 <Link to="/admin/dashboard" className="btn-outline flex items-center gap-2">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -129,26 +159,70 @@ export default function SocialMediaProjectsPage() {
             </div>
           </div>
 
-          {/* Search */}
+          {/* Search and Filters */}
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-border/50 p-6 mb-8 shadow-sm">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Search:</span>
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="border border-border rounded px-3 py-2 bg-background text-foreground hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary min-w-[300px]"
-                  placeholder="Search social media projects..."
-                />
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-4 flex-wrap">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground font-medium">Search:</span>
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="border border-border rounded px-3 py-2 bg-background text-foreground hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary min-w-[300px]"
+                    placeholder="Search brands..."
+                  />
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground font-medium">Platform:</span>
+                  <select
+                    value={platformFilter}
+                    onChange={(e) => setPlatformFilter(e.target.value)}
+                    className="border border-border rounded px-3 py-2 bg-background text-foreground hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary min-w-[180px]"
+                  >
+                    <option value="">All Platforms</option>
+                    {availablePlatforms.map(platform => (
+                      <option key={platform} value={platform}>{platform}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground font-medium">Product:</span>
+                  <select
+                    value={productFilter}
+                    onChange={(e) => setProductFilter(e.target.value)}
+                    className="border border-border rounded px-3 py-2 bg-background text-foreground hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary min-w-[180px]"
+                  >
+                    <option value="">All Products</option>
+                    {availableProducts.map(product => (
+                      <option key={product} value={product}>{product}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {(platformFilter || productFilter || searchTerm) && (
+                  <button
+                    onClick={() => {
+                      setSearchTerm("")
+                      setPlatformFilter("")
+                      setProductFilter("")
+                    }}
+                    className="text-sm text-purple-600 hover:text-purple-700 font-medium underline"
+                  >
+                    Clear Filters
+                  </button>
+                )}
               </div>
+
               <div className="text-sm text-muted-foreground">
-                Showing {filteredProjects.length} of {projects.length} social media projects
+                Showing {filteredProjects.length} of {projects.length} brands
               </div>
             </div>
           </div>
 
-          {/* Monthly Social Media Projects */}
+          {/* Monthly Social Media Brands */}
           <div className="space-y-8">
             {Object.entries(projectsByMonth).map(([monthYear, monthProjects]) => (
               <div key={monthYear} className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl p-8 border border-purple-200">
@@ -156,7 +230,7 @@ export default function SocialMediaProjectsPage() {
                   <svg className="w-7 h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
-                  {monthYear} - {monthProjects.length} Project{monthProjects.length !== 1 ? 's' : ''}
+                  {monthYear} - {monthProjects.length} Brand{monthProjects.length !== 1 ? 's' : ''}
                 </h2>
 
                 <div className="overflow-x-auto">
@@ -165,7 +239,7 @@ export default function SocialMediaProjectsPage() {
                       <tr className="bg-purple-100">
                         <th className="px-4 py-3 text-left font-semibold border-r border-purple-200 text-purple-900">#</th>
                         <th className="px-4 py-3 text-left font-semibold border-r border-purple-200 text-purple-900">Date</th>
-                        <th className="px-4 py-3 text-left font-semibold border-r border-purple-200 text-purple-900">Project Name</th>
+                        <th className="px-4 py-3 text-left font-semibold border-r border-purple-200 text-purple-900">Brand</th>
                         <th className="px-4 py-3 text-left font-semibold border-r border-purple-200 text-purple-900">Client</th>
                         <th className="px-4 py-3 text-left font-semibold border-r border-purple-200 text-purple-900">Product</th>
                         <th className="px-4 py-3 text-left font-semibold border-r border-purple-200 text-purple-900">Platform</th>
@@ -295,13 +369,13 @@ export default function SocialMediaProjectsPage() {
                 <svg className="w-16 h-16 text-muted-foreground mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
                 </svg>
-                <h3 className="text-xl font-semibold text-foreground mb-2">No Social Media Projects Found</h3>
-                <p className="text-muted-foreground mb-6">There are no social media projects in the system yet.</p>
+                <h3 className="text-xl font-semibold text-foreground mb-2">No Social Media Brands Found</h3>
+                <p className="text-muted-foreground mb-6">There are no social media brands in the system yet.</p>
                 <Link to="/admin/projects/new" className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold inline-flex items-center gap-2 transition-colors">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                   </svg>
-                  Create First Social Media Project
+                  Create First Brand
                 </Link>
               </div>
             )}
