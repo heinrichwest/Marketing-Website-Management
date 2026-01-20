@@ -35,8 +35,7 @@ export default function NewProjectPage() {
     engagement: 0,
   })
 
-  const [selectedPlatforms, setSelectedPlatforms] = useState<SocialMediaPlatform[]>([])
-  const [customPlatform, setCustomPlatform] = useState("")
+   const [selectedPlatform, setSelectedPlatform] = useState<SocialMediaPlatform | "">("")
 
   useEffect(() => {
     if (!isSignedIn) {
@@ -61,26 +60,7 @@ export default function NewProjectPage() {
 
   const platforms: SocialMediaPlatform[] = ["Facebook", "Instagram", "Twitter", "LinkedIn", "TikTok", "YouTube", "Pinterest", "Snapchat"]
 
-  const handlePlatformToggle = (platform: SocialMediaPlatform) => {
-    setSelectedPlatforms(prev =>
-      prev.includes(platform)
-        ? prev.filter(p => p !== platform)
-        : [...prev, platform]
-    )
-  }
 
-  const handleAddCustomPlatform = () => {
-    if (customPlatform.trim()) {
-      if (!selectedPlatforms.includes(customPlatform.trim() as SocialMediaPlatform)) {
-        setSelectedPlatforms(prev => [...prev, customPlatform.trim() as SocialMediaPlatform])
-      }
-      setCustomPlatform("")
-    }
-  }
-
-  const handleRemovePlatform = (platform: SocialMediaPlatform) => {
-    setSelectedPlatforms(prev => prev.filter(p => p !== platform))
-  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -92,7 +72,7 @@ export default function NewProjectPage() {
       projectType,
       projectDate: formData.projectDate ? new Date(formData.projectDate) : undefined,
       product: formData.product || undefined,
-      socialMediaPlatforms: projectType === "social_media" ? selectedPlatforms : undefined,
+      socialMediaPlatforms: projectType === "social_media" && selectedPlatform ? [selectedPlatform] : undefined,
       posts: projectType === "social_media" ? Number(formData.posts) : undefined,
       likes: projectType === "social_media" ? Number(formData.likes) : undefined,
       impressions: projectType === "social_media" ? Number(formData.impressions) : undefined,
@@ -260,8 +240,9 @@ export default function NewProjectPage() {
                   <option value="">Select a product</option>
                   <option value="Learnerships">Learnerships</option>
                   <option value="Academy">Academy</option>
-                  <option value="Trouidees">Trouidees</option>
+                  <option value="Employment Equity">Employment Equity</option>
                   <option value="Venueideas">Venueideas</option>
+                  <option value="Trouidees">Trouidees</option>
                 </select>
                 <p className="text-xs text-muted-foreground mt-1">
                   Select the product type for this project
@@ -384,80 +365,25 @@ export default function NewProjectPage() {
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-foreground">Social Media Campaign Details</h3>
 
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Platforms *
-                  </label>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {platforms.map((platform) => (
-                      <label
-                        key={platform}
-                        className="flex items-center space-x-2 p-3 border border-border rounded-lg cursor-pointer hover:bg-muted/50 transition"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedPlatforms.includes(platform)}
-                          onChange={() => handlePlatformToggle(platform)}
-                          className="w-4 h-4 text-primary focus:ring-primary rounded"
-                        />
-                        <span className="text-sm font-medium capitalize">{platform}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Add Custom Platform */}
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Add Custom Platform
-                  </label>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={customPlatform}
-                      onChange={(e) => setCustomPlatform(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddCustomPlatform())}
-                      placeholder="Enter platform name (e.g., Threads, WhatsApp)"
-                      className="flex-1 px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleAddCustomPlatform}
-                      className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium"
-                    >
-                      Add
-                    </button>
-                  </div>
-                </div>
-
-                {/* Selected Platforms */}
-                {selectedPlatforms.length > 0 && (
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      Selected Platforms
-                    </label>
-                    <div className="flex flex-wrap gap-2">
-                      {selectedPlatforms.map((platform) => (
-                        <span
-                          key={platform}
-                          className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-sm font-medium"
-                        >
-                          {platform}
-                          <button
-                            type="button"
-                            onClick={() => handleRemovePlatform(platform)}
-                            className="hover:text-red-600 transition-colors"
-                            aria-label={`Remove ${platform}`}
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                 <div>
+                   <label htmlFor="platform" className="block text-sm font-medium text-foreground mb-2">
+                     Platform *
+                   </label>
+                   <select
+                     id="platform"
+                     required
+                     value={selectedPlatform}
+                     onChange={(e) => setSelectedPlatform(e.target.value as SocialMediaPlatform)}
+                     className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                   >
+                     <option value="">Select a platform</option>
+                     {platforms.map((platform) => (
+                       <option key={platform} value={platform}>
+                         {platform}
+                       </option>
+                     ))}
+                   </select>
+                 </div>
 
                 <div>
                   <label htmlFor="campaignGoals" className="block text-sm font-medium text-foreground mb-2">

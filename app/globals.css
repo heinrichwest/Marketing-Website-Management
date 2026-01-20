@@ -98,11 +98,17 @@
   --color-accent: #FFA600;
   --color-accent-light: #FFB733;
 
-  /* Secondary - Light Blue */
-  --color-secondary: #92ABC4;
-  --color-secondary-light: #B3C5D8;
+   /* Secondary - Light Blue */
+   --color-secondary: #92ABC4;
+   --color-secondary-light: #B3C5D8;
 
-  /* Status colors */
+   /* Website and Social colors */
+   --color-website: #92ABC4;
+   --color-website-hover: #92ABC4;
+   --color-social: #FFA600;
+   --color-social-hover: #E69500;
+
+   /* Status colors */
   --color-success: #10B981;
   --color-danger: #EF4444;
   --color-warning: #FFA600;

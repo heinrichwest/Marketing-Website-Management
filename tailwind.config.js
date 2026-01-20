@@ -73,6 +73,14 @@ export default {
           "4": "hsl(var(--chart-4))",
           "5": "hsl(var(--chart-5))",
         },
+        website: {
+          DEFAULT: "#92abc4",
+          hover: "#92abc4",
+        },
+        social: {
+          DEFAULT: "#FFA600",
+          hover: "#e69500",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

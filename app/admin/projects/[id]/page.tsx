@@ -199,22 +199,7 @@ export default function ViewProjectPage() {
                 <div className="card">
                   <h2 className="text-xl font-bold text-foreground mb-4">Analytics</h2>
                   <div className="space-y-4">
-                    {project.googleAnalyticsPropertyId && (
-                      <div>
-                        <div className="text-sm text-muted-foreground mb-1">GA4 Property ID</div>
-                        <div className="text-foreground font-mono text-sm">
-                          {project.googleAnalyticsPropertyId}
-                        </div>
-                      </div>
-                    )}
-                    {project.googleAnalyticsViewId && (
-                      <div>
-                        <div className="text-sm text-muted-foreground mb-1">Analytics View ID</div>
-                        <div className="text-foreground font-mono text-sm">
-                          {project.googleAnalyticsViewId}
-                        </div>
-                      </div>
-                    )}
+
                   </div>
                 </div>
               )}

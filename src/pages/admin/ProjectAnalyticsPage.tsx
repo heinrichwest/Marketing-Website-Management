@@ -96,37 +96,7 @@ export default function ProjectAnalyticsPage() {
             </div>
           </div>
 
-          {/* GA4 Property Info */}
-          <div className="card mb-8">
-            <h2 className="text-xl font-bold text-foreground mb-4">Google Analytics Configuration</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <div className="text-sm text-muted-foreground mb-1">GA4 Property ID</div>
-                <div className="font-mono text-foreground">
-                  {project.googleAnalyticsPropertyId || "Not configured"}
-                </div>
-              </div>
-              <div>
-                <div className="text-sm text-muted-foreground mb-1">Analytics View ID (Legacy)</div>
-                <div className="font-mono text-foreground">
-                  {project.googleAnalyticsViewId || "Not configured"}
-                </div>
-              </div>
-            </div>
-            {project.websiteUrl && (
-              <div className="mt-4">
-                <div className="text-sm text-muted-foreground mb-1">Website URL</div>
-                <a
-                  href={project.websiteUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary hover:underline"
-                >
-                  {project.websiteUrl}
-                </a>
-              </div>
-            )}
-          </div>
+
 
           {/* Analytics Overview */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

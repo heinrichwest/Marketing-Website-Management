@@ -22,7 +22,7 @@ export interface User {
 export type ProjectType = "website" | "social_media"
 export type ProjectStage = "planning" | "design" | "development" | "testing" | "seo_optimization" | "launch" | "maintenance"
 export type ProjectStatus = "active" | "paused" | "completed"
-export type ProductType = "Learnerships" | "Academy" | "Trouidees" | "Venueideas" | "Employment Equity Act"
+export type ProductType = "Learnerships" | "Academy" | "Employment Equity" | "Venueideas" | "Trouidees"
 
 export interface Project {
   id: string
@@ -35,8 +35,7 @@ export interface Project {
   currentStage: ProjectStage
   status: ProjectStatus
   websiteUrl?: string
-  googleAnalyticsPropertyId?: string
-  googleAnalyticsViewId?: string
+  brand?: string // Brand name
   createdAt: Date
   launchDate?: Date
   updatedAt: Date

@@ -5,7 +5,7 @@ import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
 import { getUsers, getProjects, STORAGE_KEYS } from "@/lib/mock-data"
-import type { ProjectType, ProjectStage, ProjectStatus, SocialMediaPlatform } from "@/types"
+import type { ProjectType, ProjectStage, ProjectStatus, SocialMediaPlatform, ProductType } from "@/types"
 
 export default function NewProjectPage() {
   const { isSignedIn, user } = useAuth()
@@ -22,15 +22,22 @@ export default function NewProjectPage() {
     currentStage: "planning" as ProjectStage,
     status: "active" as ProjectStatus,
     websiteUrl: "",
-    googleAnalyticsPropertyId: "",
-    googleAnalyticsViewId: "",
+    brand: "",
+    projectDate: "",
     notes: "",
     // Social media specific fields
+    socialMediaPlatforms: [] as SocialMediaPlatform[],
+    product: "" as ProductType,
     campaignGoals: "",
     targetAudience: "",
+    posts: 0,
+    likes: 0,
+    impressions: 0,
+    reach: 0,
+    engagement: 0,
   })
 
-  const [selectedPlatforms, setSelectedPlatforms] = useState<SocialMediaPlatform[]>([])
+  const [selectedPlatform, setSelectedPlatform] = useState<SocialMediaPlatform | "">("")
 
   useEffect(() => {
     if (!isSignedIn) {
@@ -55,13 +62,7 @@ export default function NewProjectPage() {
 
   const platforms: SocialMediaPlatform[] = ["Facebook", "Instagram", "Twitter", "LinkedIn", "TikTok", "YouTube"]
 
-  const handlePlatformToggle = (platform: SocialMediaPlatform) => {
-    setSelectedPlatforms(prev =>
-      prev.includes(platform)
-        ? prev.filter(p => p !== platform)
-        : [...prev, platform]
-    )
-  }
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -71,7 +72,10 @@ export default function NewProjectPage() {
       id: `proj-${Date.now()}`,
       ...formData,
       projectType,
-      socialMediaPlatforms: projectType === "social_media" ? selectedPlatforms : undefined,
+      brand: formData.brand || undefined,
+      projectDate: formData.projectDate ? new Date(formData.projectDate) : undefined,
+      socialMediaPlatforms: projectType === "social_media" && selectedPlatform ? [selectedPlatform] : undefined,
+      product: formData.product || undefined,
       createdAt: new Date(),
       updatedAt: new Date(),
     }
@@ -292,50 +296,50 @@ export default function NewProjectPage() {
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-foreground">Website Details</h3>
 
-                <div>
-                  <label htmlFor="websiteUrl" className="block text-sm font-medium text-foreground mb-2">
-                    Website URL
-                  </label>
-                  <input
-                    type="url"
-                    id="websiteUrl"
-                    value={formData.websiteUrl}
-                    onChange={(e) => setFormData({ ...formData, websiteUrl: e.target.value })}
-                    className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="https://example.com"
-                  />
-                </div>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                   <div>
+                     <label htmlFor="websiteUrl" className="block text-sm font-medium text-foreground mb-2">
+                       Website URL
+                     </label>
+                     <input
+                       type="url"
+                       id="websiteUrl"
+                       value={formData.websiteUrl}
+                       onChange={(e) => setFormData({ ...formData, websiteUrl: e.target.value })}
+                       className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                       placeholder="https://example.com"
+                     />
+                   </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="googleAnalyticsPropertyId" className="block text-sm font-medium text-foreground mb-2">
-                      Google Analytics Property ID
-                    </label>
-                    <input
-                      type="text"
-                      id="googleAnalyticsPropertyId"
-                      value={formData.googleAnalyticsPropertyId}
-                      onChange={(e) => setFormData({ ...formData, googleAnalyticsPropertyId: e.target.value })}
-                      className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                      placeholder="G-XXXXXXXXXX"
-                    />
-                  </div>
+                   <div>
+                     <label htmlFor="brand" className="block text-sm font-medium text-foreground mb-2">
+                       Brand
+                     </label>
+                     <input
+                       type="text"
+                       id="brand"
+                       value={formData.brand}
+                       onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
+                       className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                       placeholder="Brand name"
+                     />
+                   </div>
 
-                  <div>
-                    <label htmlFor="googleAnalyticsViewId" className="block text-sm font-medium text-foreground mb-2">
-                      Google Analytics View ID
-                    </label>
-                    <input
-                      type="text"
-                      id="googleAnalyticsViewId"
-                      value={formData.googleAnalyticsViewId}
-                      onChange={(e) => setFormData({ ...formData, googleAnalyticsViewId: e.target.value })}
-                      className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                      placeholder="123456789"
-                    />
-                  </div>
-                </div>
-              </div>
+                   <div>
+                     <label htmlFor="projectDate" className="block text-sm font-medium text-foreground mb-2">
+                       Project Date
+                     </label>
+                     <input
+                       type="date"
+                       id="projectDate"
+                       value={formData.projectDate}
+                       onChange={(e) => setFormData({ ...formData, projectDate: e.target.value })}
+                       className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                     />
+                   </div>
+                 </div>
+
+               </div>
             )}
 
             {/* Social Media Specific Fields */}
@@ -343,27 +347,25 @@ export default function NewProjectPage() {
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-foreground">Social Media Campaign Details</h3>
 
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Platforms *
-                  </label>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {platforms.map((platform) => (
-                      <label
-                        key={platform}
-                        className="flex items-center space-x-2 p-3 border border-border rounded-lg cursor-pointer hover:bg-muted/50 transition"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedPlatforms.includes(platform)}
-                          onChange={() => handlePlatformToggle(platform)}
-                          className="w-4 h-4 text-primary focus:ring-primary rounded"
-                        />
-                        <span className="text-sm font-medium capitalize">{platform}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
+                 <div>
+                   <label htmlFor="platform" className="block text-sm font-medium text-foreground mb-2">
+                     Platform *
+                   </label>
+                   <select
+                     id="platform"
+                     required
+                     value={selectedPlatform}
+                     onChange={(e) => setSelectedPlatform(e.target.value as SocialMediaPlatform)}
+                     className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                   >
+                     <option value="">Select a platform</option>
+                     {platforms.map((platform) => (
+                       <option key={platform} value={platform}>
+                         {platform}
+                       </option>
+                     ))}
+                   </select>
+                 </div>
 
                 <div>
                   <label htmlFor="campaignGoals" className="block text-sm font-medium text-foreground mb-2">
@@ -379,21 +381,117 @@ export default function NewProjectPage() {
                   />
                 </div>
 
-                <div>
-                  <label htmlFor="targetAudience" className="block text-sm font-medium text-foreground mb-2">
-                    Target Audience *
-                  </label>
-                  <textarea
-                    id="targetAudience"
-                    required
-                    value={formData.targetAudience}
-                    onChange={(e) => setFormData({ ...formData, targetAudience: e.target.value })}
-                    className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary h-24"
-                    placeholder="e.g., Business owners, HR managers, training coordinators aged 30-55"
-                  />
-                </div>
-              </div>
-            )}
+                 <div>
+                   <label htmlFor="targetAudience" className="block text-sm font-medium text-foreground mb-2">
+                     Target Audience *
+                   </label>
+                   <textarea
+                     id="targetAudience"
+                     required
+                     value={formData.targetAudience}
+                     onChange={(e) => setFormData({ ...formData, targetAudience: e.target.value })}
+                     className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary h-24"
+                     placeholder="e.g., Business owners, HR managers, training coordinators aged 30-55"
+                   />
+                 </div>
+
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                   <div>
+                     <label htmlFor="product" className="block text-sm font-medium text-foreground mb-2">
+                       Product
+                     </label>
+                     <select
+                       id="product"
+                       value={formData.product}
+                       onChange={(e) => setFormData({ ...formData, product: e.target.value as ProductType })}
+                       className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                     >
+                       <option value="">Select Product</option>
+                       <option value="Learnerships">Learnerships</option>
+                       <option value="Academy">Academy</option>
+                       <option value="Employment Equity">Employment Equity</option>
+                       <option value="Venueideas">Venueideas</option>
+                       <option value="Trouidees">Trouidees</option>
+                     </select>
+                   </div>
+                 </div>
+
+                 <div>
+                   <h4 className="text-md font-semibold text-foreground mb-3">Initial Metrics</h4>
+                   <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                     <div>
+                       <label htmlFor="posts" className="block text-sm font-medium text-foreground mb-2">
+                         Posts
+                       </label>
+                       <input
+                         type="number"
+                         id="posts"
+                         min="0"
+                         value={formData.posts}
+                         onChange={(e) => setFormData({ ...formData, posts: parseInt(e.target.value) || 0 })}
+                         className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                       />
+                     </div>
+
+                     <div>
+                       <label htmlFor="likes" className="block text-sm font-medium text-foreground mb-2">
+                         Likes
+                       </label>
+                       <input
+                         type="number"
+                         id="likes"
+                         min="0"
+                         value={formData.likes}
+                         onChange={(e) => setFormData({ ...formData, likes: parseInt(e.target.value) || 0 })}
+                         className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                       />
+                     </div>
+
+                     <div>
+                       <label htmlFor="impressions" className="block text-sm font-medium text-foreground mb-2">
+                         Impressions
+                       </label>
+                       <input
+                         type="number"
+                         id="impressions"
+                         min="0"
+                         value={formData.impressions}
+                         onChange={(e) => setFormData({ ...formData, impressions: parseInt(e.target.value) || 0 })}
+                         className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                       />
+                     </div>
+
+                     <div>
+                       <label htmlFor="reach" className="block text-sm font-medium text-foreground mb-2">
+                         Reach
+                       </label>
+                       <input
+                         type="number"
+                         id="reach"
+                         min="0"
+                         value={formData.reach}
+                         onChange={(e) => setFormData({ ...formData, reach: parseInt(e.target.value) || 0 })}
+                         className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                       />
+                     </div>
+
+                     <div>
+                       <label htmlFor="engagement" className="block text-sm font-medium text-foreground mb-2">
+                         Engagement
+                       </label>
+                       <input
+                         type="number"
+                         id="engagement"
+                         min="0"
+                         value={formData.engagement}
+                         onChange={(e) => setFormData({ ...formData, engagement: parseInt(e.target.value) || 0 })}
+                         className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                       />
+                     </div>
+                   </div>
+                 </div>
+               </div>
+             )}
 
             {/* Notes */}
             <div>

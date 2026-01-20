@@ -91,15 +91,28 @@ export default function EditProjectPage() {
         ...projects[projectIndex],
         ...formData,
         webDeveloperId: formData.webDeveloperId || undefined,
-        socialMediaCoordinatorId: formData.socialMediaCoordinatorId || undefined,
         projectDate: formData.projectDate ? new Date(formData.projectDate) : undefined,
         product: formData.product || undefined,
-        socialMediaPlatforms: formData.socialMediaPlatforms,
-        posts: Number(formData.posts),
-        likes: Number(formData.likes),
-        impressions: Number(formData.impressions),
-        reach: Number(formData.reach),
-        engagement: Number(formData.engagement),
+        // Only include social media fields for social media projects
+        ...(project?.projectType === "social_media" && {
+          socialMediaCoordinatorId: formData.socialMediaCoordinatorId || undefined,
+          socialMediaPlatforms: formData.socialMediaPlatforms,
+          posts: Number(formData.posts),
+          likes: Number(formData.likes),
+          impressions: Number(formData.impressions),
+          reach: Number(formData.reach),
+          engagement: Number(formData.engagement),
+        }),
+        // For website projects, ensure social media fields are not set
+        ...(project?.projectType === "website" && {
+          socialMediaCoordinatorId: undefined,
+          socialMediaPlatforms: undefined,
+          posts: undefined,
+          likes: undefined,
+          impressions: undefined,
+          reach: undefined,
+          engagement: undefined,
+        }),
         updatedAt: new Date(),
       }
 
@@ -123,38 +136,7 @@ export default function EditProjectPage() {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handlePlatformChange = (platform: string) => {
-    setFormData((prev) => {
-      const platforms = prev.socialMediaPlatforms as SocialMediaPlatform[]
-      if (platforms.includes(platform as SocialMediaPlatform)) {
-        return { ...prev, socialMediaPlatforms: platforms.filter(p => p !== platform) as SocialMediaPlatform[] }
-      } else {
-        return { ...prev, socialMediaPlatforms: [...platforms, platform as SocialMediaPlatform] as SocialMediaPlatform[] }
-      }
-    })
-  }
 
-  const [customPlatform, setCustomPlatform] = useState("")
-
-  const handleAddCustomPlatform = () => {
-    if (customPlatform.trim()) {
-      const platforms = formData.socialMediaPlatforms as SocialMediaPlatform[]
-      if (!platforms.includes(customPlatform.trim() as SocialMediaPlatform)) {
-        setFormData((prev) => ({
-          ...prev,
-          socialMediaPlatforms: [...platforms, customPlatform.trim() as SocialMediaPlatform] as SocialMediaPlatform[]
-        }))
-      }
-      setCustomPlatform("")
-    }
-  }
-
-  const handleRemovePlatform = (platform: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      socialMediaPlatforms: (prev.socialMediaPlatforms as SocialMediaPlatform[]).filter(p => p !== platform) as SocialMediaPlatform[]
-    }))
-  }
 
   if (!project) {
     return (
@@ -255,8 +237,9 @@ export default function EditProjectPage() {
                         <option value="">Select a product</option>
                         <option value="Learnerships">Learnerships</option>
                         <option value="Academy">Academy</option>
-                        <option value="Trouidees">Trouidees</option>
+                        <option value="Employment Equity">Employment Equity</option>
                         <option value="Venueideas">Venueideas</option>
+                        <option value="Trouidees">Trouidees</option>
                       </select>
                       <p className="text-xs text-muted-foreground mt-1">
                         Select the product type for this project
@@ -326,24 +309,26 @@ export default function EditProjectPage() {
                       </p>
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">
-                        Social Media Coordinator
-                      </label>
-                      <select
-                        name="socialMediaCoordinatorId"
-                        value={formData.socialMediaCoordinatorId}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground"
-                      >
-                        <option value="">Not assigned</option>
-                        {coordinators.map((coord) => (
-                          <option key={coord.id} value={coord.id}>
-                            {coord.fullName} ({coord.email})
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                     {project.projectType === "social_media" && (
+                       <div>
+                         <label className="block text-sm font-medium text-foreground mb-2">
+                           Social Media Coordinator
+                         </label>
+                         <select
+                           name="socialMediaCoordinatorId"
+                           value={formData.socialMediaCoordinatorId}
+                           onChange={handleChange}
+                           className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground"
+                         >
+                           <option value="">Not assigned</option>
+                           {coordinators.map((coord) => (
+                             <option key={coord.id} value={coord.id}>
+                               {coord.fullName} ({coord.email})
+                             </option>
+                           ))}
+                         </select>
+                       </div>
+                     )}
                   </div>
                 </div>
 
@@ -352,76 +337,29 @@ export default function EditProjectPage() {
                   <div className="pt-6 border-t border-border">
                     <h2 className="text-xl font-bold text-foreground mb-4">Social Media Platforms</h2>
                     <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-foreground mb-3">
-                          Select Platforms
-                        </label>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
-                          {["Facebook", "Instagram", "Twitter", "LinkedIn", "TikTok", "YouTube", "Pinterest", "Snapchat"].map((platform) => (
-                            <label key={platform} className="flex items-center gap-2 p-3 border border-border rounded-lg hover:bg-muted cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={(formData.socialMediaPlatforms as string[]).includes(platform)}
-                                onChange={() => handlePlatformChange(platform)}
-                                className="w-4 h-4 text-primary"
-                              />
-                              <span className="text-sm font-medium text-foreground">{platform}</span>
-                            </label>
-                          ))}
-                        </div>
-
-                        {/* Add Custom Platform */}
-                        <div className="mb-4">
-                          <label className="block text-sm font-medium text-foreground mb-2">
-                            Add Custom Platform
-                          </label>
-                          <div className="flex gap-2">
-                            <input
-                              type="text"
-                              value={customPlatform}
-                              onChange={(e) => setCustomPlatform(e.target.value)}
-                              onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddCustomPlatform())}
-                              placeholder="Enter platform name (e.g., Threads, WhatsApp)"
-                              className="flex-1 px-4 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                            />
-                            <button
-                              type="button"
-                              onClick={handleAddCustomPlatform}
-                              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium"
-                            >
-                              Add
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Selected Platforms */}
-                        {(formData.socialMediaPlatforms as string[]).length > 0 && (
-                          <div>
-                            <label className="block text-sm font-medium text-foreground mb-2">
-                              Selected Platforms
-                            </label>
-                            <div className="flex flex-wrap gap-2">
-                              {(formData.socialMediaPlatforms as string[]).map((platform) => (
-                                <span
-                                  key={platform}
-                                  className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-sm font-medium"
-                                >
-                                  {platform}
-                                  <button
-                                    type="button"
-                                    onClick={() => handleRemovePlatform(platform)}
-                                    className="hover:text-red-600 transition-colors"
-                                    aria-label={`Remove ${platform}`}
-                                  >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                  </button>
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
+                       <div>
+                         <label htmlFor="platform" className="block text-sm font-medium text-foreground mb-3">
+                           Select Platform
+                         </label>
+                         <select
+                           id="platform"
+                           value={(formData.socialMediaPlatforms as string[])[0] || ""}
+                           onChange={(e) => {
+                             const selectedPlatform = e.target.value as SocialMediaPlatform;
+                             setFormData(prev => ({
+                               ...prev,
+                               socialMediaPlatforms: selectedPlatform ? [selectedPlatform] : []
+                             }));
+                           }}
+                           className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary mb-4"
+                         >
+                           <option value="">Select a platform</option>
+                            {[...new Set(["Facebook", "Instagram", "Twitter", "LinkedIn", "TikTok", "YouTube", "Pinterest", "Snapchat"])].map((platform) => (
+                             <option key={platform} value={platform}>
+                               {platform}
+                             </option>
+                           ))}
+                          </select>
                       </div>
 
                       <div className="pt-4">

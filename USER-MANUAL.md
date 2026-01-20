@@ -223,11 +223,9 @@ The system supports two types of projects:
    - Status (Active/Paused/Completed)
 
 **For Website Projects, additionally provide:**
-   - Web Developer (optional)
-   - Social Media Coordinator (optional)
-   - Website URL
-   - Google Analytics Property ID
-   - Google Analytics View ID
+    - Web Developer (optional)
+    - Social Media Coordinator (optional)
+    - Website URL
 
 **For Social Media Projects, additionally provide:**
    - Social Media Coordinator * (required)
@@ -242,12 +240,11 @@ The system supports two types of projects:
 1. Navigate to project list
 2. Click on project name
 3. Click "Edit Project"
-4. Update fields:
-   - Basic information
-   - Assign web developer
-   - Assign social media coordinator
-   - Update stage and status
-   - Add Google Analytics IDs
+ 4. Update fields:
+    - Basic information
+    - Assign web developer
+    - Assign social media coordinator
+    - Update stage and status
 5. Click "Save Changes"
 
 **Project Stages:**
@@ -559,11 +556,7 @@ If work is not satisfactory:
 4. Add top pages (optional)
 5. Save data
 
-**Google Analytics Integration:**
-Admin can configure:
-- Google Analytics Property ID
-- Google Analytics View ID
-- Automated data collection (future feature)
+
 
 ---
 
@@ -677,7 +670,7 @@ Admin can configure:
 ```env
 # Future backend integration
 NEXT_PUBLIC_API_URL=http://localhost:3001
-NEXT_PUBLIC_GA_ID=your-ga-id
+
 
 # Authentication
 NEXTAUTH_SECRET=your-secret-key
@@ -1019,7 +1012,6 @@ Based on 4px grid:
 - Bulk operations
 
 **Phase 3: Analytics & Reporting**
-- Automated Google Analytics sync
 - Custom report builder
 - Data export (PDF, CSV, Excel)
 - Dashboard customization

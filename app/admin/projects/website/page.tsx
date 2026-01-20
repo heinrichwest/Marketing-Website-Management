@@ -30,29 +30,66 @@ export default function WebsiteProjectsPage() {
   }, [isSignedIn, user, navigate])
 
   const [searchTerm, setSearchTerm] = useState("")
+  const [productFilter, setProductFilter] = useState("")
+  const [dateFrom, setDateFrom] = useState("")
+  const [dateTo, setDateTo] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const [projects] = useState(getProjects().filter(p => p.projectType === "website"))
   const [users] = useState(getUsers())
 
-  // Filter projects based on search term
+  // Filter projects based on search term and date range
   const filteredProjects = useMemo(() => {
-    return projects.filter(project =>
-      project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.description.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  }, [projects, searchTerm])
+    return projects.filter(project => {
+      const matchesSearch = project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        project.description.toLowerCase().includes(searchTerm.toLowerCase())
 
-  // Group projects by month (show all months from November onwards)
+      const matchesProduct = !productFilter || project.product === productFilter
+
+      const matchesDateRange = (() => {
+        // Use projectDate if available, otherwise fall back to createdAt
+        const dateToUse = project.projectDate || project.createdAt
+        const projectDate = new Date(dateToUse)
+
+        if (dateFrom && dateTo) {
+          const fromDate = new Date(dateFrom)
+          const toDate = new Date(dateTo)
+          return projectDate >= fromDate && projectDate <= toDate
+        } else if (dateFrom) {
+          const fromDate = new Date(dateFrom)
+          return projectDate >= fromDate
+        } else if (dateTo) {
+          const toDate = new Date(dateTo)
+          return projectDate <= toDate
+        }
+
+        return true // No date filter applied
+      })()
+
+      return matchesSearch && matchesProduct && matchesDateRange
+    })
+  }, [projects, searchTerm, productFilter, dateFrom, dateTo])
+
+  const availableProducts = useMemo(() => {
+    const products = new Set<string>()
+    projects.forEach(project => {
+      if (project.product) {
+        products.add(project.product)
+      }
+    })
+    return Array.from(products).sort()
+  }, [projects])
+
+  // Group projects by month (show all months from November 2024 onwards)
   const projectsByMonth = useMemo(() => {
     const grouped: Record<string, Project[]> = {}
 
     // Initialize months from November 2024 to current month
     const startDate = new Date(2024, 10, 1) // November 2024
-    const currentDate = new Date()
+    const endDate = new Date() // Current date
     const months = []
 
     let currentMonth = new Date(startDate)
-    while (currentMonth <= currentDate) {
+    while (currentMonth <= endDate) {
       const monthYear = currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
       months.push(monthYear)
       grouped[monthYear] = []
@@ -61,7 +98,9 @@ export default function WebsiteProjectsPage() {
 
     // Add projects to their respective months
     filteredProjects.forEach(project => {
-      const projectDate = new Date(project.createdAt)
+      // Use projectDate if available, otherwise fall back to createdAt
+      const dateToUse = project.projectDate || project.createdAt
+      const projectDate = new Date(dateToUse)
       const monthYear = projectDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
 
       if (grouped[monthYear]) {
@@ -129,28 +168,87 @@ export default function WebsiteProjectsPage() {
             </div>
           </div>
 
-          {/* Search */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-border/50 p-6 mb-8 shadow-sm">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Search:</span>
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="border border-border rounded px-3 py-2 bg-background text-foreground hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary min-w-[300px]"
-                  placeholder="Search website projects..."
-                />
-              </div>
-              <div className="text-sm text-muted-foreground">
-                Showing {filteredProjects.length} of {projects.length} website projects
-              </div>
-            </div>
-          </div>
+           {/* Search */}
+           <div className="bg-white dark:bg-gray-800 rounded-xl border border-border/50 p-6 mb-8 shadow-sm">
+             <div className="flex flex-col gap-4">
+               <div className="flex items-center gap-4 flex-wrap">
+                 <div className="flex items-center gap-2">
+                   <span className="text-sm text-muted-foreground">Search:</span>
+                   <input
+                     type="text"
+                     value={searchTerm}
+                     onChange={(e) => setSearchTerm(e.target.value)}
+                     className="border border-border rounded px-3 py-2 bg-background text-foreground hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary min-w-[300px]"
+                     placeholder="Search website projects..."
+                   />
+                 </div>
+
+                 <div className="flex items-center gap-2">
+                   <span className="text-sm text-muted-foreground font-medium">Product:</span>
+                   <select
+                     value={productFilter}
+                     onChange={(e) => setProductFilter(e.target.value)}
+                     className="border border-border rounded px-3 py-2 bg-background text-foreground hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary min-w-[160px]"
+                   >
+                     <option value="">All Products</option>
+                     {availableProducts.map(product => (
+                       <option key={product} value={product}>{product}</option>
+                     ))}
+                   </select>
+                 </div>
+
+                 <div className="flex items-center gap-2">
+                   <span className="text-sm text-muted-foreground font-medium">Date Range:</span>
+                   <input
+                     type="date"
+                     value={dateFrom}
+                     onChange={(e) => setDateFrom(e.target.value)}
+                     className="border border-border rounded px-3 py-2 bg-background text-foreground hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                     placeholder="From"
+                   />
+                   <span className="text-sm text-muted-foreground">to</span>
+                   <input
+                     type="date"
+                     value={dateTo}
+                     onChange={(e) => setDateTo(e.target.value)}
+                     className="border border-border rounded px-3 py-2 bg-background text-foreground hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                     placeholder="To"
+                   />
+                 </div>
+
+                  {(searchTerm || productFilter || dateFrom || dateTo) && (
+                    <button
+                      onClick={() => {
+                        setSearchTerm("")
+                        setProductFilter("")
+                        setDateFrom("")
+                        setDateTo("")
+                      }}
+                      className="text-sm text-blue-600 hover:text-blue-800 font-medium underline"
+                    >
+                      Clear Filters
+                    </button>
+                  )}
+               </div>
+
+               <div className="text-sm text-muted-foreground">
+                 Showing {filteredProjects.length} of {projects.length} website projects
+               </div>
+             </div>
+           </div>
 
           {/* Monthly Website Projects */}
           <div className="space-y-8">
-            {Object.entries(projectsByMonth).map(([monthYear, monthProjects]) => (
+            {Object.entries(projectsByMonth)
+              .sort(([a], [b]) => {
+                // Parse month-year strings like "January 2026" to dates for sorting (latest first)
+                const [monthA, yearA] = a.split(' ')
+                const [monthB, yearB] = b.split(' ')
+                const dateA = new Date(parseInt(yearA), new Date(`${monthA} 1, ${yearA}`).getMonth(), 1)
+                const dateB = new Date(parseInt(yearB), new Date(`${monthB} 1, ${yearB}`).getMonth(), 1)
+                return dateB.getTime() - dateA.getTime()
+              })
+              .map(([monthYear, monthProjects]) => (
               <div key={monthYear} className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-8 border border-blue-200">
                 <h2 className="text-2xl font-bold text-blue-900 mb-6 flex items-center gap-3">
                   <svg className="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

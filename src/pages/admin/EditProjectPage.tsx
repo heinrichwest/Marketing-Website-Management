@@ -5,7 +5,7 @@ import { useAuth } from "../../../context/auth-context"
 import Navbar from "../../../components/navbar"
 import Footer from "../../../components/footer"
 import { getProjectById, getUsers } from "../../../lib/mock-data"
-import type { Project, User, ProjectStage, ProjectStatus } from "../../../types"
+import type { Project, User, ProjectStage, ProjectStatus, SocialMediaPlatform, ProductType } from "../../../types"
 
 export default function EditProjectPage() {
   const { isSignedIn, user } = useAuth()
@@ -19,14 +19,24 @@ export default function EditProjectPage() {
     name: "",
     description: "",
     websiteUrl: "",
-    googleAnalyticsPropertyId: "",
-    googleAnalyticsViewId: "",
+    brand: "",
+    projectDate: "",
     clientId: "",
     webDeveloperId: "",
     socialMediaCoordinatorId: "",
     currentStage: "planning" as ProjectStage,
     status: "active" as ProjectStatus,
     notes: "",
+    // Social media specific fields
+    socialMediaPlatform: "",
+    product: "" as ProductType,
+    campaignGoals: "",
+    targetAudience: "",
+    posts: 0,
+    likes: 0,
+    impressions: 0,
+    reach: 0,
+    engagement: 0,
   })
 
   useEffect(() => {
@@ -54,14 +64,24 @@ export default function EditProjectPage() {
         name: projectData.name,
         description: projectData.description,
         websiteUrl: projectData.websiteUrl || "",
-        googleAnalyticsPropertyId: projectData.googleAnalyticsPropertyId || "",
-        googleAnalyticsViewId: projectData.googleAnalyticsViewId || "",
+        brand: projectData.brand || "",
+        projectDate: projectData.projectDate ? projectData.projectDate.toISOString().split('T')[0] : "",
         clientId: projectData.clientId,
         webDeveloperId: projectData.webDeveloperId || "",
         socialMediaCoordinatorId: projectData.socialMediaCoordinatorId || "",
         currentStage: projectData.currentStage,
         status: projectData.status,
         notes: projectData.notes || "",
+        // Social media fields
+        socialMediaPlatform: projectData.socialMediaPlatforms?.[0] || "",
+        product: projectData.product as ProductType,
+        campaignGoals: projectData.campaignGoals || "",
+        targetAudience: projectData.targetAudience || "",
+        posts: projectData.posts || 0,
+        likes: projectData.likes || 0,
+        impressions: projectData.impressions || 0,
+        reach: projectData.reach || 0,
+        engagement: projectData.engagement || 0,
       }
 
       // Check if data has actually changed
@@ -82,13 +102,17 @@ export default function EditProjectPage() {
     const projectIndex = projects.findIndex((p: Project) => p.id === projectId)
 
     if (projectIndex !== -1) {
-      projects[projectIndex] = {
-        ...projects[projectIndex],
-        ...formData,
-        webDeveloperId: formData.webDeveloperId || undefined,
-        socialMediaCoordinatorId: formData.socialMediaCoordinatorId || undefined,
-        updatedAt: new Date(),
-      }
+       projects[projectIndex] = {
+         ...projects[projectIndex],
+         ...formData,
+         brand: formData.brand || undefined,
+         projectDate: formData.projectDate ? new Date(formData.projectDate) : undefined,
+         webDeveloperId: formData.webDeveloperId || undefined,
+         socialMediaCoordinatorId: formData.socialMediaCoordinatorId || undefined,
+         product: formData.product || undefined,
+         socialMediaPlatforms: formData.socialMediaPlatform ? [formData.socialMediaPlatform] : undefined,
+         updatedAt: new Date(),
+       }
 
       localStorage.setItem("marketing_management_website_projects", JSON.stringify(projects))
 
@@ -183,11 +207,45 @@ export default function EditProjectPage() {
                         className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground"
                       />
                     </div>
-                  </div>
-                </div>
+                   </div>
+                 </div>
 
-                {/* Team Assignment */}
-                <div className="pt-6 border-t border-border">
+                 {/* Project Details */}
+                 <div className="pt-6 border-t border-border">
+                   <h2 className="text-xl font-bold text-foreground mb-4">Project Details</h2>
+
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     <div>
+                       <label className="block text-sm font-medium text-foreground mb-2">
+                         Brand
+                       </label>
+                       <input
+                         type="text"
+                         name="brand"
+                         value={formData.brand}
+                         onChange={handleChange}
+                         placeholder="Brand name"
+                         className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground"
+                       />
+                     </div>
+
+                     <div>
+                       <label className="block text-sm font-medium text-foreground mb-2">
+                         Project Date
+                       </label>
+                       <input
+                         type="date"
+                         name="projectDate"
+                         value={formData.projectDate}
+                         onChange={handleChange}
+                         className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground"
+                       />
+                     </div>
+                   </div>
+                 </div>
+
+                 {/* Team Assignment */}
+                 <div className="pt-6 border-t border-border">
                   <h2 className="text-xl font-bold text-foreground mb-4">Team Assignment</h2>
 
                   <div className="space-y-4">
@@ -297,45 +355,163 @@ export default function EditProjectPage() {
                       </select>
                     </div>
                   </div>
-                </div>
+                 </div>
 
-                {/* Google Analytics */}
-                <div className="pt-6 border-t border-border">
-                  <h2 className="text-xl font-bold text-foreground mb-4">Google Analytics</h2>
+                 {/* Social Media Details */}
+                 <div className="pt-6 border-t border-border">
+                   <h2 className="text-xl font-bold text-foreground mb-4">Social Media Details</h2>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">
-                        GA4 Property ID
-                      </label>
-                      <input
-                        type="text"
-                        name="googleAnalyticsPropertyId"
-                        value={formData.googleAnalyticsPropertyId}
-                        onChange={handleChange}
-                        placeholder="G-XXXXXXXXXX"
-                        className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground"
-                      />
-                    </div>
+                   <div className="space-y-4">
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                       <div>
+                         <label className="block text-sm font-medium text-foreground mb-2">
+                           Product
+                         </label>
+                         <select
+                           name="product"
+                           value={formData.product}
+                           onChange={handleChange}
+                           className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground"
+                         >
+                           <option value="">Select Product</option>
+                           <option value="Learnerships">Learnerships</option>
+                           <option value="Academy">Academy</option>
+                           <option value="Employment Equity">Employment Equity</option>
+                           <option value="Venueideas">Venueideas</option>
+                           <option value="Trouidees">Trouidees</option>
+                         </select>
+                       </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">
-                        View ID (Legacy)
-                      </label>
-                      <input
-                        type="text"
-                        name="googleAnalyticsViewId"
-                        value={formData.googleAnalyticsViewId}
-                        onChange={handleChange}
-                        placeholder="123456789"
-                        className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground"
-                      />
-                    </div>
-                  </div>
-                </div>
+                       <div>
+                          <label htmlFor="platform" className="block text-sm font-medium text-foreground mb-2">
+                            Platform
+                          </label>
+                          <select
+                            id="platform"
+                            value={formData.socialMediaPlatform}
+                            onChange={(e) => {
+                              const selectedPlatform = e.target.value as SocialMediaPlatform;
+                              setFormData(prev => ({
+                                ...prev,
+                                socialMediaPlatform: selectedPlatform
+                              }));
+                            }}
+                            className="w-full border border-border rounded-lg px-4 py-2 bg-background text-foreground"
+                          >
+                            <option value="">Select a platform</option>
+                            {(["Facebook", "Instagram", "Twitter", "LinkedIn", "TikTok", "YouTube", "Pinterest", "Snapchat"] as SocialMediaPlatform[]).map((platform) => (
+                              <option key={platform} value={platform}>
+                                {platform}
+                              </option>
+                            ))}
+                          </select>
+                       </div>
+                     </div>
 
-                {/* Notes */}
-                <div className="pt-6 border-t border-border">
+                     <div>
+                       <label className="block text-sm font-medium text-foreground mb-2">
+                         Campaign Goals
+                       </label>
+                       <textarea
+                         name="campaignGoals"
+                         value={formData.campaignGoals}
+                         onChange={handleChange}
+                         rows={3}
+                         className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground"
+                         placeholder="Describe the main goals of this social media campaign..."
+                       />
+                     </div>
+
+                     <div>
+                       <label className="block text-sm font-medium text-foreground mb-2">
+                         Target Audience
+                       </label>
+                       <input
+                         type="text"
+                         name="targetAudience"
+                         value={formData.targetAudience}
+                         onChange={handleChange}
+                         className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground"
+                         placeholder="Describe the target audience (age, interests, demographics, etc.)"
+                       />
+                     </div>
+
+                     <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                       <div>
+                         <label className="block text-sm font-medium text-foreground mb-2">
+                           Posts
+                         </label>
+                         <input
+                           type="number"
+                           name="posts"
+                           value={formData.posts}
+                           onChange={handleChange}
+                           min="0"
+                           className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground"
+                         />
+                       </div>
+
+                       <div>
+                         <label className="block text-sm font-medium text-foreground mb-2">
+                           Likes
+                         </label>
+                         <input
+                           type="number"
+                           name="likes"
+                           value={formData.likes}
+                           onChange={handleChange}
+                           min="0"
+                           className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground"
+                         />
+                       </div>
+
+                       <div>
+                         <label className="block text-sm font-medium text-foreground mb-2">
+                           Impressions
+                         </label>
+                         <input
+                           type="number"
+                           name="impressions"
+                           value={formData.impressions}
+                           onChange={handleChange}
+                           min="0"
+                           className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground"
+                         />
+                       </div>
+
+                       <div>
+                         <label className="block text-sm font-medium text-foreground mb-2">
+                           Reach
+                         </label>
+                         <input
+                           type="number"
+                           name="reach"
+                           value={formData.reach}
+                           onChange={handleChange}
+                           min="0"
+                           className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground"
+                         />
+                       </div>
+
+                       <div>
+                         <label className="block text-sm font-medium text-foreground mb-2">
+                           Engagement
+                         </label>
+                         <input
+                           type="number"
+                           name="engagement"
+                           value={formData.engagement}
+                           onChange={handleChange}
+                           min="0"
+                           className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground"
+                         />
+                       </div>
+                     </div>
+                   </div>
+                 </div>
+
+                 {/* Notes */}
+                 <div className="pt-6 border-t border-border">
                   <label className="block text-sm font-medium text-foreground mb-2">Notes</label>
                   <textarea
                     name="notes"
