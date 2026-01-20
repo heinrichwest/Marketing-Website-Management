@@ -12,15 +12,55 @@ export default function EditProjectPage() {
   const params = useParams()
   const projectId = params.id as string
 
-  // Get data synchronously - avoid setState in effects
-  const projectData = getProjectById(projectId)
-  const allUsers = getUsers()
+  const [project, setProject] = useState<Project | null>(null)
+  const [users, setUsers] = useState<User[]>([])
+  const [formData, setFormData] = useState<{
+    name: string;
+    description: string;
+    websiteUrl: string;
+    clientId: string;
+    webDeveloperId: string;
+    socialMediaCoordinatorId: string;
+    currentStage: ProjectStage;
+    status: ProjectStatus;
+    notes: string;
+    projectDate: string;
+    product: string;
+    socialMediaPlatforms: SocialMediaPlatform[];
+    posts: number;
+    likes: number;
+    impressions: number;
+    reach: number;
+    engagement: number;
+  }>({
+    name: "",
+    description: "",
+    websiteUrl: "",
+    clientId: "",
+    webDeveloperId: "",
+    socialMediaCoordinatorId: "",
+    currentStage: "planning" as ProjectStage,
+    status: "active" as ProjectStatus,
+    notes: "",
+    projectDate: "",
+    product: "",
+    socialMediaPlatforms: [],
+    posts: 0,
+    likes: 0,
+    impressions: 0,
+    reach: 0,
+    engagement: 0,
+  })
+  const [loading, setLoading] = useState(true)
 
-  const [project, setProject] = useState<Project | null>(projectData || null)
-  const [users, setUsers] = useState<User[]>(allUsers)
-  const [formData, setFormData] = useState(() => {
+  // Load project data on component mount
+  useEffect(() => {
+    const projectData = getProjectById(projectId)
+    const allUsers = getUsers()
+
     if (projectData) {
-      return {
+      setProject(projectData)
+      setFormData({
         name: projectData.name,
         description: projectData.description,
         websiteUrl: projectData.websiteUrl || "",
@@ -38,28 +78,12 @@ export default function EditProjectPage() {
         impressions: projectData.impressions || 0,
         reach: projectData.reach || 0,
         engagement: projectData.engagement || 0,
-      }
+      })
     }
-    return {
-      name: "",
-      description: "",
-      websiteUrl: "",
-      clientId: "",
-      webDeveloperId: "",
-      socialMediaCoordinatorId: "",
-      currentStage: "planning" as ProjectStage,
-      status: "active" as ProjectStatus,
-      notes: "",
-      projectDate: "",
-      product: "",
-      socialMediaPlatforms: [],
-      posts: 0,
-      likes: 0,
-      impressions: 0,
-      reach: 0,
-      engagement: 0,
-    }
-  })
+
+    setUsers(allUsers)
+    setLoading(false)
+  }, [projectId])
 
   useEffect(() => {
     if (!isSignedIn) {
@@ -72,8 +96,8 @@ export default function EditProjectPage() {
       return
     }
 
-    if (!projectData) {
-      navigate("/admin/dashboard")
+    if (!project) {
+      // Project loading is handled in the first useEffect
       return
     }
   }, [isSignedIn, user, projectId, navigate])
@@ -138,7 +162,7 @@ export default function EditProjectPage() {
 
 
 
-  if (!project) {
+  if (loading || !project) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-muted">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
