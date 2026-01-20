@@ -240,6 +240,7 @@ export default function WebsiteProjectsPage() {
           {/* Monthly Website Projects */}
           <div className="space-y-8">
             {Object.entries(projectsByMonth)
+              .filter(([monthYear, monthProjects]) => monthProjects.length > 0) // Only show months with projects
               .sort(([a], [b]) => {
                 // Parse month-year strings like "January 2026" to dates for sorting (latest first)
                 const [monthA, yearA] = a.split(' ')
