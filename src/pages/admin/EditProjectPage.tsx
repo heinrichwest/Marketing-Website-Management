@@ -4,7 +4,8 @@ import { useNavigate, useParams } from "react-router-dom"
 import { useAuth } from "../../../context/auth-context"
 import Navbar from "../../../components/navbar"
 import Footer from "../../../components/footer"
-import { getProjectById, getUsers } from "../../../lib/mock-data"
+import { getFirebaseProjectById, updateFirebaseProject } from "../../../lib/firebase-data"
+import { getUsers } from "../../../lib/mock-data"
 import type { Project, User, ProjectStage, ProjectStatus, SocialMediaPlatform, ProductType } from "../../../types"
 
 export default function EditProjectPage() {
@@ -50,74 +51,78 @@ export default function EditProjectPage() {
       return
     }
 
-    const projectData = getProjectById(projectId)
-    if (!projectData) {
-      navigate("/admin/dashboard")
-      return
-    }
-
-    setProject(projectData)
-
-    // Only update form data if it's different to avoid unnecessary re-renders
-    setFormData(prevData => {
-      const newData = {
-        name: projectData.name,
-        description: projectData.description,
-        websiteUrl: projectData.websiteUrl || "",
-        brand: projectData.brand || "",
-        projectDate: projectData.projectDate ? projectData.projectDate.toISOString().split('T')[0] : "",
-        clientId: projectData.clientId,
-        webDeveloperId: projectData.webDeveloperId || "",
-        socialMediaCoordinatorId: projectData.socialMediaCoordinatorId || "",
-        currentStage: projectData.currentStage,
-        status: projectData.status,
-        notes: projectData.notes || "",
-        // Social media fields
-        socialMediaPlatform: projectData.socialMediaPlatforms?.[0] || "",
-        product: projectData.product as ProductType,
-        campaignGoals: projectData.campaignGoals || "",
-        targetAudience: projectData.targetAudience || "",
-        posts: projectData.posts || 0,
-        likes: projectData.likes || 0,
-        impressions: projectData.impressions || 0,
-        reach: projectData.reach || 0,
-        engagement: projectData.engagement || 0,
+    const fetchProject = async () => {
+      const projectData = await getFirebaseProjectById(projectId)
+      if (!projectData) {
+        navigate("/admin/dashboard")
+        return
       }
 
-      // Check if data has actually changed
-      const hasChanged = JSON.stringify(prevData) !== JSON.stringify(newData)
-      return hasChanged ? newData : prevData
-    })
+      setProject(projectData)
 
-    const allUsers = getUsers()
-    setUsers(allUsers)
+      // Only update form data if it's different to avoid unnecessary re-renders
+      setFormData(prevData => {
+        const newData = {
+          name: projectData.name,
+          description: projectData.description,
+          websiteUrl: projectData.websiteUrl || "",
+          brand: projectData.brand || "",
+          projectDate: projectData.projectDate ? projectData.projectDate.toISOString().split('T')[0] : "",
+          clientId: projectData.clientId,
+          webDeveloperId: projectData.webDeveloperId || "",
+          socialMediaCoordinatorId: projectData.socialMediaCoordinatorId || "",
+          currentStage: projectData.currentStage,
+          status: projectData.status,
+          notes: projectData.notes || "",
+          // Social media fields
+          socialMediaPlatform: projectData.socialMediaPlatforms?.[0] || "",
+          product: projectData.product as ProductType,
+          campaignGoals: projectData.campaignGoals || "",
+          targetAudience: projectData.targetAudience || "",
+          posts: projectData.posts || 0,
+          likes: projectData.likes || 0,
+          impressions: projectData.impressions || 0,
+          reach: projectData.reach || 0,
+          engagement: projectData.engagement || 0,
+        }
+
+        // Check if data has actually changed
+        const hasChanged = JSON.stringify(prevData) !== JSON.stringify(newData)
+        return hasChanged ? newData : prevData
+      })
+
+      const allUsers = getUsers()
+      setUsers(allUsers)
+    }
+
+    fetchProject()
   }, [isSignedIn, user, projectId, navigate])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // In a real app, this would update the database
-    // For now, we'll just update localStorage
-    const projects = JSON.parse(localStorage.getItem("marketing_management_website_projects") || "[]")
-    const projectIndex = projects.findIndex((p: Project) => p.id === projectId)
+    try {
+      const updates = {
+        ...formData,
+        brand: formData.brand || undefined,
+        projectDate: formData.projectDate ? new Date(formData.projectDate) : undefined,
+        webDeveloperId: formData.webDeveloperId || undefined,
+        socialMediaCoordinatorId: formData.socialMediaCoordinatorId || undefined,
+        product: formData.product || undefined,
+        socialMediaPlatforms: formData.socialMediaPlatform ? [formData.socialMediaPlatform as SocialMediaPlatform] : undefined,
+      }
 
-    if (projectIndex !== -1) {
-       projects[projectIndex] = {
-         ...projects[projectIndex],
-         ...formData,
-         brand: formData.brand || undefined,
-         projectDate: formData.projectDate ? new Date(formData.projectDate) : undefined,
-         webDeveloperId: formData.webDeveloperId || undefined,
-         socialMediaCoordinatorId: formData.socialMediaCoordinatorId || undefined,
-         product: formData.product || undefined,
-         socialMediaPlatforms: formData.socialMediaPlatform ? [formData.socialMediaPlatform] : undefined,
-         updatedAt: new Date(),
-       }
+      const updatedProject = await updateFirebaseProject(projectId, updates)
 
-      localStorage.setItem("marketing_management_website_projects", JSON.stringify(projects))
-
-      alert("Project updated successfully!")
-      navigate("/admin/dashboard")
+      if (updatedProject) {
+        alert("Project updated successfully!")
+        navigate("/admin/dashboard")
+      } else {
+        alert("Failed to update project. Please try again.")
+      }
+    } catch (error) {
+      console.error("Error updating project:", error)
+      alert("An error occurred while updating the project. Please try again.")
     }
   }
 
