@@ -378,12 +378,13 @@ export default function EditProjectPage() {
                            onChange={handleChange}
                            className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground"
                          >
-                           <option value="">Select Product</option>
-                           <option value="Learnerships">Learnerships</option>
-                           <option value="Academy">Academy</option>
-                           <option value="Employment Equity">Employment Equity</option>
-                           <option value="Venueideas">Venueideas</option>
-                           <option value="Trouidees">Trouidees</option>
+                            <option value="">Select Product</option>
+                            <option value="Learnerships">Learnerships</option>
+                            <option value="Academy">Academy</option>
+                            <option value="Employment Equity">Employment Equity</option>
+                            <option value="Venueideas">Venueideas</option>
+                            <option value="Trouidees">Trouidees</option>
+                            <option value="TAP">TAP</option>
                          </select>
                        </div>
 

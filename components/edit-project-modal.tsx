@@ -373,6 +373,7 @@ export default function EditProjectModal({ project, isOpen, onClose, onSuccess }
                   <option value="Employment Equity">Employment Equity</option>
                   <option value="Venueideas">Venueideas</option>
                   <option value="Trouidees">Trouidees</option>
+                  <option value="TAP">TAP</option>
                 </select>
               </div>
             )}

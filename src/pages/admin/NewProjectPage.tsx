@@ -406,12 +406,13 @@ export default function NewProjectPage() {
                        onChange={(e) => setFormData({ ...formData, product: e.target.value as ProductType })}
                        className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                      >
-                       <option value="">Select Product</option>
-                       <option value="Learnerships">Learnerships</option>
-                       <option value="Academy">Academy</option>
-                       <option value="Employment Equity">Employment Equity</option>
-                       <option value="Venueideas">Venueideas</option>
-                       <option value="Trouidees">Trouidees</option>
+                        <option value="">Select Product</option>
+                        <option value="Learnerships">Learnerships</option>
+                        <option value="Academy">Academy</option>
+                        <option value="Employment Equity">Employment Equity</option>
+                        <option value="Venueideas">Venueideas</option>
+                        <option value="Trouidees">Trouidees</option>
+                        <option value="TAP">TAP</option>
                      </select>
                    </div>
                  </div>

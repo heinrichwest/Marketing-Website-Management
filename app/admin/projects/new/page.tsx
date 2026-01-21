@@ -243,6 +243,7 @@ export default function NewProjectPage() {
                   <option value="Employment Equity">Employment Equity</option>
                   <option value="Venueideas">Venueideas</option>
                   <option value="Trouidees">Trouidees</option>
+                  <option value="TAP">TAP</option>
                 </select>
                 <p className="text-xs text-muted-foreground mt-1">
                   Select the product type for this project
