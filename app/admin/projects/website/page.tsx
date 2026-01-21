@@ -141,12 +141,9 @@ export default function WebsiteProjectsPage() {
           <div className="mb-12">
             <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
               <div className="flex-1">
-                <h1 className="text-4xl lg:text-5xl font-bold text-foreground mb-3 flex items-center gap-3">
-                  <svg className="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                  </svg>
-                  🌐 Website Projects Management
-                </h1>
+                 <h1 className="text-4xl lg:text-5xl font-bold text-foreground mb-3 flex items-center gap-3">
+                   🌐 Website Projects Management
+                 </h1>
                 <p className="text-lg text-muted-foreground leading-relaxed">
                   Manage all website development projects organized by month. Total: {filteredProjects.length} projects
                 </p>
