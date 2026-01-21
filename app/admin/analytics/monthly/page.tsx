@@ -17,6 +17,7 @@ export default function MonthlyAnalyticsPage() {
   const [projects, setProjects] = useState<Project[]>([])
   const [isAddingNew, setIsAddingNew] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [selectedProjectFilter, setSelectedProjectFilter] = useState<string>("")
   const [formData, setFormData] = useState({
     projectId: "",
     month: "",
@@ -52,10 +53,18 @@ export default function MonthlyAnalyticsPage() {
     }
   }, [isSignedIn, user, navigate])
 
-  // Sort analytics by month (most recent first)
+  // Sort analytics by month (most recent first) and filter by project if selected
   const sortedAnalytics = useMemo(() => {
-    return [...analytics].sort((a, b) => b.month.localeCompare(a.month))
-  }, [analytics])
+    let filteredAnalytics = [...analytics]
+
+    // Filter by selected project if one is selected
+    if (selectedProjectFilter) {
+      filteredAnalytics = filteredAnalytics.filter(item => item.projectId === selectedProjectFilter)
+    }
+
+    // Sort by month (most recent first)
+    return filteredAnalytics.sort((a, b) => b.month.localeCompare(a.month))
+  }, [analytics, selectedProjectFilter])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -185,25 +194,63 @@ export default function MonthlyAnalyticsPage() {
                   </svg>
                   Monthly Analytics
                 </h1>
-                <p className="text-lg text-muted-foreground leading-relaxed">
-                  Track User Engagement, New Users, Clicks, and Referrals by month. Total entries: {analytics.length}
-                </p>
-              </div>
-              <div className="flex gap-3 lg:flex-shrink-0">
-                <button
-                  onClick={() => setIsAddingNew(true)}
-                  className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2 transition-colors"
-                >
-                  <Plus className="w-5 h-5" />
-                  Add Monthly Analytics
-                </button>
-                <Link to="/admin/dashboard" className="btn-outline flex items-center gap-2">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                  Back to Dashboard
-                </Link>
-              </div>
+                 <p className="text-lg text-muted-foreground leading-relaxed">
+                   Track User Engagement, New Users, Clicks, and Referrals by month.
+                   {selectedProjectFilter ? (
+                     <> Showing {sortedAnalytics.length} of {analytics.length} entries for selected project</>
+                   ) : (
+                     <> Total entries: {analytics.length}</>
+                   )}
+                 </p>
+               </div>
+               <div className="flex flex-col lg:flex-row gap-4 lg:flex-shrink-0">
+                 {/* Project Filter */}
+                 <div className="flex items-center gap-3">
+                   <label className="text-sm font-medium text-foreground whitespace-nowrap">
+                     Filter by Project:
+                   </label>
+                   <select
+                     value={selectedProjectFilter}
+                     onChange={(e) => setSelectedProjectFilter(e.target.value)}
+                     className="px-4 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary min-w-[200px]"
+                   >
+                     <option value="">All Projects ({analytics.length} entries)</option>
+                     {projects.map((project) => {
+                       const projectAnalyticsCount = analytics.filter(item => item.projectId === project.id).length
+                       return (
+                         <option key={project.id} value={project.id}>
+                           {project.name} ({project.projectType === "website" ? "Website" : "Social Media"}) - {projectAnalyticsCount} entries
+                         </option>
+                       )
+                     })}
+                   </select>
+                   {selectedProjectFilter && (
+                     <button
+                       onClick={() => setSelectedProjectFilter("")}
+                       className="text-sm text-muted-foreground hover:text-foreground underline"
+                     >
+                       Clear filter
+                     </button>
+                   )}
+                 </div>
+
+                 {/* Action Buttons */}
+                 <div className="flex gap-3">
+                   <button
+                     onClick={() => setIsAddingNew(true)}
+                     className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2 transition-colors"
+                   >
+                     <Plus className="w-5 h-5" />
+                     Add Monthly Analytics
+                   </button>
+                   <Link to="/admin/dashboard" className="btn-outline flex items-center gap-2">
+                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                     </svg>
+                     Back to Dashboard
+                   </Link>
+                 </div>
+               </div>
             </div>
           </div>
 
