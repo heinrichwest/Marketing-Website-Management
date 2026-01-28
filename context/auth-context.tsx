@@ -15,9 +15,10 @@ import {
 } from "firebase/auth"
 import { doc, getDoc, setDoc, serverTimestamp, type DocumentData } from "firebase/firestore"
 
-// Flag to use mock authentication instead of Firebase
-// Default to Firebase if configured, only use mock if explicitly enabled via localStorage
-const USE_MOCK_AUTH = localStorage.getItem('useMockAuth') === 'true'
+// Function to check if mock auth is enabled (checked dynamically)
+// Default to mock auth temporarily until Firebase rate limit expires
+// Set localStorage 'useMockAuth' to 'false' to use Firebase
+const useMockAuth = () => localStorage.getItem('useMockAuth') !== 'false'
 
 interface AuthUser {
   id: string
@@ -148,8 +149,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const userDoc = await getDoc(doc(db, "users", firebaseUser.uid))
       if (!userDoc.exists()) {
-        console.error("User document not found in Firestore")
-        return null
+        console.error("User document not found in Firestore for uid:", firebaseUser.uid)
+        // Sign out the Firebase user since their Firestore document doesn't exist
+        await firebaseSignOut(auth)
+        throw new Error("Your account profile was not found. Please contact support or register again.")
       }
 
       const userData = userDoc.data() as DocumentData
@@ -157,7 +160,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Check if user is active
       if (!userData.isActive) {
         console.error("User account is inactive")
-        return null
+        // Sign out the Firebase user since they are inactive
+        await firebaseSignOut(auth)
+        throw new Error("Your account has been deactivated. Please contact support.")
       }
 
       return {
@@ -169,13 +174,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       console.error("Error fetching user data:", error)
-      return null
+      // Re-throw the error so it can be caught by the auth state listener
+      throw error
     }
   }
 
-  // Initialize authentication based on USE_MOCK_AUTH flag
+  // Initialize authentication based on useMockAuth() flag
   useEffect(() => {
-    if (USE_MOCK_AUTH) {
+    if (useMockAuth()) {
       // Load user from localStorage
       setLoading(true)
       const storedUser = localStorage.getItem("mockAuthUser")
@@ -195,13 +201,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
         setLoading(true)
         if (firebaseUser) {
-          const userData = await fetchUserData(firebaseUser)
-          if (userData) {
-            setUser(userData)
-            setIsSignedIn(true)
-          } else {
+          try {
+            const userData = await fetchUserData(firebaseUser)
+            if (userData) {
+              setUser(userData)
+              setIsSignedIn(true)
+            } else {
+              setUser(null)
+              setIsSignedIn(false)
+            }
+          } catch (error) {
+            console.error("Auth state change error:", error)
             setUser(null)
             setIsSignedIn(false)
+            // Store the error message so it can be displayed on the login page
+            if (error instanceof Error) {
+              sessionStorage.setItem('authError', error.message)
+            }
           }
         } else {
           setUser(null)
@@ -215,7 +231,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const signIn = async (email: string, password: string): Promise<void> => {
-    if (USE_MOCK_AUTH) {
+    if (useMockAuth()) {
       return mockSignIn(email, password)
     }
 
@@ -226,8 +242,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error("Firebase Auth not initialized. Please check your configuration.")
       }
 
-      await signInWithEmailAndPassword(auth, email, password)
-      // Auth state change listener will handle setting user data
+      // Clear any previous auth errors
+      sessionStorage.removeItem('authError')
+
+      const userCredential = await signInWithEmailAndPassword(auth, email, password)
+
+      // After Firebase auth succeeds, fetch the user data from Firestore
+      // This checks if the user document exists and is active
+      const userData = await fetchUserData(userCredential.user)
+
+      if (!userData) {
+        // This shouldn't happen if fetchUserData throws properly, but just in case
+        throw new Error("Failed to load user profile. Please contact support.")
+      }
+
+      // Set the user data directly instead of waiting for auth state listener
+      setUser(userData)
+      setIsSignedIn(true)
     } catch (error: any) {
       console.error("Sign in error:", error)
       console.error("Error code:", error.code)
@@ -235,29 +266,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // Provide more specific error messages
       if (error.code === 'auth/user-not-found') {
-        throw new Error("auth/user-not-found - No user found with this email. Please create an account first.")
+        throw new Error("No user found with this email. Please create an account first.")
       } else if (error.code === 'auth/wrong-password') {
-        throw new Error("auth/wrong-password - Incorrect password.")
+        throw new Error("Incorrect password. Please try again.")
+      } else if (error.code === 'auth/invalid-credential') {
+        // Firebase v9+ returns this instead of user-not-found or wrong-password
+        throw new Error("Invalid email or password. Please check your credentials and try again.")
       } else if (error.code === 'auth/invalid-email') {
-        throw new Error("auth/invalid-email - Invalid email address format.")
+        throw new Error("Invalid email address format.")
       } else if (error.code === 'auth/user-disabled') {
-        throw new Error("auth/user-disabled - This account has been disabled.")
+        throw new Error("This account has been disabled. Please contact support.")
       } else if (error.code === 'auth/too-many-requests') {
-        throw new Error("auth/too-many-requests - Too many failed login attempts. Please try again later.")
+        throw new Error("Too many failed login attempts. Please try again later.")
       } else if (error.code === 'auth/network-request-failed') {
-        throw new Error("auth/network-request-failed - Network error. Please check your internet connection.")
+        throw new Error("Network error. Please check your internet connection.")
       } else if (error.code === 'auth/invalid-api-key') {
-        throw new Error("auth/invalid-api-key - Firebase API key is invalid. Check your .env file.")
+        throw new Error("Firebase configuration error. Please contact support.")
       } else if (error.code === 'auth/configuration-not-found') {
-        throw new Error("auth/configuration-not-found - Firebase configuration not found. Check your .env file.")
+        throw new Error("Firebase configuration not found. Please contact support.")
       }
 
-      throw new Error(error.message || error.code || "Failed to sign in")
+      throw new Error(error.message || "Failed to sign in. Please try again.")
     }
   }
 
   const signUp = async (data: SignUpData): Promise<void> => {
-    if (USE_MOCK_AUTH) {
+    if (useMockAuth()) {
       return mockSignUp(data)
     }
 
@@ -302,7 +336,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const resetPassword = async (email: string): Promise<void> => {
-    if (USE_MOCK_AUTH) {
+    if (useMockAuth()) {
       // For mock auth, simulate sending a password reset email
       const mockUser = getUsers().find(u => u.email === email)
       if (!mockUser) {
@@ -341,7 +375,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const updatedUser = { ...user, ...updates }
     setUser(updatedUser)
 
-    if (USE_MOCK_AUTH) {
+    if (useMockAuth()) {
       localStorage.setItem("mockAuthUser", JSON.stringify(updatedUser))
     } else {
       // For Firebase, update Firestore if needed
@@ -350,7 +384,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const signOut = async (): Promise<void> => {
-    if (USE_MOCK_AUTH) {
+    if (useMockAuth()) {
       return mockSignOut()
     }
 
@@ -370,7 +404,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const updatedUser = { ...user, role: newRole }
     setUser(updatedUser)
 
-    if (USE_MOCK_AUTH) {
+    if (useMockAuth()) {
       localStorage.setItem("mockAuthUser", JSON.stringify(updatedUser))
     }
   }
