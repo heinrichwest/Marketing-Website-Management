@@ -174,27 +174,34 @@ export default function ClientPortalDashboardPage() {
                </span>
             </div>
 
-            <div className="space-y-4">
-              {activeProjects.length > 0 ? (
-                activeProjects.slice(0, 3).map((project) => (
-                  <Link
-                    key={project.id}
-                    to={`/client-portal/project/${project.id}`}
-                    className="block p-4 border border-border/50 rounded-lg hover:bg-muted/50 hover:border-primary/20 transition-all duration-200"
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <h4 className="font-semibold text-foreground">{project.name}</h4>
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        {project.status}
-                      </span>
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-2">{project.description}</p>
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span>Stage: {project.currentStage}</span>
-                      <span>Updated {format(project.updatedAt, "MMM dd")}</span>
-                    </div>
-                  </Link>
-                ))
+             <div className="space-y-4">
+               {activeProjects.length > 0 ? (
+                 activeProjects.slice(0, 3).map((project) => (
+                   <div
+                     key={project.id}
+                     className="block p-4 border border-border/50 rounded-lg hover:bg-muted/50 hover:border-primary/20 transition-all duration-200"
+                   >
+                     <div className="flex items-start justify-between mb-2">
+                       <h4 className="font-semibold text-foreground">{project.name}</h4>
+                       <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                         {project.status}
+                       </span>
+                     </div>
+                     <p className="text-sm text-muted-foreground mb-2">{project.description}</p>
+                     <div className="flex items-center justify-between text-xs text-muted-foreground">
+                       <span>Stage: {project.currentStage}</span>
+                       <span>Updated {format(project.updatedAt, "MMM dd")}</span>
+                     </div>
+<div className="mt-3">
+                        <button
+                          onClick={() => navigate(`/client-portal/project/${project.id}`)}
+                          className="inline-flex items-center px-3 py-2 rounded-md text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                        >
+                          View Details
+                        </button>
+                      </div>
+                   </div>
+                 ))
               ) : (
                 <div className="text-center py-8">
                   <svg className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

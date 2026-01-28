@@ -10,6 +10,7 @@ import {
   createUserWithEmailAndPassword,
   signOut as firebaseSignOut,
   onAuthStateChanged,
+  sendPasswordResetEmail,
   type User as FirebaseUser
 } from "firebase/auth"
 import { doc, getDoc, setDoc, serverTimestamp, type DocumentData } from "firebase/firestore"
@@ -40,6 +41,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>
   signUp: (data: SignUpData) => Promise<void>
   signOut: () => Promise<void>
+  resetPassword: (email: string) => Promise<void>
   updateCurrentUser: (updates: Partial<AuthUser>) => void
   switchRole: (newRole: UserRole) => void
   hasRole: (roles: UserRole[]) => boolean
@@ -298,6 +300,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const resetPassword = async (email: string): Promise<void> => {
+    if (USE_MOCK_AUTH) {
+      // For mock auth, simulate sending a password reset email
+      const mockUser = getUsers().find(u => u.email === email)
+      if (!mockUser) {
+        throw new Error("No account found with this email address.")
+      }
+      // In mock mode, just simulate success
+      console.log(`[Mock] Password reset email would be sent to: ${email}`)
+      return
+    }
+
+    try {
+      if (!auth) {
+        throw new Error("Firebase Auth not initialized. Please check your configuration.")
+      }
+
+      await sendPasswordResetEmail(auth, email)
+    } catch (error: any) {
+      console.error("Password reset error:", error)
+      console.error("Error code:", error.code)
+      console.error("Error message:", error.message)
+
+      if (error.code === 'auth/user-not-found') {
+        throw new Error("No account found with this email address.")
+      } else if (error.code === 'auth/invalid-email') {
+        throw new Error("Invalid email address format.")
+      } else if (error.code === 'auth/too-many-requests') {
+        throw new Error("Too many requests. Please try again later.")
+      }
+
+      throw new Error(error.message || "Failed to send password reset email")
+    }
+  }
+
   const updateCurrentUser = (updates: Partial<AuthUser>) => {
     if (!user) return
     const updatedUser = { ...user, ...updates }
@@ -367,6 +404,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signIn,
         signUp,
         signOut,
+        resetPassword,
         updateCurrentUser,
         switchRole,
         hasRole,

@@ -1,10 +1,10 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/context/auth-context"
 import { getProjectsByUserId } from "@/lib/mock-data"
 import type { Project } from "@/types"
-import { Link } from "react-router-dom"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 

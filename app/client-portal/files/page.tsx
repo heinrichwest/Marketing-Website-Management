@@ -1,19 +1,23 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/context/auth-context"
-import { getProjectsByUserId } from "@/lib/mock-data"
+import { getProjectsByUserId, getUsers, addMessage, addFileShare } from "@/lib/mock-data"
+import type { FileShare } from "@/types"
 import type { Project } from "@/types"
-import { Link } from "react-router-dom"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 
 export default function ClientFileSharingPage() {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [projects, setProjects] = useState<Project[]>([])
   const [selectedProject, setSelectedProject] = useState<string>("")
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
   const [isUploading, setIsUploading] = useState(false)
+  const [recipientEmail, setRecipientEmail] = useState<string>("")
+  const [emailMessage, setEmailMessage] = useState<string>("")
 
   useEffect(() => {
     if (user && user.role === "client") {
@@ -38,11 +42,88 @@ export default function ClientFileSharingPage() {
     // Simulate upload process
     await new Promise(resolve => setTimeout(resolve, 2000))
 
-    // In a real app, you would upload to a cloud storage service
+    // Create file share records
+    uploadedFiles.forEach((file, index) => {
+      const fileShare: FileShare = {
+        id: `file-${Date.now()}-${index}`,
+        projectId: selectedProject,
+        uploadedBy: user!.id,
+        fileName: file.name,
+        fileUrl: `https://example.com/files/${file.name}`, // In real app, this would be the actual uploaded file URL
+        fileSize: file.size,
+        fileType: file.type,
+        isPublic: true, // Client uploaded files are visible to admins
+        description: `Uploaded by client ${user!.fullName}`,
+        uploadedAt: new Date()
+      }
+      addFileShare(fileShare)
+    })
 
     setUploadedFiles([])
+    setRecipientEmail("")
     setIsUploading(false)
     alert("Files uploaded successfully!")
+  }
+
+  const handleSend = async () => {
+    if (!selectedProject || uploadedFiles.length === 0) return
+
+    if (!recipientEmail) {
+      alert("Please enter a recipient email address.")
+      return
+    }
+
+    if (!recipientEmail.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+      alert("Please enter a valid email address.")
+      return
+    }
+
+    setIsUploading(true)
+
+    // Simulate upload process
+    await new Promise(resolve => setTimeout(resolve, 2000))
+
+    // Create file share records
+    uploadedFiles.forEach((file, index) => {
+      const fileShare: FileShare = {
+        id: `file-${Date.now()}-${index}`,
+        projectId: selectedProject,
+        uploadedBy: user!.id,
+        fileName: file.name,
+        fileUrl: `https://example.com/files/${file.name}`, // In real app, this would be the actual uploaded file URL
+        fileSize: file.size,
+        fileType: file.type,
+        isPublic: true, // Client uploaded files are visible to admins
+        description: `Uploaded by client ${user!.fullName}`,
+        uploadedAt: new Date()
+      }
+      addFileShare(fileShare)
+    })
+
+    // Notify admins of the file upload with email
+    const selectedProjectData = projects.find(p => p.id === selectedProject)
+    const admins = getUsers().filter(u => u.role === "admin")
+
+    admins.forEach(admin => {
+      addMessage({
+        id: `msg-${Date.now()}-${admin.id}`,
+        senderId: user!.id,
+        recipientId: admin.id,
+        subject: `Files Sent via Email - ${selectedProjectData?.name}`,
+        content: `Client ${user!.fullName} has sent ${uploadedFiles.length} file(s) for project "${selectedProjectData?.name}" via email to: ${recipientEmail}.\n\nMessage from client:\n${emailMessage || "No message included"}\n\nPlease review the files in the admin dashboard.`,
+        isRead: false,
+        isBroadcast: false,
+        projectId: selectedProject,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+    })
+
+    setUploadedFiles([])
+    setRecipientEmail("")
+    setEmailMessage("")
+    setIsUploading(false)
+    alert("Files sent successfully to admin!")
   }
 
   const removeFile = (index: number) => {
@@ -72,9 +153,20 @@ export default function ClientFileSharingPage() {
       <main className="min-h-screen bg-muted">
         <div className="container mx-auto px-6 py-8">
         <div className="max-w-4xl mx-auto">
-          {/* Header */}
+{/* Header */}
           <div className="mb-8">
-            <h2 className="text-3xl font-bold text-foreground mb-2">Share Files with Your Team</h2>
+            <div className="flex items-center gap-4 mb-4">
+              <button
+                onClick={() => navigate("/client-portal/dashboard")}
+                className="p-2 rounded-lg border border-border/50 hover:bg-muted/50 transition-colors"
+                title="Back to Dashboard"
+              >
+                <svg className="w-5 h-5 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+              </button>
+              <h2 className="text-3xl font-bold text-foreground">Share Files with Your Team</h2>
+            </div>
             <p className="text-muted-foreground">Upload documents, images, or any files your project team needs to access</p>
           </div>
 
@@ -155,22 +247,75 @@ export default function ClientFileSharingPage() {
                 </div>
               )}
 
-              {/* Upload Button */}
+{/* Email Input */}
               {uploadedFiles.length > 0 && (
-                <button
-                  onClick={handleUpload}
-                  disabled={isUploading}
-                  className="w-full btn-primary py-3 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isUploading ? (
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      Uploading Files...
-                    </div>
-                  ) : (
-                    `Upload ${uploadedFiles.length} File${uploadedFiles.length > 1 ? 's' : ''}`
-                  )}
-                </button>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Recipient Email Address
+                  </label>
+                  <input
+                    type="email"
+                    value={recipientEmail}
+                    onChange={(e) => setRecipientEmail(e.target.value)}
+                    placeholder="Enter email address"
+                    className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground"
+                  />
+                </div>
+              )}
+
+              {/* Email Message */}
+              {uploadedFiles.length > 0 && (
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Email Message (Optional)
+                  </label>
+                  <textarea
+                    value={emailMessage}
+                    onChange={(e) => setEmailMessage(e.target.value)}
+                    placeholder="Add a message to include with your files..."
+                    rows={4}
+                    className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground resize-none"
+                  />
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              {uploadedFiles.length > 0 && (
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleUpload}
+                    disabled={isUploading}
+                    className="flex-1 btn-outline py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isUploading ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                        Uploading...
+                      </div>
+                    ) : (
+                      `Upload ${uploadedFiles.length} File${uploadedFiles.length > 1 ? 's' : ''}`
+                    )}
+                  </button>
+                  <button
+                    onClick={handleSend}
+                    disabled={isUploading}
+                    className="flex-1 btn-primary py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isUploading ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        Sending...
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center gap-2">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                        </svg>
+                        Send File
+                      </div>
+                    )}
+                  </button>
+                </div>
               )}
             </div>
           </div>

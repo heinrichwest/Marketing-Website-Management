@@ -228,72 +228,78 @@ export default function AdminDashboard() {
           <div className="lg:col-span-4 mb-8">
             <h2 className="text-2xl font-bold text-foreground mb-6">Analytics Overview</h2>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-              {/* Ticket Status Distribution */}
-              <div className="card">
-                <h3 className="text-lg font-semibold text-foreground mb-4">Ticket Status Distribution</h3>
-                <ResponsiveContainer width="100%" height={250}>
-                  <PieChart>
-                    <Pie
-                      data={ticketStatusData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={40}
-                      outerRadius={80}
-                      paddingAngle={5}
-                      dataKey="value"
-                    >
-                      {ticketStatusData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
+             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+               {/* Ticket Status Distribution */}
+               <div className="card">
+                 <h3 className="text-lg font-semibold text-foreground mb-4">Ticket Status Distribution</h3>
+                 <ResponsiveContainer width="100%" height={250}>
+                   <PieChart>
+                     <Pie
+                       data={ticketStatusData}
+                       cx="50%"
+                       cy="50%"
+                       innerRadius={30}
+                       outerRadius={70}
+                       paddingAngle={5}
+                       dataKey="value"
+                     >
+                       {ticketStatusData.map((entry, index) => (
+                         <Cell key={`cell-${index}`} fill={entry.color} />
+                       ))}
+                     </Pie>
+                     <Tooltip />
+                     <Legend wrapperStyle={{ fontSize: '14px' }} />
+                   </PieChart>
+                 </ResponsiveContainer>
+               </div>
 
-                {/* Project Stages Summary */}
-                <div className="card">
-                  <h3 className="text-lg font-semibold text-foreground mb-4">Project Stages Summary</h3>
-                  <ResponsiveContainer width="100%" height={400}>
-                    <BarChart data={projectStageData} margin={{ top: 20, right: 30, left: 20, bottom: 30 }}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis
-                        dataKey="name"
-                        angle={-50}
-                        textAnchor="end"
-                        height={120}
-                        interval={0}
-                        tick={{ fontSize: 16 }}
-                      />
-                      <YAxis />
-                      <Tooltip />
-                      <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-                        {projectStageData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={stageColors[index]} />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-            </div>
+                 {/* Project Stages Summary */}
+                 <div className="card">
+                   <h3 className="text-lg font-semibold text-foreground mb-4">Project Stages Summary</h3>
+                   <ResponsiveContainer width="100%" height={350}>
+                     <BarChart data={projectStageData} margin={{ top: 20, right: 10, left: 10, bottom: 80 }}>
+                       <CartesianGrid strokeDasharray="3 3" />
+                       <XAxis
+                         dataKey="name"
+                         angle={-45}
+                         textAnchor="end"
+                         height={100}
+                         interval={0}
+                         tick={{ fontSize: 12 }}
+                       />
+                       <YAxis tick={{ fontSize: 12 }} />
+                       <Tooltip />
+                       <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                         {projectStageData.map((entry, index) => (
+                           <Cell key={`cell-${index}`} fill={stageColors[index]} />
+                         ))}
+                       </Bar>
+                     </BarChart>
+                   </ResponsiveContainer>
+                 </div>
+             </div>
 
-            {/* Activity Trends */}
-            <div className="card">
-              <h3 className="text-lg font-semibold text-foreground mb-4">Recent Activity (Last 7 Days)</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={activityData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Line type="monotone" dataKey="tickets" stroke="#ef4444" strokeWidth={2} name="New Tickets" />
-                  <Line type="monotone" dataKey="projects" stroke="#3b82f6" strokeWidth={2} name="New Projects" />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
+             {/* Activity Trends */}
+             <div className="card">
+               <h3 className="text-lg font-semibold text-foreground mb-4">Recent Activity (Last 7 Days)</h3>
+               <ResponsiveContainer width="100%" height={280}>
+                 <LineChart data={activityData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                   <CartesianGrid strokeDasharray="3 3" />
+                   <XAxis
+                     dataKey="date"
+                     tick={{ fontSize: 12 }}
+                     angle={-45}
+                     textAnchor="end"
+                     height={60}
+                   />
+                   <YAxis tick={{ fontSize: 12 }} />
+                   <Tooltip />
+                   <Legend wrapperStyle={{ fontSize: '14px' }} />
+                   <Line type="monotone" dataKey="tickets" stroke="#ef4444" strokeWidth={2} name="New Tickets" />
+                   <Line type="monotone" dataKey="projects" stroke="#3b82f6" strokeWidth={2} name="New Projects" />
+                 </LineChart>
+               </ResponsiveContainer>
+             </div>
           </div>
         </div>
 
@@ -460,32 +466,32 @@ export default function AdminDashboard() {
             <div className="card mb-8 w-full">
               <div className="flex items-center justify-between mb-6">
                <h2 className="text-2xl font-bold text-foreground">All Projects ({filteredProjects.length})</h2>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">Show</span>
-                  <select
-                    value={pageSize}
-                    onChange={(e) => setPageSize(Number(e.target.value))}
-                    className="border border-border rounded px-2 py-1 bg-background text-foreground hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
-                  >
-                    <option value={10}>10</option>
-                    <option value={25}>25</option>
-                    <option value={50}>50</option>
-                    <option value={100}>100</option>
-                  </select>
-                  <span className="text-sm text-muted-foreground">entries</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">Search:</span>
-                  <input
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="border border-border rounded px-3 py-1 bg-background text-foreground hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary min-w-[200px]"
-                    placeholder="Search projects..."
-                  />
-                </div>
-              </div>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                 <div className="flex items-center gap-2">
+                   <span className="text-sm text-muted-foreground">Show</span>
+                   <select
+                     value={pageSize}
+                     onChange={(e) => setPageSize(Number(e.target.value))}
+                     className="border border-border rounded px-2 py-1 bg-background text-foreground hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                   >
+                     <option value={10}>10</option>
+                     <option value={25}>25</option>
+                     <option value={50}>50</option>
+                     <option value={100}>100</option>
+                   </select>
+                   <span className="text-sm text-muted-foreground">entries</span>
+                 </div>
+                 <div className="flex items-center gap-2 w-full sm:w-auto">
+                   <span className="text-sm text-muted-foreground">Search:</span>
+                   <input
+                     type="text"
+                     value={searchTerm}
+                     onChange={(e) => setSearchTerm(e.target.value)}
+                     className="border border-border rounded px-3 py-1 bg-background text-foreground hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary flex-1 min-w-[150px] sm:min-w-[200px]"
+                     placeholder="Search projects..."
+                   />
+                 </div>
+               </div>
             </div>
 
              <div className="overflow-x-auto w-full">
@@ -613,12 +619,12 @@ export default function AdminDashboard() {
 
 
               {/* Pagination */}
-             {totalPages > 1 && (
-               <div className="flex items-center justify-between mt-6">
-                 <div className="text-sm text-muted-foreground">
-                   Showing {startIndex + 1}-{Math.min(endIndex, filteredProjects.length)} of {filteredProjects.length} projects
-                 </div>
-                 <div className="flex items-center gap-2">
+              {totalPages > 1 && (
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-6">
+                  <div className="text-sm text-muted-foreground">
+                    Showing {startIndex + 1}-{Math.min(endIndex, filteredProjects.length)} of {filteredProjects.length} projects
+                  </div>
+                  <div className="flex items-center gap-2 overflow-x-auto">
                    <button
                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                      disabled={currentPage === 1}

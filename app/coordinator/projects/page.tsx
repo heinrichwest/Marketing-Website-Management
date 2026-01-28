@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
+import { useMemo } from "react"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
-import { getProjectsByUserId, getSocialMediaAnalytics } from "@/lib/mock-data"
+import { getProjectsByUserId, getSocialMediaAnalytics, getProjects, getUsers } from "@/lib/mock-data"
 import StatusBadge from "@/components/status-badge"
 import { getStageDisplayName, formatDate } from "@/lib/utils"
 import type { Project, SocialMediaAnalytics } from "@/types"
@@ -13,6 +14,8 @@ export default function CoordinatorProjectsPage() {
   const navigate = useNavigate()
   const [projects, setProjects] = useState<Project[]>([])
   const [analytics, setAnalytics] = useState<Record<string, any>>({})
+  const [allProjects, setAllProjects] = useState<Project[]>([])
+  const [users, setUsers] = useState<any[]>([])
 
   useEffect(() => {
     if (!isSignedIn) {
@@ -35,6 +38,10 @@ export default function CoordinatorProjectsPage() {
         analyticsMap[project.id] = projectAnalytics
       })
       setAnalytics(analyticsMap)
+
+      // Load all projects and users for the table
+      setAllProjects(getProjects())
+      setUsers(getUsers())
     }
   }, [user])
 
@@ -45,6 +52,29 @@ export default function CoordinatorProjectsPage() {
       </div>
     )
   }
+
+  // Group social media projects by month (only assigned to this coordinator)
+  const groupProjectsByMonth = useMemo(() => {
+    const grouped: Record<string, Project[]> = {}
+
+    // Only include social media projects assigned to this coordinator
+    const coordinatorSocialMediaProjects = allProjects.filter(project =>
+      project.projectType === "social_media" &&
+      project.socialMediaCoordinatorId === user?.id
+    )
+
+    coordinatorSocialMediaProjects.forEach(project => {
+      const date = new Date(project.createdAt)
+      const monthYear = date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })
+
+      if (!grouped[monthYear]) {
+        grouped[monthYear] = []
+      }
+      grouped[monthYear].push(project)
+    })
+
+    return grouped
+  }, [allProjects, user])
 
   const getProjectAnalyticsSummary = (projectId: string) => {
     const projectAnalytics = analytics[projectId] || []
@@ -61,118 +91,215 @@ export default function CoordinatorProjectsPage() {
 
       <main className="min-h-screen bg-muted">
         <div className="container py-12">
-          {/* Header */}
-          <div className="mb-8">
-            <div className="flex items-center gap-4 mb-4">
-              <button
-                onClick={() => navigate("/coordinator/dashboard")}
-                className="btn-outline text-sm"
-              >
-                ← Back to Dashboard
-              </button>
-            </div>
+           {/* Header */}
+           <div className="mb-8">
+             <div className="flex items-center gap-4 mb-4">
+               <button
+                 onClick={() => navigate("/coordinator/dashboard")}
+                 className="btn-outline text-sm"
+               >
+                 ← Back to Dashboard
+               </button>
+             </div>
+             <h1 className="text-4xl font-bold text-foreground mb-2">Social Media Projects</h1>
+             <p className="text-muted-foreground">Manage your assigned social media campaign projects by month</p>
+           </div>
+
+           {/* Social Media Projects Monthly Table */}
+           <div className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl p-8 border border-purple-200">
+             <div className="card border-purple-200">
+               <div className="overflow-x-auto">
+                 <table className="w-full border-collapse border border-purple-200">
+                   <thead>
+                     <tr className="bg-purple-100">
+                       <th className="px-4 py-3 text-left font-semibold border-r border-purple-200 text-purple-900">Month</th>
+                       <th className="px-4 py-3 text-left font-semibold border-r border-purple-200 text-purple-900">Project Name</th>
+                       <th className="px-4 py-3 text-left font-semibold border-r border-purple-200 text-purple-900">Client</th>
+                       <th className="px-4 py-3 text-left font-semibold border-r border-purple-200 text-purple-900">Status</th>
+                       <th className="px-4 py-3 text-left font-semibold border-r border-purple-200 text-purple-900">Stage</th>
+                       <th className="px-4 py-3 text-left font-semibold border-r border-purple-200 text-purple-900">Platforms</th>
+                       <th className="px-4 py-3 text-left font-semibold text-purple-900">Goals</th>
+                     </tr>
+                   </thead>
+                   <tbody>
+                     {Object.entries(groupProjectsByMonth).map(([monthYear, monthProjects]) =>
+                       monthProjects.length > 0 ? (
+                         monthProjects.map((project, index) => {
+                           const client = users.find(u => u.id === project.clientId)
+                           const analyticsSummary = getProjectAnalyticsSummary(project.id)
+                           return (
+                             <tr key={project.id} className={index % 2 === 0 ? "bg-white" : "bg-purple-50/50"}>
+                               {index === 0 && (
+                                 <td className="px-4 py-3 font-semibold text-purple-700 border-r border-purple-200" rowSpan={monthProjects.length}>
+                                   {monthYear}
+                                   <div className="text-xs text-purple-600 mt-1 font-medium">
+                                     ({monthProjects.length} project{monthProjects.length !== 1 ? 's' : ''})
+                                   </div>
+                                 </td>
+                               )}
+                               <td className="px-4 py-3 border-r border-purple-200">
+                                 <div className="font-medium text-purple-900">{project.name}</div>
+                                 <div className="text-xs text-purple-600 mt-1">
+                                   Analytics: {analyticsSummary.entryCount} entries
+                                   {analyticsSummary.totalReach > 0 && ` • Reach: ${analyticsSummary.totalReach.toLocaleString()}`}
+                                 </div>
+                               </td>
+                               <td className="px-4 py-3 border-r border-purple-200">
+                                 <div className="text-sm text-purple-800">{client?.fullName || 'Unknown Client'}</div>
+                               </td>
+                               <td className="px-4 py-3 border-r border-purple-200">
+                                 <StatusBadge status={project.status} />
+                               </td>
+                               <td className="px-4 py-3 border-r border-purple-200">
+                                 <span className="text-sm text-purple-700 font-medium">
+                                   {getStageDisplayName(project.currentStage)}
+                                 </span>
+                               </td>
+                               <td className="px-4 py-3 border-r border-purple-200">
+                                 {project.socialMediaPlatforms ? (
+                                   <div className="flex flex-wrap gap-1">
+                                     {project.socialMediaPlatforms.slice(0, 2).map(platform => (
+                                       <span key={platform} className="inline-block px-2 py-0.5 text-xs bg-purple-100 text-purple-700 rounded capitalize">
+                                         {platform}
+                                       </span>
+                                     ))}
+                                     {project.socialMediaPlatforms.length > 2 && (
+                                       <span className="inline-block px-2 py-0.5 text-xs bg-purple-100 text-purple-700 rounded">
+                                         +{project.socialMediaPlatforms.length - 2}
+                                       </span>
+                                     )}
+                                   </div>
+                                 ) : (
+                                   <span className="text-xs text-purple-500 italic">Not set</span>
+                                 )}
+                               </td>
+                               <td className="px-4 py-3">
+                                 {project.campaignGoals ? (
+                                   <div className="text-sm text-purple-700 max-w-xs truncate font-medium" title={project.campaignGoals}>
+                                     {project.campaignGoals}
+                                   </div>
+                                 ) : (
+                                   <span className="text-xs text-purple-500 italic">Not set</span>
+                                 )}
+                               </td>
+                             </tr>
+                           )
+                         })
+                       ) : null
+                     )}
+                     {Object.keys(groupProjectsByMonth).length === 0 && (
+                       <tr>
+                         <td colSpan={7} className="px-4 py-8 text-center text-purple-500 italic border-r border-purple-200">
+                           No social media projects assigned to you yet
+                         </td>
+                       </tr>
+                     )}
+                   </tbody>
+                 </table>
+               </div>
+             </div>
+           </div>
+
+           {/* Header */}
+           <div className="mb-8">
             <h1 className="text-4xl font-bold text-foreground mb-2">My Projects</h1>
             <p className="text-muted-foreground">Manage your assigned social media projects</p>
-          </div>
+           </div>
 
-          {/* Projects Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {projects.map((project) => {
-              const analyticsSummary = getProjectAnalyticsSummary(project.id)
-              return (
-                <div
-                  key={project.id}
-                  className="card hover:shadow-lg transition-shadow"
-                >
-                  <div className="p-6">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <h3 className="text-lg font-semibold text-foreground">{project.name}</h3>
-                          {project.projectType === "social_media" && (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
-                              Social Media
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{project.description}</p>
-                      </div>
-                      <StatusBadge status={project.status} />
-                    </div>
-
-                    <div className="space-y-3 mb-4">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Stage:</span>
-                        <span className="inline-flex items-center px-2 py-1 rounded-md bg-pink-50 text-pink-700 text-xs font-medium">
-                          {getStageDisplayName(project.currentStage)}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Analytics Entries:</span>
-                        <span className="font-medium">{analyticsSummary.entryCount}</span>
-                      </div>
-
-                      {analyticsSummary.entryCount > 0 && (
-                        <>
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-muted-foreground">Total Reach:</span>
-                            <span className="font-medium">{analyticsSummary.totalReach.toLocaleString()}</span>
-                          </div>
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-muted-foreground">Total Engagement:</span>
-                            <span className="font-medium">{analyticsSummary.totalEngagement.toLocaleString()}</span>
-                          </div>
-                        </>
-                      )}
-                    </div>
-
-                    {project.socialMediaPlatforms && (
-                      <div className="mb-4">
-                        <p className="text-xs text-muted-foreground mb-2">Platforms:</p>
-                        <div className="flex gap-1 flex-wrap">
-                          {project.socialMediaPlatforms.slice(0, 4).map((platform) => (
-                            <span
-                              key={platform}
-                              className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-700 capitalize"
-                            >
-                              {platform}
-                            </span>
-                          ))}
-                          {project.socialMediaPlatforms.length > 4 && (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-700">
-                              +{project.socialMediaPlatforms.length - 4}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="flex gap-2">
-                      <Link
-                        to={`/analytics/${project.id}`}
-                        className="flex-1 btn-outline text-sm text-center"
-                      >
-                        View Analytics
-                      </Link>
-                      <Link
-                        to={`/coordinator/analytics/new`}
-                        className="btn-primary text-sm text-center px-4 py-2"
-                      >
-                        + Add Entry
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-
-          {projects.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">No projects assigned yet.</p>
+           {/* Social Media Projects Monthly Table */}
+           <div className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl p-8 border border-purple-200">
+             <div className="card border-purple-200">
+               <div className="overflow-x-auto">
+                 <table className="w-full border-collapse border border-purple-200">
+                   <thead>
+                     <tr className="bg-purple-100">
+                       <th className="px-4 py-3 text-left font-semibold border-r border-purple-200 text-purple-900">Month</th>
+                       <th className="px-4 py-3 text-left font-semibold border-r border-purple-200 text-purple-900">Project Name</th>
+                       <th className="px-4 py-3 text-left font-semibold border-r border-purple-200 text-purple-900">Client</th>
+                       <th className="px-4 py-3 text-left font-semibold border-r border-purple-200 text-purple-900">Status</th>
+                       <th className="px-4 py-3 text-left font-semibold border-r border-purple-200 text-purple-900">Stage</th>
+                       <th className="px-4 py-3 text-left font-semibold border-r border-purple-200 text-purple-900">Platforms</th>
+                       <th className="px-4 py-3 text-left font-semibold text-purple-900">Goals</th>
+                     </tr>
+                   </thead>
+                   <tbody>
+                     {Object.entries(groupProjectsByMonth).map(([monthYear, monthProjects]) =>
+                       monthProjects.length > 0 ? (
+                         monthProjects.map((project, index) => {
+                           const client = users.find(u => u.id === project.clientId)
+                           const analyticsSummary = getProjectAnalyticsSummary(project.id)
+                           return (
+                             <tr key={project.id} className={index % 2 === 0 ? "bg-white" : "bg-purple-50/50"}>
+                               {index === 0 && (
+                                 <td className="px-4 py-3 font-semibold text-purple-700 border-r border-purple-200" rowSpan={monthProjects.length}>
+                                   {monthYear}
+                                   <div className="text-xs text-purple-600 mt-1 font-medium">
+                                     ({monthProjects.length} project{monthProjects.length !== 1 ? 's' : ''})
+                                   </div>
+                                 </td>
+                               )}
+                               <td className="px-4 py-3 border-r border-purple-200">
+                                 <div className="font-medium text-purple-900">{project.name}</div>
+                                 <div className="text-xs text-purple-600 mt-1">
+                                   Analytics: {analyticsSummary.entryCount} entries
+                                   {analyticsSummary.totalReach > 0 && ` • Reach: ${analyticsSummary.totalReach.toLocaleString()}`}
+                                 </div>
+                               </td>
+                               <td className="px-4 py-3 border-r border-purple-200">
+                                 <div className="text-sm text-purple-800">{client?.fullName || 'Unknown Client'}</div>
+                               </td>
+                               <td className="px-4 py-3 border-r border-purple-200">
+                                 <StatusBadge status={project.status} />
+                               </td>
+                               <td className="px-4 py-3 border-r border-purple-200">
+                                 <span className="text-sm text-purple-700 font-medium">
+                                   {getStageDisplayName(project.currentStage)}
+                                 </span>
+                               </td>
+                               <td className="px-4 py-3 border-r border-purple-200">
+                                 {project.socialMediaPlatforms ? (
+                                   <div className="flex flex-wrap gap-1">
+                                     {project.socialMediaPlatforms.slice(0, 2).map(platform => (
+                                       <span key={platform} className="inline-block px-2 py-0.5 text-xs bg-purple-100 text-purple-700 rounded capitalize">
+                                         {platform}
+                                       </span>
+                                     ))}
+                                     {project.socialMediaPlatforms.length > 2 && (
+                                       <span className="inline-block px-2 py-0.5 text-xs bg-purple-100 text-purple-700 rounded">
+                                         +{project.socialMediaPlatforms.length - 2}
+                                       </span>
+                                     )}
+                                   </div>
+                                 ) : (
+                                   <span className="text-xs text-purple-500 italic">Not set</span>
+                                 )}
+                               </td>
+                               <td className="px-4 py-3">
+                                 {project.campaignGoals ? (
+                                   <div className="text-sm text-purple-700 max-w-xs truncate font-medium" title={project.campaignGoals}>
+                                     {project.campaignGoals}
+                                   </div>
+                                 ) : (
+                                   <span className="text-xs text-purple-500 italic">Not set</span>
+                                 )}
+                               </td>
+                             </tr>
+                           )
+                         })
+                       ) : null
+                     )}
+                     {Object.keys(groupProjectsByMonth).length === 0 && (
+                       <tr>
+                         <td colSpan={7} className="px-4 py-8 text-center text-purple-500 italic border-r border-purple-200">
+                           No social media projects assigned to you yet
+                         </td>
+                       </tr>
+                     )}
+                   </tbody>
+                 </table>
+               </div>
+             </div>
             </div>
-          )}
         </div>
       </main>
 

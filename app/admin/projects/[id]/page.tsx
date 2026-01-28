@@ -108,12 +108,12 @@ export default function ViewProjectPage() {
               >
                 Edit Project
               </Link>
-              <Link
-                to={`/admin/analytics/${projectId}`}
-                className="btn-outline"
-              >
-                View Analytics
-              </Link>
+               <Link
+                 to={`/admin/projects/${projectId}/analytics`}
+                 className="btn-outline"
+               >
+                 View Analytics
+               </Link>
             </div>
           </div>
 

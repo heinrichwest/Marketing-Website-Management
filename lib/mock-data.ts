@@ -9,6 +9,7 @@ import type {
   SocialMediaAnalytics,
   ProjectStageHistory,
   Activity,
+  FileShare,
 } from "@/types"
 
 // LocalStorage keys
@@ -22,6 +23,7 @@ export const STORAGE_KEYS = {
   SOCIAL_ANALYTICS: "marketing_management_website_social_analytics",
   STAGE_HISTORY: "marketing_management_website_stage_history",
   ACTIVITIES: "marketing_management_website_activities",
+  FILE_SHARES: "marketing_management_website_file_shares",
 }
 
 // Mock Users
@@ -959,6 +961,11 @@ export const mockActivities: Activity[] = [
   },
 ]
 
+// Mock File Shares
+export const mockFileShares: FileShare[] = [
+  // Empty initially - will be populated by client uploads
+]
+
 // LocalStorage utility functions
 export function loadFromStorage<T>(key: string, defaultValue: T): T {
   if (typeof window === "undefined") return defaultValue
@@ -1163,6 +1170,20 @@ export function getStageHistory(): ProjectStageHistory[] {
 
 export function getActivities(): Activity[] {
   return loadFromStorage(STORAGE_KEYS.ACTIVITIES, mockActivities)
+}
+
+export function getFileShares(): FileShare[] {
+  return loadFromStorage(STORAGE_KEYS.FILE_SHARES, mockFileShares)
+}
+
+export function addFileShare(fileShare: FileShare): void {
+  const currentFileShares = getFileShares()
+  const updatedFileShares = [...currentFileShares, fileShare]
+  saveToStorage(STORAGE_KEYS.FILE_SHARES, updatedFileShares)
+}
+
+export function getFileSharesByProjectId(projectId: string): FileShare[] {
+  return getFileShares().filter((fileShare) => fileShare.projectId === projectId)
 }
 
 // Finder functions

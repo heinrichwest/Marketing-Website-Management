@@ -121,9 +121,12 @@ export default function ClientProjectsPage() {
                       >
                         Create Ticket
                       </Link>
-                      <button className="btn-outline flex-1">
+<Link
+                        to={`/client-portal/project/${project.id}`}
+                        className="btn-outline flex-1 text-center"
+                      >
                         View Details
-                      </button>
+                      </Link>
                     </div>
 
                     {/* Last Updated */}

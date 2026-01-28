@@ -43,14 +43,14 @@ export default function ClientPortalProjectPage() {
     setIsLoading(false)
   }, [user, id, navigate])
 
-  const getStageColor = (stage: string) => {
+const getStageColor = (stage: string) => {
     const colors: Record<string, string> = {
       planning: "bg-primary/10 text-primary",
       development: "bg-accent/10 text-accent",
       testing: "bg-warning/10 text-warning",
       completed: "bg-success/10 text-success"
     }
-    return colors[status] || "bg-gray-100 text-gray-800"
+    return colors[stage] || "bg-gray-100 text-gray-800"
   }
 
   if (!user || user.role !== "client") {
@@ -84,22 +84,33 @@ export default function ClientPortalProjectPage() {
 
       <main className="min-h-screen bg-muted">
         <div className="container mx-auto px-6 py-8">
-        {/* Project Header */}
+{/* Project Header */}
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-border/50 p-8 mb-8">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground mb-2">{project.name}</h1>
-              <p className="text-muted-foreground mb-4">{project.description}</p>
-              <div className="flex flex-wrap items-center gap-3">
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(project.status)}`}>
-                  {project.status}
-                </span>
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStageColor(project.currentStage)}`}>
-                  {project.currentStage}
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  Updated {format(project.updatedAt, "MMM dd, yyyy")}
-                </span>
+            <div className="flex items-start gap-4">
+              <button
+                onClick={() => navigate("/client-portal/dashboard")}
+                className="p-2 rounded-lg border border-border/50 hover:bg-muted/50 transition-colors"
+                title="Back to Dashboard"
+              >
+                <svg className="w-5 h-5 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+              </button>
+              <div>
+                <h1 className="text-3xl font-bold text-foreground mb-2">{project.name}</h1>
+                <p className="text-muted-foreground mb-4">{project.description}</p>
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(project.status)}`}>
+                    {project.status}
+                  </span>
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStageColor(project.currentStage)}`}>
+                    {project.currentStage}
+                  </span>
+                  <span className="text-sm text-muted-foreground">
+                    Updated {format(project.updatedAt, "MMM dd, yyyy")}
+                  </span>
+                </div>
               </div>
             </div>
 

@@ -105,18 +105,30 @@ export default function EditProjectPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
-    // In a real app, this would update the database
-    // For now, we'll just update localStorage
-    const projects = JSON.parse(localStorage.getItem("marketing_management_website_projects") || "[]")
-    const projectIndex = projects.findIndex((p: Project) => p.id === projectId)
+    try {
+      // Get projects from localStorage
+      const projects = JSON.parse(localStorage.getItem("marketing_management_website_projects") || "[]")
+      const projectIndex = projects.findIndex((p: Project) => p.id === projectId)
 
-    if (projectIndex !== -1) {
-      projects[projectIndex] = {
+      if (projectIndex === -1) {
+        alert("Project not found!")
+        return
+      }
+
+      // Create updated project preserving all original fields
+      const updatedProject = {
         ...projects[projectIndex],
-        ...formData,
+        name: formData.name,
+        description: formData.description,
+        websiteUrl: formData.websiteUrl || undefined,
+        clientId: formData.clientId,
         webDeveloperId: formData.webDeveloperId || undefined,
-        projectDate: formData.projectDate ? new Date(formData.projectDate) : undefined,
+        currentStage: formData.currentStage,
+        status: formData.status,
+        notes: formData.notes || undefined,
+        projectDate: formData.projectDate ? new Date(formData.projectDate).toISOString() : projects[projectIndex].projectDate,
         product: formData.product || undefined,
+        updatedAt: new Date().toISOString(),
         // Only include social media fields for social media projects
         ...(project?.projectType === "social_media" && {
           socialMediaCoordinatorId: formData.socialMediaCoordinatorId || undefined,
@@ -137,21 +149,24 @@ export default function EditProjectPage() {
           reach: undefined,
           engagement: undefined,
         }),
-        updatedAt: new Date(),
       }
 
+      // Update the project in the array
+      projects[projectIndex] = updatedProject
+
+      // Save back to localStorage
       localStorage.setItem("marketing_management_website_projects", JSON.stringify(projects))
 
+      // Update the local project state
+      setProject(updatedProject)
+
+      // Show success message
       alert("Project updated successfully!")
 
-      // Navigate back to the appropriate page based on project type
-      if (projects[projectIndex].projectType === "social_media") {
-        navigate("/admin/projects/social-media")
-      } else if (projects[projectIndex].projectType === "website") {
-        navigate("/admin/projects/website")
-      } else {
-        navigate("/admin/dashboard")
-      }
+      console.log("Project updated:", updatedProject)
+    } catch (error) {
+      console.error("Error updating project:", error)
+      alert("Failed to update project. Please try again.")
     }
   }
 

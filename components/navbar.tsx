@@ -41,6 +41,7 @@ export default function Navbar() {
   const pathname = location.pathname
   const [unreadCount, setUnreadCount] = useState(0)
   const [notificationCount, setNotificationCount] = useState(0)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     if (user) {
@@ -120,7 +121,8 @@ export default function Navbar() {
           )}
         </div>
 
-        <div className="flex items-center gap-4">
+        {/* Desktop Actions */}
+        <div className="hidden md:flex items-center gap-4">
           {isSignedIn && user ? (
              <div className="flex items-center gap-4">
               {/* Role-specific tool dropdowns */}
@@ -288,10 +290,125 @@ export default function Navbar() {
                 Sign Up
               </Link>
             </>
+           )}
+          </div>
+
+          {/* Mobile Actions */}
+          <div className="md:hidden flex items-center gap-2">
+            {isSignedIn && user && (
+              <>
+                {/* Messages Icon - Mobile */}
+                <Link
+                  to="/messages"
+                  className="p-2 rounded-lg hover:bg-muted transition-colors relative"
+                  title={`Messages${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
+                >
+                  <svg className="w-5 h-5 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-bold">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </Link>
+              </>
+            )}
+
+            {/* Hamburger Menu Button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="p-2 rounded-lg hover:bg-muted transition-colors"
+              aria-label="Toggle mobile menu"
+            >
+              <svg className="w-6 h-6 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {isMobileMenuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+          </div>
+
+          {/* Mobile Menu */}
+          {isMobileMenuOpen && (
+            <div className="md:hidden border-t border-border bg-background">
+              <div className="container py-4">
+                {isSignedIn && user ? (
+                  <div className="space-y-4">
+                    {/* User Info */}
+                    <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                      <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                        <span className="text-primary font-semibold text-sm">
+                          {user.fullName.split(' ').map(n => n[0]).join('').toUpperCase()}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="font-semibold text-foreground">{user.fullName}</p>
+                        <p className="text-sm text-muted-foreground">{user.email}</p>
+                      </div>
+                    </div>
+
+                    {/* Quick Actions */}
+                    <div className="space-y-2">
+                      <Link
+                        to={getDashboardRoute(user.role)}
+                        className="block w-full text-left px-4 py-3 bg-primary/10 text-primary rounded-lg font-medium hover:bg-primary/20 transition-colors"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        Dashboard
+                      </Link>
+                      <Link
+                        to="/messages"
+                        className="block w-full text-left px-4 py-3 hover:bg-muted rounded-lg transition-colors relative"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        Messages
+                        {unreadCount > 0 && (
+                          <span className="ml-2 bg-red-500 text-white text-xs rounded-full px-2 py-1">
+                            {unreadCount}
+                          </span>
+                        )}
+                      </Link>
+                    </div>
+
+                    {/* Sign Out */}
+                    <div className="border-t border-border pt-4">
+                      <button
+                        onClick={() => {
+                          handleSignOut()
+                          setIsMobileMenuOpen(false)
+                        }}
+                        className="w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-colors font-medium"
+                      >
+                        Sign Out
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <Link
+                      to="/login"
+                      className="block w-full btn-secondary text-center"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Sign In
+                    </Link>
+                    <Link
+                      to="/register"
+                      className="block w-full btn-primary text-center"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Sign Up
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
           )}
-         </div>
-       </div>
-     </nav>
+        </div>
+      </nav>
      </>
    )
 }
