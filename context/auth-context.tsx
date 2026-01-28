@@ -15,8 +15,9 @@ import {
 } from "firebase/auth"
 import { doc, getDoc, setDoc, serverTimestamp, type DocumentData } from "firebase/firestore"
 
-// Flag to use mock authentication instead of Firebase (can be toggled)
-const USE_MOCK_AUTH = localStorage.getItem('useMockAuth') !== 'false'
+// Flag to use mock authentication instead of Firebase
+// Default to Firebase if configured, only use mock if explicitly enabled via localStorage
+const USE_MOCK_AUTH = localStorage.getItem('useMockAuth') === 'true'
 
 interface AuthUser {
   id: string
