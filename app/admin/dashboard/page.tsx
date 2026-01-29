@@ -5,8 +5,9 @@ import { useNavigate, Link } from "react-router-dom"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
-import { getProjects, getTickets, getUsers, deleteProject, mockProjects, getFileShares } from "@/lib/mock-data"
-import type { Project, ProjectStage } from "@/types"
+import { getProjects, getTickets, getUsers, deleteProject, mockProjects, getFileShares, STORAGE_KEYS } from "@/lib/mock-data"
+import { getFirestoreProjects, getFirestoreUsers, deleteFirestoreProject, seedFirestoreProjects } from "@/lib/firestore-service"
+import type { Project, ProjectStage, User, Ticket, FileShare } from "@/types"
 import StatCard from "@/components/stat-card"
 import StatusBadge from "@/components/status-badge"
 import PriorityBadge from "@/components/priority-badge"
@@ -14,6 +15,9 @@ import { StatCardSkeleton, ProjectCardSkeleton } from "@/components/skeleton"
 import { getStageDisplayName, formatRelativeTime } from "@/lib/utils"
 import { Edit, Trash2, Calendar, Palette, Code, CheckCircle, Rocket, Wrench, Search } from "lucide-react"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
+
+// Check if using Firebase (not mock auth)
+const useFirebase = () => localStorage.getItem('useMockAuth') === 'false'
 
 export default function AdminDashboard() {
   const { isSignedIn, user } = useAuth()
@@ -54,10 +58,11 @@ export default function AdminDashboard() {
   const [currentPage, setCurrentPage] = useState(1)
   const [isLoading, setIsLoading] = useState(true)
   const [refreshKey, setRefreshKey] = useState(0)
-  const [projects, setProjects] = useState(getProjects())
-  const [tickets, setTickets] = useState(getTickets())
-  const [users, setUsers] = useState(getUsers())
-  const [fileShares, setFileShares] = useState(getFileShares())
+  const [projects, setProjects] = useState<Project[]>([])
+  const [tickets, setTickets] = useState<Ticket[]>([])
+  const [users, setUsers] = useState<User[]>([])
+  const [fileShares, setFileShares] = useState<FileShare[]>([])
+  const [dataError, setDataError] = useState<string | null>(null)
 
   // Filter projects based on search term
   const filteredProjects = useMemo(() => {
@@ -90,12 +95,46 @@ export default function AdminDashboard() {
     }))
   }, [projects])
 
-  // Simulate loading delay
-  useEffect(() => {
-    const timer = setTimeout(() => {
+  // Load data function - supports both Firestore and localStorage
+  const loadData = async () => {
+    setIsLoading(true)
+    setDataError(null)
+
+    try {
+      if (useFirebase()) {
+        // Load from Firestore
+        const [firestoreProjects, firestoreUsers] = await Promise.all([
+          getFirestoreProjects(),
+          getFirestoreUsers()
+        ])
+        setProjects(firestoreProjects)
+        setUsers(firestoreUsers)
+        // Tickets and file shares still use localStorage for now
+        setTickets(getTickets())
+        setFileShares(getFileShares())
+      } else {
+        // Load from localStorage (mock)
+        setProjects(getProjects())
+        setTickets(getTickets())
+        setUsers(getUsers())
+        setFileShares(getFileShares())
+      }
+    } catch (error) {
+      console.error("Error loading data:", error)
+      setDataError("Failed to load data. Please refresh the page.")
+      // Fallback to localStorage
+      setProjects(getProjects())
+      setTickets(getTickets())
+      setUsers(getUsers())
+      setFileShares(getFileShares())
+    } finally {
       setIsLoading(false)
-    }, 1000) // Simulate network delay
-    return () => clearTimeout(timer)
+    }
+  }
+
+  // Initial data load
+  useEffect(() => {
+    loadData()
   }, [])
 
   // Reset to first page when search changes
@@ -105,10 +144,9 @@ export default function AdminDashboard() {
 
   // Refresh data when refreshKey changes
   useEffect(() => {
-    setProjects(getProjects())
-    setTickets(getTickets())
-    setUsers(getUsers())
-    setFileShares(getFileShares())
+    if (refreshKey > 0) {
+      loadData()
+    }
   }, [refreshKey])
 
   // Refresh on window focus
@@ -191,15 +229,25 @@ export default function AdminDashboard() {
     return grouped
   }, [projects])
 
-  const handleDeleteProject = (projectId: string) => {
+  const handleDeleteProject = async (projectId: string) => {
     if (window.confirm("Are you sure you want to delete this project? This action cannot be undone.")) {
-      // Remove from localStorage
-      const projects = JSON.parse(localStorage.getItem("marketing_management_website_projects") || "[]")
-      const updatedProjects = projects.filter((p: Project) => p.id !== projectId)
-      localStorage.setItem("marketing_management_website_projects", JSON.stringify(updatedProjects))
+      try {
+        if (useFirebase()) {
+          // Delete from Firestore
+          await deleteFirestoreProject(projectId)
+        } else {
+          // Delete from localStorage
+          const projects = JSON.parse(localStorage.getItem("marketing_management_website_projects") || "[]")
+          const updatedProjects = projects.filter((p: Project) => p.id !== projectId)
+          localStorage.setItem("marketing_management_website_projects", JSON.stringify(updatedProjects))
+        }
 
-      // Refresh the page to update the list
-      window.location.reload()
+        // Refresh the data
+        loadData()
+      } catch (error) {
+        console.error("Error deleting project:", error)
+        alert("Failed to delete project. Please try again.")
+      }
     }
   }
 
@@ -238,6 +286,19 @@ export default function AdminDashboard() {
 
       <main className="min-h-screen bg-muted">
         <div className="container py-8 lg:py-12">
+           {/* Data Error Message */}
+           {dataError && (
+             <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+               <p className="text-red-600">{dataError}</p>
+               <button
+                 onClick={() => loadData()}
+                 className="mt-2 text-sm text-red-800 underline hover:no-underline"
+               >
+                 Try again
+               </button>
+             </div>
+           )}
+
            {/* Header */}
            <div className="mb-12">
              <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
@@ -247,27 +308,58 @@ export default function AdminDashboard() {
                </div>
                <div className="flex gap-3 lg:flex-shrink-0">
                  <div className="flex flex-col gap-2">
-                   <button
-                     onClick={handleRestoreProjects}
-                     className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
-                     title="Restore all projects to original state"
-                   >
-                     🔄 Restore Projects ({mockProjects.length})
-                   </button>
-                   <button
-                     onClick={() => {
-                       const projectsData = JSON.stringify(mockProjects, null, 2);
-                       navigator.clipboard.writeText(projectsData).then(() => {
-                         alert('Projects data copied to clipboard! Open browser console and run the manual restore command.');
-                       }).catch(() => {
-                         alert('Failed to copy. Open browser console and paste this command: \n\nlocalStorage.setItem("marketing_management_website_projects", ' + JSON.stringify(projectsData) + ');\nwindow.location.reload();');
-                       });
-                     }}
-                     className="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-sm"
-                     title="Manual restore for deployed site"
-                   >
-                     📋 Manual Restore (Console)
-                   </button>
+                   {useFirebase() ? (
+                     <>
+                       <button
+                         onClick={async () => {
+                           if (window.confirm(`Seed Firestore with ${mockProjects.length} sample projects? This will only add projects that don't already exist.`)) {
+                             try {
+                               const seededCount = await seedFirestoreProjects(mockProjects)
+                               alert(`Successfully seeded ${seededCount} projects to Firestore!`)
+                               loadData()
+                             } catch (error) {
+                               console.error("Error seeding Firestore:", error)
+                               alert("Failed to seed projects. Check console for details.")
+                             }
+                           }
+                         }}
+                         className="px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors"
+                         title="Seed Firestore with sample projects"
+                       >
+                         🚀 Seed Firestore ({mockProjects.length} projects)
+                       </button>
+                       <div className="text-xs text-muted-foreground text-center">
+                         Using Firebase Firestore
+                       </div>
+                     </>
+                   ) : (
+                     <>
+                       <button
+                         onClick={handleRestoreProjects}
+                         className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                         title="Restore all projects to original state"
+                       >
+                         🔄 Restore Projects ({mockProjects.length})
+                       </button>
+                       <button
+                         onClick={() => {
+                           const projectsData = JSON.stringify(mockProjects, null, 2);
+                           navigator.clipboard.writeText(projectsData).then(() => {
+                             alert('Projects data copied to clipboard! Open browser console and run the manual restore command.');
+                           }).catch(() => {
+                             alert('Failed to copy. Open browser console and paste this command: \n\nlocalStorage.setItem("marketing_management_website_projects", ' + JSON.stringify(projectsData) + ');\nwindow.location.reload();');
+                           });
+                         }}
+                         className="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-sm"
+                         title="Manual restore for deployed site"
+                       >
+                         📋 Manual Restore (Console)
+                       </button>
+                       <div className="text-xs text-muted-foreground text-center">
+                         Using Local Storage
+                       </div>
+                     </>
+                   )}
                  </div>
                </div>
              </div>

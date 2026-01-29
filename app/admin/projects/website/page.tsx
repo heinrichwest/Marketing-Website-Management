@@ -4,10 +4,14 @@ import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
 import { getProjects, getUsers } from "@/lib/mock-data"
-import type { Project } from "@/types"
+import { getFirestoreProjects, getFirestoreUsers, deleteFirestoreProject } from "@/lib/firestore-service"
+import type { Project, User } from "@/types"
 import StatusBadge from "@/components/status-badge"
 import { getStageDisplayName, formatRelativeTime } from "@/lib/utils"
 import { Edit, Trash2, Search } from "lucide-react"
+
+// Check if using Firebase (not mock auth)
+const useFirebase = () => localStorage.getItem('useMockAuth') === 'false'
 
 export default function WebsiteProjectsPage() {
   const { isSignedIn, user } = useAuth()
@@ -34,8 +38,40 @@ export default function WebsiteProjectsPage() {
   const [dateFrom, setDateFrom] = useState("")
   const [dateTo, setDateTo] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
-  const [projects] = useState(getProjects().filter(p => p.projectType === "website"))
-  const [users] = useState(getUsers())
+  const [projects, setProjects] = useState<Project[]>([])
+  const [users, setUsers] = useState<User[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Load data on mount
+  useEffect(() => {
+    const loadData = async () => {
+      setIsLoading(true)
+      try {
+        if (useFirebase()) {
+          const [firestoreProjects, firestoreUsers] = await Promise.all([
+            getFirestoreProjects(),
+            getFirestoreUsers()
+          ])
+          setProjects(firestoreProjects.filter(p => p.projectType === "website"))
+          setUsers(firestoreUsers)
+        } else {
+          setProjects(getProjects().filter(p => p.projectType === "website"))
+          setUsers(getUsers())
+        }
+      } catch (error) {
+        console.error("Error loading data:", error)
+        // Fallback to localStorage
+        setProjects(getProjects().filter(p => p.projectType === "website"))
+        setUsers(getUsers())
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    if (user?.role === "admin") {
+      loadData()
+    }
+  }, [user])
 
   // Filter projects based on search term and date range
   const filteredProjects = useMemo(() => {
@@ -114,7 +150,7 @@ export default function WebsiteProjectsPage() {
   const pageSize = 50 // Show all projects
   const totalPages = 1
 
-  if (!user || user.role !== "admin") {
+  if (!user || user.role !== "admin" || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-muted">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -122,12 +158,22 @@ export default function WebsiteProjectsPage() {
     )
   }
 
-  const handleDeleteProject = (projectId: string) => {
+  const handleDeleteProject = async (projectId: string) => {
     if (window.confirm("Are you sure you want to delete this project? This action cannot be undone.")) {
-      const projects = JSON.parse(localStorage.getItem("marketing_management_website_projects") || "[]")
-      const updatedProjects = projects.filter((p: Project) => p.id !== projectId)
-      localStorage.setItem("marketing_management_website_projects", JSON.stringify(updatedProjects))
-      window.location.reload()
+      try {
+        if (useFirebase()) {
+          await deleteFirestoreProject(projectId)
+          setProjects(prev => prev.filter(p => p.id !== projectId))
+        } else {
+          const allProjects = JSON.parse(localStorage.getItem("marketing_management_website_projects") || "[]")
+          const updatedProjects = allProjects.filter((p: Project) => p.id !== projectId)
+          localStorage.setItem("marketing_management_website_projects", JSON.stringify(updatedProjects))
+          setProjects(prev => prev.filter(p => p.id !== projectId))
+        }
+      } catch (error) {
+        console.error("Error deleting project:", error)
+        alert("Failed to delete project. Please try again.")
+      }
     }
   }
 

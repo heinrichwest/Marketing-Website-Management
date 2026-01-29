@@ -4,7 +4,11 @@ import { useAuth } from "@/context/auth-context"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { getProjectById, getUsers } from "@/lib/mock-data"
+import { getFirestoreProjectById, updateFirestoreProject, getFirestoreUsers } from "@/lib/firestore-service"
 import type { Project, User, ProjectStage, ProjectStatus, SocialMediaPlatform } from "@/types"
+
+// Check if using Firebase (not mock auth)
+const useFirebase = () => localStorage.getItem('useMockAuth') === 'false'
 
 export default function EditProjectPage() {
   const { isSignedIn, user } = useAuth()
@@ -52,37 +56,60 @@ export default function EditProjectPage() {
     engagement: 0,
   })
   const [loading, setLoading] = useState(true)
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
 
   // Load project data on component mount
   useEffect(() => {
-    const projectData = getProjectById(projectId)
-    const allUsers = getUsers()
+    const loadData = async () => {
+      setLoading(true)
+      try {
+        let projectData: Project | null | undefined = null
+        let allUsers: User[] = []
 
-    if (projectData) {
-      setProject(projectData)
-      setFormData({
-        name: projectData.name,
-        description: projectData.description,
-        websiteUrl: projectData.websiteUrl || "",
-        clientId: projectData.clientId,
-        webDeveloperId: projectData.webDeveloperId || "",
-        socialMediaCoordinatorId: projectData.socialMediaCoordinatorId || "",
-        currentStage: projectData.currentStage,
-        status: projectData.status,
-        notes: projectData.notes || "",
-        projectDate: projectData.projectDate ? new Date(projectData.projectDate).toISOString().split('T')[0] : "",
-        product: projectData.product || "",
-        socialMediaPlatforms: projectData.socialMediaPlatforms || [],
-        posts: projectData.posts || 0,
-        likes: projectData.likes || 0,
-        impressions: projectData.impressions || 0,
-        reach: projectData.reach || 0,
-        engagement: projectData.engagement || 0,
-      })
+        if (useFirebase()) {
+          // Load from Firestore
+          projectData = await getFirestoreProjectById(projectId)
+          allUsers = await getFirestoreUsers()
+        } else {
+          // Load from localStorage (mock)
+          projectData = getProjectById(projectId)
+          allUsers = getUsers()
+        }
+
+        if (projectData) {
+          setProject(projectData)
+          setFormData({
+            name: projectData.name,
+            description: projectData.description,
+            websiteUrl: projectData.websiteUrl || "",
+            clientId: projectData.clientId,
+            webDeveloperId: projectData.webDeveloperId || "",
+            socialMediaCoordinatorId: projectData.socialMediaCoordinatorId || "",
+            currentStage: projectData.currentStage,
+            status: projectData.status,
+            notes: projectData.notes || "",
+            projectDate: projectData.projectDate ? new Date(projectData.projectDate).toISOString().split('T')[0] : "",
+            product: projectData.product || "",
+            socialMediaPlatforms: projectData.socialMediaPlatforms || [],
+            posts: projectData.posts || 0,
+            likes: projectData.likes || 0,
+            impressions: projectData.impressions || 0,
+            reach: projectData.reach || 0,
+            engagement: projectData.engagement || 0,
+          })
+        }
+
+        setUsers(allUsers)
+      } catch (error) {
+        console.error("Error loading project data:", error)
+        setSaveError("Failed to load project data. Please try again.")
+      } finally {
+        setLoading(false)
+      }
     }
 
-    setUsers(allUsers)
-    setLoading(false)
+    loadData()
   }, [projectId])
 
   useEffect(() => {
@@ -102,22 +129,14 @@ export default function EditProjectPage() {
     }
   }, [isSignedIn, user, projectId, navigate])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setSaving(true)
+    setSaveError(null)
 
     try {
-      // Get projects from localStorage
-      const projects = JSON.parse(localStorage.getItem("marketing_management_website_projects") || "[]")
-      const projectIndex = projects.findIndex((p: Project) => p.id === projectId)
-
-      if (projectIndex === -1) {
-        alert("Project not found!")
-        return
-      }
-
-      // Create updated project preserving all original fields
-      const updatedProject = {
-        ...projects[projectIndex],
+      // Build the update object
+      const updates: Partial<Project> = {
         name: formData.name,
         description: formData.description,
         websiteUrl: formData.websiteUrl || undefined,
@@ -126,47 +145,68 @@ export default function EditProjectPage() {
         currentStage: formData.currentStage,
         status: formData.status,
         notes: formData.notes || undefined,
-        projectDate: formData.projectDate ? new Date(formData.projectDate).toISOString() : projects[projectIndex].projectDate,
-        product: formData.product || undefined,
-        updatedAt: new Date().toISOString(),
-        // Only include social media fields for social media projects
-        ...(project?.projectType === "social_media" && {
-          socialMediaCoordinatorId: formData.socialMediaCoordinatorId || undefined,
-          socialMediaPlatforms: formData.socialMediaPlatforms,
-          posts: Number(formData.posts),
-          likes: Number(formData.likes),
-          impressions: Number(formData.impressions),
-          reach: Number(formData.reach),
-          engagement: Number(formData.engagement),
-        }),
-        // For website projects, ensure social media fields are not set
-        ...(project?.projectType === "website" && {
-          socialMediaCoordinatorId: undefined,
-          socialMediaPlatforms: undefined,
-          posts: undefined,
-          likes: undefined,
-          impressions: undefined,
-          reach: undefined,
-          engagement: undefined,
-        }),
+        projectDate: formData.projectDate ? new Date(formData.projectDate) : project?.projectDate,
+        product: formData.product as any || undefined,
       }
 
-      // Update the project in the array
-      projects[projectIndex] = updatedProject
+      // Add social media fields for social media projects
+      if (project?.projectType === "social_media") {
+        updates.socialMediaCoordinatorId = formData.socialMediaCoordinatorId || undefined
+        updates.socialMediaPlatforms = formData.socialMediaPlatforms
+        updates.posts = Number(formData.posts)
+        updates.likes = Number(formData.likes)
+        updates.impressions = Number(formData.impressions)
+        updates.reach = Number(formData.reach)
+        updates.engagement = Number(formData.engagement)
+      }
 
-      // Save back to localStorage
-      localStorage.setItem("marketing_management_website_projects", JSON.stringify(projects))
+      if (useFirebase()) {
+        // Update in Firestore
+        const updatedProject = await updateFirestoreProject(projectId, updates)
 
-      // Update the local project state
-      setProject(updatedProject)
+        if (!updatedProject) {
+          setSaveError("Project not found in database!")
+          return
+        }
 
-      // Show success message
-      alert("Project updated successfully!")
+        // Update local state
+        setProject(updatedProject)
+        alert("Project updated successfully!")
+      } else {
+        // Update in localStorage (mock)
+        const projects = JSON.parse(localStorage.getItem("marketing_management_website_projects") || "[]")
+        const projectIndex = projects.findIndex((p: Project) => p.id === projectId)
 
-      console.log("Project updated:", updatedProject)
+        if (projectIndex === -1) {
+          setSaveError("Project not found!")
+          return
+        }
+
+        // Create updated project preserving all original fields
+        const updatedProject = {
+          ...projects[projectIndex],
+          ...updates,
+          updatedAt: new Date().toISOString(),
+          projectDate: formData.projectDate ? new Date(formData.projectDate).toISOString() : projects[projectIndex].projectDate,
+        }
+
+        // Update the project in the array
+        projects[projectIndex] = updatedProject
+
+        // Save back to localStorage
+        localStorage.setItem("marketing_management_website_projects", JSON.stringify(projects))
+
+        // Update the local project state
+        setProject(updatedProject)
+        alert("Project updated successfully!")
+      }
+
+      console.log("Project updated successfully")
     } catch (error) {
       console.error("Error updating project:", error)
-      alert("Failed to update project. Please try again.")
+      setSaveError("Failed to update project. Please try again.")
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -177,11 +217,38 @@ export default function EditProjectPage() {
 
 
 
-  if (loading || !project) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-muted">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
+    )
+  }
+
+  if (!project) {
+    return (
+      <>
+        <Navbar />
+        <main className="min-h-screen bg-muted">
+          <div className="container py-12">
+            <div className="max-w-4xl mx-auto text-center">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-8">
+                <h2 className="text-2xl font-bold text-red-800 mb-2">Project Not Found</h2>
+                <p className="text-red-600 mb-4">
+                  The project you are looking for does not exist or could not be loaded.
+                </p>
+                <button
+                  onClick={() => navigate("/admin/dashboard")}
+                  className="px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition"
+                >
+                  Back to Dashboard
+                </button>
+              </div>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </>
     )
   }
 
@@ -538,18 +605,30 @@ export default function EditProjectPage() {
                   />
                 </div>
 
+                {/* Error Message */}
+                {saveError && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <p className="text-red-600">{saveError}</p>
+                  </div>
+                )}
+
                 {/* Action Buttons */}
                 <div className="flex items-center gap-4 pt-6 border-t border-border">
                   <button
                     type="submit"
-                    className="px-6 py-3 bg-gradient-to-r from-[#1e2875] to-[#2a3488] text-white rounded-lg font-semibold hover:from-[#2a3488] hover:to-[#1e2875] transition"
+                    disabled={saving}
+                    className="px-6 py-3 bg-gradient-to-r from-[#1e2875] to-[#2a3488] text-white rounded-lg font-semibold hover:from-[#2a3488] hover:to-[#1e2875] transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                   >
-                    Save Changes
+                    {saving && (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    )}
+                    {saving ? "Saving..." : "Save Changes"}
                   </button>
                   <button
                     type="button"
                     onClick={() => navigate(-1)}
-                    className="px-6 py-3 border border-border rounded-lg font-semibold hover:bg-muted transition"
+                    disabled={saving}
+                    className="px-6 py-3 border border-border rounded-lg font-semibold hover:bg-muted transition disabled:opacity-50"
                   >
                     Cancel
                   </button>

@@ -5,7 +5,11 @@ import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useAuth } from "@/context/auth-context"
 import { getUsers, getProjects, STORAGE_KEYS } from "@/lib/mock-data"
-import type { ProjectType, ProjectStage, ProjectStatus, SocialMediaPlatform } from "@/types"
+import { createFirestoreProject, getFirestoreUsers } from "@/lib/firestore-service"
+import type { ProjectType, ProjectStage, ProjectStatus, SocialMediaPlatform, User } from "@/types"
+
+// Check if using Firebase (not mock auth)
+const useFirebase = () => localStorage.getItem('useMockAuth') === 'false'
 
 export default function NewProjectPage() {
   const { isSignedIn, user } = useAuth()
@@ -36,6 +40,10 @@ export default function NewProjectPage() {
   })
 
    const [selectedPlatform, setSelectedPlatform] = useState<SocialMediaPlatform | "">("")
+  const [users, setUsers] = useState<User[]>([])
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!isSignedIn) {
@@ -45,7 +53,30 @@ export default function NewProjectPage() {
     }
   }, [isSignedIn, user, navigate])
 
-  if (!user || user.role !== "admin") {
+  // Load users on component mount
+  useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        if (useFirebase()) {
+          const firestoreUsers = await getFirestoreUsers()
+          setUsers(firestoreUsers)
+        } else {
+          setUsers(getUsers())
+        }
+      } catch (err) {
+        console.error("Error loading users:", err)
+        setError("Failed to load users")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (user?.role === "admin") {
+      loadUsers()
+    }
+  }, [user])
+
+  if (!user || user.role !== "admin" || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-muted">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -53,7 +84,6 @@ export default function NewProjectPage() {
     )
   }
 
-  const users = getUsers()
   const clients = users.filter((u) => u.role === "client")
   const developers = users.filter((u) => u.role === "web_developer")
   const coordinators = users.filter((u) => u.role === "social_media_coordinator")
@@ -62,43 +92,71 @@ export default function NewProjectPage() {
 
 
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setSaving(true)
+    setError(null)
 
-    // In a real app, this would make an API call
-    const newProject = {
-      id: `proj-${Date.now()}`,
-      ...formData,
-      projectType,
-      projectDate: formData.projectDate ? new Date(formData.projectDate) : undefined,
-      product: formData.product || undefined,
-      socialMediaPlatforms: projectType === "social_media" && selectedPlatform ? [selectedPlatform] : undefined,
-      posts: projectType === "social_media" ? Number(formData.posts) : undefined,
-      likes: projectType === "social_media" ? Number(formData.likes) : undefined,
-      impressions: projectType === "social_media" ? Number(formData.impressions) : undefined,
-      reach: projectType === "social_media" ? Number(formData.reach) : undefined,
-      engagement: projectType === "social_media" ? Number(formData.engagement) : undefined,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }
+    try {
+      // Build project data
+      const projectData = {
+        name: formData.name,
+        description: formData.description,
+        projectType,
+        clientId: formData.clientId,
+        webDeveloperId: formData.webDeveloperId || undefined,
+        socialMediaCoordinatorId: formData.socialMediaCoordinatorId || undefined,
+        currentStage: formData.currentStage,
+        status: formData.status,
+        websiteUrl: formData.websiteUrl || undefined,
+        notes: formData.notes || undefined,
+        projectDate: formData.projectDate ? new Date(formData.projectDate) : undefined,
+        product: (formData.product || undefined) as any,
+        socialMediaPlatforms: projectType === "social_media" && selectedPlatform ? [selectedPlatform] : undefined,
+        campaignGoals: projectType === "social_media" ? formData.campaignGoals : undefined,
+        targetAudience: projectType === "social_media" ? formData.targetAudience : undefined,
+        posts: projectType === "social_media" ? Number(formData.posts) : undefined,
+        likes: projectType === "social_media" ? Number(formData.likes) : undefined,
+        impressions: projectType === "social_media" ? Number(formData.impressions) : undefined,
+        reach: projectType === "social_media" ? Number(formData.reach) : undefined,
+        engagement: projectType === "social_media" ? Number(formData.engagement) : undefined,
+      }
 
-    // Save the new project
-    const currentProjects = getProjects()
-    const updatedProjects = [...currentProjects, newProject]
-    localStorage.setItem(STORAGE_KEYS.PROJECTS, JSON.stringify(updatedProjects))
+      if (useFirebase()) {
+        // Save to Firestore
+        await createFirestoreProject(projectData)
+      } else {
+        // Save to localStorage (mock)
+        const newProject = {
+          id: `proj-${Date.now()}`,
+          ...projectData,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }
 
-    // Notify dashboard to refresh
-    window.dispatchEvent(new Event('projectsUpdated'))
+        const currentProjects = getProjects()
+        const updatedProjects = [...currentProjects, newProject]
+        localStorage.setItem(STORAGE_KEYS.PROJECTS, JSON.stringify(updatedProjects))
+      }
 
-    alert(`${projectType === "website" ? "Website" : "Social Media"} project "${formData.name}" created successfully!`)
+      // Notify dashboard to refresh
+      window.dispatchEvent(new Event('projectsUpdated'))
 
-    // Navigate to the appropriate page based on project type
-    if (projectType === "social_media") {
-      navigate("/admin/projects/social-media")
-    } else if (projectType === "website") {
-      navigate("/admin/projects/website")
-    } else {
-      navigate("/admin/dashboard")
+      alert(`${projectType === "website" ? "Website" : "Social Media"} project "${formData.name}" created successfully!`)
+
+      // Navigate to the appropriate page based on project type
+      if (projectType === "social_media") {
+        navigate("/admin/projects/social-media")
+      } else if (projectType === "website") {
+        navigate("/admin/projects/website")
+      } else {
+        navigate("/admin/dashboard")
+      }
+    } catch (err) {
+      console.error("Error creating project:", err)
+      setError("Failed to create project. Please try again.")
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -510,15 +568,30 @@ export default function NewProjectPage() {
               />
             </div>
 
+            {/* Error Message */}
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <p className="text-red-600">{error}</p>
+              </div>
+            )}
+
             {/* Submit Buttons */}
             <div className="flex gap-4 pt-4">
-              <button type="submit" className="btn-primary flex-1">
-                Create {projectType === "website" ? "Website" : "Social Media"} Project
+              <button
+                type="submit"
+                disabled={saving}
+                className="btn-primary flex-1 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {saving && (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                )}
+                {saving ? "Creating..." : `Create ${projectType === "website" ? "Website" : "Social Media"} Project`}
               </button>
               <button
                 type="button"
                 onClick={() => navigate(-1)}
-                className="btn-outline flex-1"
+                disabled={saving}
+                className="btn-outline flex-1 disabled:opacity-50"
               >
                 Cancel
               </button>
